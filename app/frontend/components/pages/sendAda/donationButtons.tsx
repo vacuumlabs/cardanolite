@@ -3,9 +3,9 @@ import {connect} from '../../../helpers/connect'
 import actions from '../../../actions'
 import {AdaIcon} from '../../common/svg'
 import {ADALITE_CONFIG} from '../../../config'
-import {toCoins} from '../../../helpers/adaConverters'
+import {toCoins, toAda} from '../../../helpers/adaConverters'
 import tooltip from '../../common/tooltip'
-
+import CustomDonationInput from './customDonationInput'
 const {ADALITE_FIXED_DONATION_VALUE} = ADALITE_CONFIG
 
 interface Props {
@@ -16,7 +16,6 @@ interface Props {
   sendAmount: number
   sendAmountValidationError: string
   toggleCustomDonation: any
-  isSendAddressValid: boolean
   percentageDonationValue: any
   percentageDonationText: string
   thresholdAmountReached: any
@@ -30,33 +29,34 @@ class DonationButtons extends Component<Props> {
   }
 
   getButtonClass(donationAmount, type) {
-    if (toCoins(donationAmount) > this.props.maxDonationAmount) {
+    if (donationAmount > this.props.maxDonationAmount) {
       return 'button donate insufficient'
     }
     return this.props.checkedDonationType === type ? 'button donate active' : 'button donate'
   }
 
   isInsufficient(donationAmount, type) {
-    if (toCoins(donationAmount) <= this.props.maxDonationAmount) {
+    if (donationAmount <= this.props.maxDonationAmount) {
       return false
     }
     if (this.props.checkedDonationType === type) {
+      /* Rant(ppershing): why do we do side-effects in render? */
       this.props.resetDonation()
     }
     return true
   }
 
   render({
+    disabled,
     updateDonation,
     sendAmount,
     sendAmountValidationError,
     toggleCustomDonation,
-    isSendAddressValid,
     percentageDonationValue,
     percentageDonationText,
     thresholdAmountReached,
-  }) {
-    const isFormValid = isSendAddressValid && sendAmount && !sendAmountValidationError
+  }: any) {
+    const isFormValid = !disabled && sendAmount && !sendAmountValidationError
     const isFixedInsufficient = this.isInsufficient(ADALITE_FIXED_DONATION_VALUE, 'fixed')
     const isPercentageInsufficient = this.isInsufficient(percentageDonationValue, 'percentage')
     return (
@@ -111,7 +111,16 @@ export default connect(
     percentageDonationValue: state.percentageDonationValue,
     percentageDonationText: state.percentageDonationText,
     thresholdAmountReached: state.thresholdAmountReached,
-    maxDonationAmount: state.maxDonationAmount,
+    maxDonationAmount: Math.floor(toAda(state.maxDonationAmount)),
+    showCustomDonationInput: state.showCustomDonationInput,
+    donationAmount: state.donationAmount,
   }),
   actions
-)(DonationButtons)
+)(
+  (props: Props & {disabled: any, showCustomDonationInput: any}) =>
+    props.showCustomDonationInput ? (
+      <CustomDonationInput disabled={props.disabled} />
+    ) : (
+      <DonationButtons {...{...props}} />
+    )
+)

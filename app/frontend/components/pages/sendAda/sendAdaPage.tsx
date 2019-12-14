@@ -9,8 +9,7 @@ import printAda from '../../../helpers/printAda'
 import ConfirmTransactionDialog from './confirmTransactionDialog'
 import DonateThanksModal from './donateThanksModal'
 import TransactionErrorModal from './transactionErrorModal'
-import DonationButtons from './donationButtons'
-import CustomDonationInput from './customDonationInput'
+import DonationChooser from './donationButtons'
 import Conversions from '../../common/conversions'
 import {ADALITE_CONFIG} from '../../../config'
 import {toCoins} from '../../../helpers/adaConverters'
@@ -173,19 +172,13 @@ class SendAdaPage extends Component<Props> {
               <span className="show-info">{''}</span>
             </a>
           </label>
-          {!isDonationSufficient && (
-            <div className="send-donate-msg">
-              Insufficient balance for a donation.
-            </div>
+
+          {isDonationSufficient ? (
+            <DonationChooser disabled={!isSendAddressValid} />
+          ) : (
+            <div className="send-donate-msg">Insufficient balance for a donation.</div>
           )}
-          {!showCustomDonationInput &&
-            isDonationSufficient && (
-              <DonationButtons isSendAddressValid={isSendAddressValid} />
-            )}
-          {showCustomDonationInput &&
-            isDonationSufficient && (
-              <CustomDonationInput isSendAddressValid={isSendAddressValid} />
-            )}
+
           <div className="ada-label">Fee</div>
           <div className="send-fee">{printAda(transactionFee)}</div>
         </div>

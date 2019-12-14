@@ -1,13 +1,44 @@
 import {h} from 'preact'
 import {connect} from '../../../helpers/connect'
 import actions from '../../../actions'
-import CustomInputButton from './customInputButton'
+
+import {AdaIcon} from '../../common/svg'
+import {toAda} from '../../../helpers/adaConverters'
+
+const CustomInputButton = ({
+  disabled,
+  onClickGoBack,
+  setDonationAmount,
+  donationAmount,
+  maxDonationAmount,
+}) => {
+  return donationAmount > maxDonationAmount ? (
+    <button
+      className="button send-max"
+      onClick={(e) => {
+        e.preventDefault()
+        setDonationAmount(maxDonationAmount)
+      }}
+      disabled={disabled}
+    >
+      Max ({`${maxDonationAmount} `}
+      <AdaIcon />)
+    </button>
+  ) : (
+    <button className="button send-max" onClick={onClickGoBack}>
+      Back
+    </button>
+  )
+}
 
 const CustomDonationInput = ({
   donationAmount,
+  donationAmountRaw,
   updateDonation,
-  isSendAddressValid,
+  setDonation,
+  disabled,
   toggleCustomDonation,
+  maxDonationAmount,
 }) => (
   <div className="input-wrapper donation">
     <input
@@ -15,16 +46,26 @@ const CustomDonationInput = ({
       id="custom"
       name="donation-amount"
       placeholder="0.000000"
-      value={donationAmount.fieldValue}
+      value={donationAmountRaw}
       onInput={updateDonation}
     />
-    <CustomInputButton isSendAddressValid={isSendAddressValid} />
+    <CustomInputButton
+      disabled={disabled}
+      onClickGoBack={toggleCustomDonation}
+      setDonationAmount={
+        setDonation /* Rant(ppershing): this is really different from updateDonation */
+      }
+      maxDonationAmount={maxDonationAmount}
+      donationAmount={donationAmount}
+    />
   </div>
 )
 
 export default connect(
   (state) => ({
-    donationAmount: state.donationAmount,
+    maxDonationAmount: Math.floor(toAda(state.maxDonationAmount)),
+    donationAmount: toAda(state.donationAmount.coins),
+    donationAmountRaw: state.donationAmount.fieldValue,
   }),
   actions
 )(CustomDonationInput)
