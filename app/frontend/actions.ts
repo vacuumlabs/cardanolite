@@ -854,30 +854,39 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     validateAndSetMaxFunds(state, maxAmounts)
   }
 
-  const waitForTxToAppearOnBlockchain = async (state, txHash, pollingInterval, maxRetries) => {
-    loadingAction(state, 'Transaction submitted - syncing wallet...')
-
+  const _waitForTx = async (txHash, pollingInterval: number, maxRetries: number) => {
     for (let pollingCounter = 0; pollingCounter < maxRetries; pollingCounter++) {
-      if ((await wallet.fetchTxInfo(txHash)) !== undefined) {
-        /*
-         * theoretically we should clear the request cache of the wallet
-         * to be sure that we fetch the current wallet state
-         * but submitting the transaction and syncing of the explorer
-         * should take enough time to invalidate the request cache anyway
-         */
-        return {
-          success: true,
-          txHash,
-        }
-      } else if (pollingCounter < maxRetries - 1) {
-        if (pollingCounter === 21) {
-          loadingAction(state, 'Syncing wallet - this might take a while...')
-        }
+      const result = await wallet.fetchTxInfo(txHash)
+      if (result !== undefined) return result
+
+      if (pollingCounter < maxRetries - 1) {
         await sleep(pollingInterval)
       }
     }
 
     throw NamedError('TransactionNotFoundInBlockchainAfterSubmission')
+  }
+
+  const waitForTxToAppearOnBlockchain = async (state, txHash, pollingInterval, maxRetries) => {
+    loadingAction(state, 'Transaction submitted - syncing wallet...')
+
+    const result = await _waitForTx(txHash, pollingInterval, maxRetries)
+
+    if (result) {
+      /*
+      * theoretically we should clear the request cache of the wallet
+      * to be sure that we fetch the current wallet state
+      * but submitting the transaction and syncing of the explorer
+      * should take enough time to invalidate the request cache anyway
+      */
+      await reloadWalletInfo(state)
+      return {
+        success: true,
+        txHash,
+      }
+    } else {
+      throw NamedError('TransactionNotFoundInBlockchainAfterSubmission')
+    }
   }
 
   const submitTransaction = async (state) => {
@@ -902,6 +911,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         setState({waitingForHwWallet: false})
         loadingAction(state, 'Submitting transaction...')
       }
+
       txSubmitResult = await wallet.submitTx(signedTx)
 
       if (!txSubmitResult) {
