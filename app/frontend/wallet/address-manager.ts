@@ -31,7 +31,7 @@ const AddressManager = ({addressProvider, gapLimit, blockchainExplorer}) => {
     while (!isGapBlock) {
       const currentAddressBlock = await deriveAddressesBlock(from, from + gapLimit)
 
-      isGapBlock = !(await blockchainExplorer.isSomeAddressUsed(currentAddressBlock))
+      isGapBlock = true //!(await blockchainExplorer.isSomeAddressUsed(currentAddressBlock))
 
       addresses =
         isGapBlock && addresses.length > 0 ? addresses : addresses.concat(currentAddressBlock)
@@ -45,13 +45,13 @@ const AddressManager = ({addressProvider, gapLimit, blockchainExplorer}) => {
   // just by testing filterUnusedAddresses() backend call
   async function discoverAddressesWithMeta() {
     const addresses = await discoverAddresses()
-    const usedAddresses = await blockchainExplorer.filterUsedAddresses(addresses)
+    // const usedAddresses = await blockchainExplorer.filterUsedAddresses(addresses)
 
     return addresses.map((address) => {
       return {
         address,
         bip32StringPath: toBip32StringPath(getAddressToAbsPathMapping()[address]),
-        isUsed: usedAddresses.has(address),
+        isUsed: true,
       }
     })
   }

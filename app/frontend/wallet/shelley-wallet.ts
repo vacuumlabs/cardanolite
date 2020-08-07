@@ -333,23 +333,26 @@ const ShelleyWallet = ({
   }
 
   async function getWalletInfo() {
-    const {validStakepools} = await getValidStakepools()
-    const {stakingBalance, nonStakingBalance, balance} = await getBalance()
-    const shelleyAccountInfo = await getAccountInfo(validStakepools)
+    // const {stakingBalance, nonStakingBalance, balance} = await getBalance()
+    // const shelleyAccountInfo = await getAccountInfo()
     const visibleAddresses = await getVisibleAddresses()
-    const transactionHistory = await getHistory()
-    const stakingHistory = await getStakingHistory(shelleyAccountInfo, validStakepools)
+    // const transactionHistory = await getHistory()
+    // getDelegationHistory
+    // getWithdrawalHistory
     return {
-      validStakepools,
-      balance,
+      balance: 0,
       shelleyBalances: {
-        nonStakingBalance,
-        stakingBalance: stakingBalance + shelleyAccountInfo.value,
-        rewardsAccountBalance: shelleyAccountInfo.value,
+        nonStakingBalance: 0,
+        stakingBalance: 0,
+        rewardsAccountBalance: 0,
       },
-      shelleyAccountInfo,
-      transactionHistory,
-      stakingHistory,
+      shelleyAccountInfo: {
+        delegation: {},
+        value: 0,
+        hasStakingKey: false,
+      },
+      transactionHistory: [],
+      stakingHistory: [],
       visibleAddresses,
     }
   }

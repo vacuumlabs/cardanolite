@@ -169,6 +169,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       )).rootSecret
       const isDemoWallet = walletSecretDef && walletSecretDef.rootSecret.equals(demoRootSecret)
       const autoLogin = state.autoLogin
+      const validStakepools = [] //await wallet.getValidStakepools()
       const ticker2Id = null
       setState({
         walletIsLoaded: true,

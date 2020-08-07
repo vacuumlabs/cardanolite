@@ -48,10 +48,15 @@ export const ShelleyBaseAddressProvider = (
 ) => async (i: number) => {
   const pathSpend = shelleyPath(accountIndex, isChange, i)
   const spendXpub = await cryptoProvider.deriveXpub(pathSpend)
-
   const pathStake = shelleyStakeAccountPath(accountIndex)
   const stakeXpub = await cryptoProvider.deriveXpub(pathStake)
-
+  const info = {
+    pathSpend,
+    spendpub: spendXpub.slice(0, 32),
+    pathStake,
+    stakepub: stakeXpub.slice(0, 32),
+  }
+  console.log(info)
   return {
     path: pathSpend,
     address: baseAddressFromXpub(spendXpub, stakeXpub, cryptoProvider.network.networkId),
