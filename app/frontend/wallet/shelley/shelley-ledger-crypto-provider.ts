@@ -1,6 +1,7 @@
 import LedgerTransportU2F from '@ledgerhq/hw-transport-u2f'
 import LedgerTransportWebusb from '@ledgerhq/hw-transport-webusb'
-import Ledger from '@cardano-foundation/ledgerjs-hw-app-cardano'
+// import Ledger from '@cardano-foundation/ledgerjs-hw-app-cardano'
+import Ledger from '../../libs/ledger-js'
 import {encode} from 'borc'
 import CachedDeriveXpubFactory from '../helpers/CachedDeriveXpubFactory'
 import debugLog from '../../helpers/debugLog'
@@ -219,7 +220,18 @@ const ShelleyLedgerCryptoProvider = async ({network, config, isWebUSB}) => {
     const withdrawals = unsignedTx.withdrawals
       ? [_prepareWithdrawal(unsignedTx.withdrawals, addressToAbsPathMapper)]
       : []
-
+    console.log(
+      JSON.stringify({
+        networkId: network.networkId,
+        magic: network.protocolMagic,
+        inputs,
+        outputs,
+        feeStr,
+        ttlStr,
+        certificates,
+        withdrawals,
+      })
+    )
     const response = await ledger.signTransaction(
       network.networkId,
       network.protocolMagic,

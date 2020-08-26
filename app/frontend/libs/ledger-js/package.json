@@ -1,0 +1,67 @@
+{
+  "name": "@cardano-foundation/ledgerjs-hw-app-cardano",
+  "version": "2.0.0",
+  "files": [
+    "lib"
+  ],
+  "description": "Ledger Hardware Wallet Cardano ADA API",
+  "main": "lib/Ada.js",
+  "repository": "github:cardano-foundation/ledgerjs-hw-app-cardano",
+  "keywords": [
+    "Ledger",
+    "LedgerWallet",
+    "ADA",
+    "Cardano",
+    "SL",
+    "NanoS",
+    "Hardware",
+    "Wallet"
+  ],
+  "author": "VacuumLabs <adalite@vacuumlabs.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@ledgerhq/hw-transport": "^5.12.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-runtime": "^6.26.0",
+    "base-x": "^3.0.5",
+    "bech32": "^1.1.4",
+    "node-int64": "^0.4.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-flow": "^7.9.0",
+    "@ledgerhq/hw-transport-node-hid": "^5.12.0",
+    "chai": "^4.2.0",
+    "chalk": "^4.0.0",
+    "flow-bin": "^0.122.0",
+    "flow-copy-source": "^2.0.9",
+    "flow-typed": "^3.1.0",
+    "mocha": "^7.1.1",
+    "prettier": "^2.0.3"
+  },
+  "bugs": {
+    "url": "https://github.com/cardano-foundation/ledgerjs-hw-app-cardano/issues"
+  },
+  "homepage": "https://github.com/cardano-foundation/ledgerjs-hw-app-cardano",
+  "scripts": {
+    "flow": "flow",
+    "clean": "bash ./script/clean.sh",
+    "build": "bash ./script/build.sh",
+    "watch": "bash ./script/watch.sh",
+    "prepublish": "yarn run clean && yarn run build",
+    "build-example": "bash ./script/build_example.sh",
+    "clean-test": "rm -rf test/lib",
+    "build-test": "yarn run clean && yarn run build && yarn run clean-test && babel --source-maps -d test/lib test/src && flow-copy-source -v test/src test/lib",
+    "test": "yarn build-test && yarn test-device-run && yarn test-integration-run && yarn test-direct-run",
+    "test-device": "yarn run build-test && mocha --timeout 3600000 test/lib/device",
+    "test-device-run": "mocha --timeout 3600000 test/lib/device",
+    "test-integration": "yarn run build-test && yarn run test-integration-run",
+    "test-integration-run": "mocha --timeout 600000 test/lib/integration",
+    "test-direct": "yarn build-test && yarn test-direct-run",
+    "test-direct-run": "mocha --timeout 3600000 test/lib/direct",
+    "//": "run single test by specifying --grep <name> parameter in test-integration"
+  }
+}
