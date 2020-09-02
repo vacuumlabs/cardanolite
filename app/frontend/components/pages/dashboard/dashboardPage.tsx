@@ -15,6 +15,7 @@ import {MainTab, SubTab} from './tabs'
 import InfoModal from '../../common/infoModal'
 import NotShelleyCompatibleDialog from '../login/nonShelleyCompatibleDialog'
 import DashboardErrorBanner from './dashboardErrorBanner'
+import EpochPage from '../overview/epochPage'
 
 interface Props {
   displayStakingPage: any
@@ -31,6 +32,7 @@ const StakingPage = () => {
       <div className="dashboard-column">
         <DelegatePage />
         <CurrentDelegationPage />
+        <EpochPage />
       </div>
     </div>
   )

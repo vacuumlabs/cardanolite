@@ -590,6 +590,61 @@ p.hey {
   transform: rotate(180deg);
 }
 
+/* COUNTDOWN TIMER */
+
+.countdown-timer {
+  --stroke-width: 5px;
+  --size: 250px;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+}
+
+.countdown-timer .svg {
+  transform: scaleX(-1);
+}
+
+.countdown-timer .circle {
+  fill: none;
+  stroke: none;
+}
+
+.countdown-timer .path-remaining {
+  stroke-width: var(--stroke-width);
+  stroke: var(--color-grey-light);
+}
+
+.countdown-timer .path-elapsed {
+  stroke-width: var(--stroke-width);
+  stroke-linecap: round;
+  transform: rotate(90deg);
+  transform-origin: center;
+  transition: 1s linear all;
+  fill-rule: nonzero;
+  stroke: currentColor;
+  color: var(--color-brand);
+}
+
+.countdown-timer .middle-text {
+  position: absolute;
+  top: 0;
+  width: var(--size);
+  height: var(--size);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown-timer .middle-text .label {
+  font-size: 32px;
+  margin: 12px 0px 4px 0px;
+}
+
+.countdown-timer .middle-text .timer {
+  font-size: 14px;
+}
+
 /* FORM GLOBAL */
 
 .form-message-field {
