@@ -59,7 +59,6 @@ const CardanoTrezorCryptoProvider = ({network, config}) => {
 
     throwIfNotSuccess(response)
   }
-
   type CardanoCertificatePointer = {
     blockIndex: number
     txIndex: number
