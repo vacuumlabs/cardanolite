@@ -5,7 +5,7 @@
     "node": "11.10"
   },
   "description": "A simple Cardano wallet",
-  "main": "app.js",
+  "main": "electron/main.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vacuumlabs/adalite.git"
@@ -31,7 +31,8 @@
     "eslint": "eslint . --max-warnings=0 --ext .ts,.tsx,.js,.jsx",
     "fix": "prettier-eslint --write \"{{app/frontend,app/tests/src,server}/**/*.{ts,tsx,js,jsx,json,css},,package.json}\"",
     "heroku-postbuild": "cd app && yarn install && yarn build",
-    "generate-cert": "test -e server.cert && echo \"certificate already exists\" || openssl req -nodes -new -x509 -keyout server.key -out server.cert -subj \"/C=US\""
+    "generate-cert": "test -e server.cert && echo \"certificate already exists\" || openssl req -nodes -new -x509 -keyout server.key -out server.cert -subj \"/C=US\"",
+    "electron": "electron ."
   },
   "husky": {
     "hooks": {
@@ -52,6 +53,7 @@
     "compression": "^1.7.2",
     "device": "^0.3.9",
     "dotenv": "^6.0.0",
+    "electron": "^10.0.0",
     "express": "^4.16.3",
     "express-basic-auth": "^1.2.0",
     "express-ipfilter": "^1.1.2",
