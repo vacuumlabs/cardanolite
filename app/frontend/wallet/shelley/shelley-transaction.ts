@@ -1,8 +1,9 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable camelcase */
-import {encode} from 'borc'
+import {encode, Tagged} from 'borc'
 import {blake2b, base58, bech32} from 'cardano-crypto.js'
 import {isShelleyFormat} from './helpers/addresses'
+import {ipv4AddressToBuf, ipv6AddressToBuf} from './helpers/poolCertificateUtils'
 
 function ShelleyTxAux(inputs, outputs, fee, ttl, certs?, withdrawals?) {
   function getId() {

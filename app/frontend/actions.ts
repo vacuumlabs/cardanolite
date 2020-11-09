@@ -25,13 +25,15 @@ import sanitizeMnemonic from './helpers/sanitizeMnemonic'
 import {initialState} from './store'
 import {toCoins, toAda, roundWholeAdas} from './helpers/adaConverters'
 import captureBySentry from './helpers/captureBySentry'
-import {State, Ada, Lovelace} from './state'
+import {State, Ada, Lovelace, GetStateFn, SetStateFn} from './state'
 import CryptoProviderFactory from './wallet/byron/crypto-provider-factory'
 import ShelleyCryptoProviderFactory from './wallet/shelley/shelley-crypto-provider-factory'
 import {ShelleyWallet} from './wallet/shelley-wallet'
 import getDonationAddress from './helpers/getDonationAddress'
 
 let wallet: ReturnType<typeof CardanoWallet | typeof ShelleyWallet>
+const wallets = new Map()
+let cryptoProvider
 
 const debounceEvent = (callback, time) => {
   let interval
@@ -44,8 +46,6 @@ const debounceEvent = (callback, time) => {
   }
 }
 
-type SetStateFn = (newState: Partial<State>) => void
-type GetStateFn = () => State
 export default ({setState, getState}: {setState: SetStateFn; getState: GetStateFn}) => {
   const loadingAction = (state, message: string, optionalArgsObj?: any) => {
     return setState(
@@ -138,7 +138,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
           break
         }
         case 'shelley': {
-          const cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(
+          cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(
             cryptoProviderType,
             {
               walletSecretDef,
@@ -148,11 +148,14 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
             }
           )
 
-          wallet = await ShelleyWallet({
+          const newWallet = await ShelleyWallet({
             config: ADALITE_CONFIG,
             cryptoProvider,
             isShelleyCompatible,
+            accountIndex: 0,
           })
+          wallets.set(0, newWallet)
+          wallet = wallets.get(0)
           break
         }
         default:
@@ -170,6 +173,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const autoLogin = state.autoLogin
       const ticker2Id = null
       setState({
+        accounts: {
+          0: walletInfo,
+        },
         walletIsLoaded: true,
         ...walletInfo,
         loading: false,
@@ -217,6 +223,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       // timeout setting loading state, so that loading shows even if everything was cached
       setTimeout(() => setState({loading: false}), 500)
       setState({
+        accounts: {
+          ...state.accounts,
+          [wallet.accountIndex]: walletInfo,
+        },
         ...walletInfo,
       })
       await fetchConversionRates(conversionRates)
@@ -1154,10 +1164,51 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
+  const loadWalletInfo = async (state) => {
+    const walletInfo = await wallet.getWalletInfo()
+    setState({
+      accounts: {
+        ...state.accounts,
+        [wallet.accountIndex]: walletInfo,
+      },
+    })
+    stopLoadingAction(state, {})
+  }
+
+  const loadNewAccount = async (state: State, accountIndex: number) => {
+    loadingAction(state, 'Loading account')
+    const newWallet = await ShelleyWallet({
+      config: ADALITE_CONFIG,
+      cryptoProvider,
+      isShelleyCompatible: true,
+      accountIndex,
+    })
+    wallets.set(accountIndex, newWallet)
+    wallet = wallets.get(accountIndex)
+    await loadWalletInfo(state)
+  }
+
+  const setWalletInfo = async (state, accountIndex: number) => {
+    if (!wallets.has(accountIndex)) {
+      await loadNewAccount(state, accountIndex)
+    }
+    wallet = wallets.get(accountIndex)
+    const newState = getState()
+    const walletInfo = newState.accounts[accountIndex]
+    setState({
+      ...walletInfo,
+      selectedAccount: accountIndex,
+    })
+    resetSendFormFields(newState)
+    selectAdaliteStakepool()
+    resetTransactionSummary(newState)
+  }
+
   return {
     loadingAction,
     stopLoadingAction,
     setAuthMethod,
+    setWalletInfo,
     loadWallet,
     logout,
     exportJsonWallet,

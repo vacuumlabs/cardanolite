@@ -136,6 +136,8 @@ export interface State {
   }
   txConfirmType: string
   txSuccessTab: string
+  accounts: any
+  selectedAccount: number
 }
 
 const initialState: State = {
@@ -233,6 +235,10 @@ const initialState: State = {
   txConfirmType: '',
   txSuccessTab: '',
   keepConfirmationDialogOpen: false,
+  accounts: {},
+  selectedAccount: 0,
 }
+export type SetStateFn = (newState: Partial<State>) => void
+export type GetStateFn = () => State
 
 export {initialState}

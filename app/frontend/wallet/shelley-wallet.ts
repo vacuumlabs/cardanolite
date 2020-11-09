@@ -173,6 +173,7 @@ const ShelleyWallet = ({
   randomChangeSeed,
   cryptoProvider,
   isShelleyCompatible,
+  accountIndex,
 }: any) => {
   const {
     getMaxDonationAmount: _getMaxDonationAmount,
@@ -187,8 +188,6 @@ const ShelleyWallet = ({
   generateNewSeeds()
 
   const blockchainExplorer = ShelleyBlockchainExplorer(config)
-
-  const accountIndex = 0
 
   const myAddresses = MyAddresses({
     accountIndex,
@@ -384,8 +383,8 @@ const ShelleyWallet = ({
   }
 
   async function getAccountInfo(validStakepools) {
-    const shelleyXpub = await accoutXpubShelley(cryptoProvider)
-    const byronXpub = await accoutXpubByron(cryptoProvider)
+    const shelleyXpub = await accoutXpubShelley(cryptoProvider, accountIndex)
+    const byronXpub = await accoutXpubByron(cryptoProvider, accountIndex)
     const accountPubkeyHex = await stakeAccountPubkeyHex(cryptoProvider, accountIndex)
     const {nextRewardDetails, ...accountInfo} = await blockchainExplorer.getAccountInfo(
       accountPubkeyHex
@@ -499,6 +498,7 @@ const ShelleyWallet = ({
     getWalletInfo,
     getPoolInfo,
     checkCryptoProviderVersion,
+    accountIndex,
   }
 }
 

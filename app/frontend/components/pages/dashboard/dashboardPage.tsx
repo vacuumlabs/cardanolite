@@ -92,6 +92,7 @@ class DashboardPage extends Component<Props> {
     },
     {selectedMainTab}
   ) {
+    // TODO: this approach doesnt allow multi-word tabs
     const mainTabs = ['Sending', 'Staking', 'Advanced']
     const displayedPages = {
       Sending: <SendingPage shouldShowExportOption={shouldShowExportOption} />,
