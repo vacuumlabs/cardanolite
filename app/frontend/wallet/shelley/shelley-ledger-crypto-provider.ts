@@ -11,6 +11,8 @@ import {
 } from './shelley-transaction'
 import * as platform from 'platform'
 import {hasMinimalVersion} from './helpers/version-check'
+import {PoolParams} from './helpers/poolCertificateUtils'
+import {CERTIFICATES_ENUM} from '../constants'
 
 import {
   bechAddressToHex,
@@ -106,14 +108,14 @@ const ShelleyLedgerCryptoProvider = async ({network, config, isWebUSB}) => {
     return {
       txHashHex: input.txid,
       outputIndex: input.outputNo,
-      path: addressToAbsPathMapper(input.address),
+      path: input.address ? addressToAbsPathMapper(input.address) : null,
     }
   }
 
   type InputTypeUTxO = {
     txHashHex: string
     outputIndex: number
-    path: any //BIP32Path,
+    path?: any //BIP32Path,
   }
 
   type OutputTypeAddress = {
@@ -131,8 +133,9 @@ const ShelleyLedgerCryptoProvider = async ({network, config, isWebUSB}) => {
 
   type Certificate = {
     type: number
-    path: any //BIP32Path,
+    path?: any //BIP32Path,
     poolKeyHashHex?: string
+    poolRegistrationParams?: PoolParams
   }
 
   type Withdrawal = {
@@ -143,8 +146,12 @@ const ShelleyLedgerCryptoProvider = async ({network, config, isWebUSB}) => {
   function _prepareCert(cert, addressToAbsPathMapper): Certificate {
     return {
       type: cert.type,
-      path: addressToAbsPathMapper(cert.accountAddress),
+      path:
+        cert.type < CERTIFICATES_ENUM.STAKEPOOL_REGISTRATION
+          ? addressToAbsPathMapper(cert.accountAddress)
+          : null,
       poolKeyHashHex: cert.poolHash,
+      poolRegistrationParams: cert.poolRegistrationParams,
     }
   }
 

@@ -73,6 +73,12 @@ export interface State {
   shouldShowTransactionErrorModal?: boolean
   shouldShowThanksForDonation?: boolean
   shouldShowContactFormModal?: boolean
+  poolCertTxVars: {
+    shouldShowPoolCertSignModal: boolean
+    ttl: any
+    signature: any
+    plan: any
+  }
 
   calculatingFee?: boolean
   transactionFee?: any
@@ -136,6 +142,8 @@ export interface State {
   }
   txConfirmType: string
   txSuccessTab: string
+  poolRegTxError?: any
+
   accounts: any
   selectedAccount: number
 }
@@ -235,6 +243,13 @@ const initialState: State = {
   txConfirmType: '',
   txSuccessTab: '',
   keepConfirmationDialogOpen: false,
+  poolCertTxVars: {
+    shouldShowPoolCertSignModal: false,
+    ttl: 0,
+    signature: null,
+    plan: null,
+  },
+
   accounts: {},
   selectedAccount: 0,
 }
