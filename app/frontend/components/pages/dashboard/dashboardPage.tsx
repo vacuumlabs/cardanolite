@@ -61,6 +61,9 @@ const AdvancedPage = () => {
       <div className="dashboard-column">
         <Keys />
       </div>
+      <div className="dashboard-column">
+        <div />
+      </div>
     </Fragment>
   )
 }
@@ -102,7 +105,7 @@ class DashboardPage extends Component<Props> {
     const displayedSubPages = {
       Sending: <Balance />,
       Staking: <ShelleyBalances />,
-      Advanced: <Keys />,
+      Advanced: <div />,
     }
     return (
       <div className="page-wrapper">
@@ -135,7 +138,7 @@ class DashboardPage extends Component<Props> {
   }
 }
 
-class DashboardMobileContent extends Component<Props> {
+class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
   constructor(props) {
     super(props)
     const selectedSubTabs = {
@@ -148,8 +151,10 @@ class DashboardMobileContent extends Component<Props> {
     }
     this.selectSubTab = this.selectSubTab.bind(this)
   }
-  selectSubTab(name, state) {
-    this.setState({selectedSubTab: name})
+  selectSubTab(name) {
+    if (this.state.selectedSubTab !== name) {
+      this.setState({selectedSubTab: name})
+    }
   }
   pages = {
     'Delegate ADA': DelegatePage,
@@ -164,18 +169,21 @@ class DashboardMobileContent extends Component<Props> {
   sendingTabs = ['Send ADA', 'Transactions', 'Recieve ADA']
   advancedTabs = ['Keys']
   render({displayStakingPage}, {selectedSubTab}) {
-    // if (displayStakingPage === 'Sending' && stakingTabs.includes(selectedSubTab)) {
-    //   this.selectSubTab('Delegate ADA')
-    // }
-    // if (displayStakingPage === 'Staking' && sendingTabs.includes(selectedSubTab)) {
-    //   this.selectSubTab('Transactions')
-    // }
-    const Page = this.pages[selectedSubTab]
     const tabs = {
       Sending: this.sendingTabs,
       Staking: this.stakingTabs,
       Advanced: this.advancedTabs,
     }
+    if (displayStakingPage === 'Sending') {
+      this.selectSubTab('Delegate ADA')
+    }
+    if (displayStakingPage === 'Staking') {
+      this.selectSubTab('Transactions')
+    }
+    if (displayStakingPage === 'Advanced') {
+      this.selectSubTab('Keys')
+    }
+    const Page = this.pages[selectedSubTab]
     return (
       <div className="dashboard-content">
         <ul className="dashboard-tabs">

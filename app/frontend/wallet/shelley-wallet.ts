@@ -6,6 +6,7 @@ import NamedError from '../helpers/NamedError'
 import {Lovelace} from '../state'
 import {
   stakeAccountPubkeyHex,
+  stakePubKey,
   ShelleyStakingAccountProvider,
   ShelleyBaseAddressProvider,
 } from './shelley/shelley-address-provider'
@@ -341,6 +342,7 @@ const ShelleyWallet = ({
     const {validStakepools} = await getValidStakepools()
     const {stakingBalance, nonStakingBalance, balance} = await getBalance()
     const shelleyAccountInfo = await getAccountInfo(validStakepools)
+    console.log(shelleyAccountInfo, shelleyAccountInfo.stakePubKeyHex)
     const visibleAddresses = await getVisibleAddresses()
     const transactionHistory = await getHistory()
     const stakingHistory = await getStakingHistory(shelleyAccountInfo, validStakepools)
@@ -356,6 +358,7 @@ const ShelleyWallet = ({
         stakingBalance: stakingBalance + shelleyAccountInfo.value,
         rewardsAccountBalance: shelleyAccountInfo.value,
       },
+      stakePubkeyHex: shelleyAccountInfo.stakePubKeyHex,
       shelleyAccountInfo,
       transactionHistory,
       stakingHistory,
@@ -392,6 +395,7 @@ const ShelleyWallet = ({
   }
 
   async function getAccountInfo(validStakepools) {
+    const stakePubKeyHex = await stakePubKey(cryptoProvider, accountIndex)
     const accountPubkeyHex = await stakeAccountPubkeyHex(cryptoProvider, accountIndex)
     const {nextRewardDetails, ...accountInfo} = await blockchainExplorer.getAccountInfo(
       accountPubkeyHex
@@ -406,6 +410,7 @@ const ShelleyWallet = ({
 
     return {
       accountPubkeyHex,
+      stakePubKeyHex,
       ...accountInfo,
       delegation: {
         ...accountInfo.delegation,
