@@ -25,8 +25,6 @@ import {
   isBase,
   base58AddressToHex,
 } from './shelley/helpers/addresses'
-import request from './helpers/request'
-import {ADALITE_CONFIG} from '../config'
 import {
   ShelleyTxAux,
   ShelleyTxInputFromUtxo,
@@ -37,7 +35,6 @@ import {
   ShelleyWitdrawal,
 } from './shelley/shelley-transaction'
 import {StakingHistoryObject} from '../components/pages/delegations/stakingHistoryPage'
-
 const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer}) => {
   const legacyExtManager = AddressManager({
     addressProvider: ByronAddressProvider(cryptoProvider, accountIndex, false),
@@ -126,48 +123,6 @@ const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer
   }
 }
 
-const ShelleyBlockchainExplorer = (config) => {
-  // TODO: move methods to blockchain-explorer file
-  const be = BlockchainExplorer(config)
-
-  async function getAccountInfo(accountPubkeyHex) {
-    // TODO: not pubkey, address
-    const url = `${
-      ADALITE_CONFIG.ADALITE_BLOCKCHAIN_EXPLORER_URL
-    }/api/account/info/${accountPubkeyHex}`
-    const response = await request(url)
-    return response
-  }
-
-  async function getValidStakepools() {
-    const url = `${ADALITE_CONFIG.ADALITE_BLOCKCHAIN_EXPLORER_URL}/api/v2/stakePools`
-    const validStakepools = await request(url)
-
-    return {validStakepools}
-  }
-
-  function getBestSlot() {
-    return request(`${ADALITE_CONFIG.ADALITE_BLOCKCHAIN_EXPLORER_URL}/api/v2/bestSlot`)
-  }
-
-  return {
-    getTxHistory: (addresses) => be.getTxHistory(addresses),
-    fetchTxRaw: be.fetchTxRaw,
-    fetchUnspentTxOutputs: (addresses) => be.fetchUnspentTxOutputs(addresses),
-    isSomeAddressUsed: (addresses) => be.isSomeAddressUsed(addresses),
-    submitTxRaw: be.submitTxRaw,
-    getBalance: (addresses) => be.getBalance(addresses),
-    fetchTxInfo: be.fetchTxInfo,
-    filterUsedAddresses: (addresses) => be.filterUsedAddresses(addresses),
-    getAccountInfo,
-    getValidStakepools,
-    getPoolInfo: (url) => be.getPoolInfo(url),
-    getStakingHistory: be.getStakingHistory,
-    getBestSlot,
-    getRewardDetails: be.getRewardDetails,
-    getPoolRecommendation: be.getPoolRecommendation,
-  }
-}
 const ShelleyWallet = ({
   config,
   randomInputSeed,
@@ -188,7 +143,7 @@ const ShelleyWallet = ({
 
   generateNewSeeds()
 
-  const blockchainExplorer = ShelleyBlockchainExplorer(config)
+  const blockchainExplorer = BlockchainExplorer(config)
 
   const myAddresses = MyAddresses({
     accountIndex,
