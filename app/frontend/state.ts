@@ -145,6 +145,8 @@ export interface State {
     shouldShowSaturatedBanner: boolean
   }
   isBigDelegator: boolean
+  accounts: any
+  selectedAccount: number
 }
 
 const initialState: State = {
@@ -252,6 +254,10 @@ const initialState: State = {
     shouldShowSaturatedBanner: false,
   },
   isBigDelegator: false,
+  accounts: {},
+  selectedAccount: 0,
 }
+export type SetStateFn = (newState: Partial<State>) => void
+export type GetStateFn = () => State
 
 export {initialState}

@@ -18,6 +18,7 @@ import DashboardErrorBanner from './dashboardErrorBanner'
 import PremiumBanner from './premiumBanner'
 import SaturationErrorBanner from './saturationErrorBanner'
 import Keys from '../advanced/keys'
+import Accounts from '../accounts/accounts'
 
 interface Props {
   displayStakingPage: any
@@ -68,6 +69,14 @@ const AdvancedPage = () => {
   )
 }
 
+const AccountsPage = () => {
+  return (
+    <Fragment>
+      <Accounts />
+    </Fragment>
+  )
+}
+
 class DashboardPage extends Component<Props> {
   constructor(props) {
     super(props)
@@ -96,13 +105,16 @@ class DashboardPage extends Component<Props> {
     },
     {selectedMainTab}
   ) {
-    const mainTabs = ['Sending', 'Staking', 'Advanced']
+    // TODO: this approach doesnt allow multi-word tabs
+    const mainTabs = ['Accounts', 'Sending', 'Staking', 'Advanced']
     const displayedPages = {
+      Accounts: <AccountsPage />,
       Sending: <SendingPage shouldShowExportOption={shouldShowExportOption} />,
       Staking: <StakingPage />,
       Advanced: <AdvancedPage />,
     }
     const displayedSubPages = {
+      Accounts: <div />,
       Sending: <Balance />,
       Staking: <ShelleyBalances />,
       Advanced: <div />,
@@ -159,18 +171,22 @@ class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
     'Transactions': TransactionHistory,
     'Recieve ADA': MyAddresses,
     Keys,
+    Accounts,
   }
   // TODO: refactor
+  accountsTabs = ['Accounts']
   stakingTabs = ['Delegate ADA', 'Current Delegation', 'Staking history']
   sendingTabs = ['Send ADA', 'Transactions', 'Recieve ADA']
   advancedTabs = ['Keys']
   render({displayStakingPage}, {selectedSubTab}) {
     const selectedDefultSubTabs = {
+      Accounts: 'Accounts',
       Sending: 'Transactions',
       Staking: 'Delegate ADA',
       Advanced: 'Keys',
     }
     const tabs = {
+      Accounts: this.accountsTabs,
       Sending: this.sendingTabs,
       Staking: this.stakingTabs,
       Advanced: this.advancedTabs,

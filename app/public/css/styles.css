@@ -301,6 +301,24 @@ p.hey {
   font-size: 14px;
 }
 
+.button.secondary:disabled {
+  border-color: var(--color-border);
+  color: var(--color-placeholder);
+}
+
+.button.secondary:disabled svg path {
+  fill: var(--color-placeholder);
+}
+
+.button.secondary:disabled:hover {
+  background-color: var(--color-brand-light);
+  color: #fff;
+}
+
+.button.secondary:disabled:hover svg path {
+  fill: #fff;
+}
+
 .button.secondary:hover {
   color: var(--color-brand);
 }
@@ -2957,6 +2975,18 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
+/* ADVANCED */
+.advanced-label {
+  font-weight: bold;
+}
+
+.advanced-value {
+  margin-left: 12px;
+  margin-bottom: 4px;
+  color: rgba(96, 106, 113, 0.64);
+  word-break: break-all;
+}
+
 /* TRANSACTIONS */
 
 .transactions {
@@ -4430,7 +4460,7 @@ input:checked + .slider:before {
     display: inline-block;
     padding: 15px 25px;
     color: var(--color-grey);
-    width: calc(100% / 3);
+    width: calc(100% / 4);
     text-align: center;
   }
 
@@ -4502,6 +4532,12 @@ input:checked + .slider:before {
     width: 100%;
   }
   
+  .account-dropdown {
+    order: 3;
+    margin-bottom: -24px;
+    grid-column: 1 / -1;
+  }
+
 }
 
 /* TABLET MEDIA QUERIES */
