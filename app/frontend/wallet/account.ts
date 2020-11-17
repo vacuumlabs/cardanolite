@@ -102,8 +102,16 @@ const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer
     for (const key in mappingShelley) {
       fixedShelley[bechAddressToHex(key)] = mappingShelley[key]
     }
-
     return (address) => mappingLegacy[address] || fixedShelley[address] || mappingShelley[address]
+  }
+
+  async function areAddressesUsed() {
+    const baseInt = await baseIntAddrManager.discoverAddresses()
+    const baseExt = await baseExtAddrManager.discoverAddresses()
+    return (
+      (await blockchainExplorer.isSomeAddressUsed(baseInt)) ||
+      (await blockchainExplorer.isSomeAddressUsed(baseExt))
+    )
   }
 
   return {
@@ -114,6 +122,7 @@ const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer
     baseExtAddrManager,
     accountAddrManager,
     legacyExtManager,
+    areAddressesUsed,
   }
 }
 const Account = ({
@@ -375,6 +384,10 @@ const Account = ({
     }
   }
 
+  function isAccountUsed(): Promise<boolean> {
+    return myAddresses.areAddressesUsed()
+  }
+
   return {
     signTxAux,
     getBalance,
@@ -393,6 +406,7 @@ const Account = ({
     getWalletInfo,
     getPoolInfo,
     accountIndex,
+    isAccountUsed,
   }
 }
 

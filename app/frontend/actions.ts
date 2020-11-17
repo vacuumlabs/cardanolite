@@ -140,9 +140,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         isShelleyCompatible,
       })
 
-      account = wallet.accounts[0]
+      account = wallet.accounts[0] // THIS is not right
 
-      const walletInfo = await account.getWalletInfo()
+      const accountsInfo = await wallet.getAccountsInfo()
       const conversionRatesPromise = getConversionRates(state)
       const usingHwWallet = wallet.isHwWallet()
       const hwWalletName = usingHwWallet ? wallet.getHwWalletName() : undefined
@@ -157,11 +157,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         state.shouldShowPremiumBanner && walletInfo.balance > PREMIUM_MEMBER_BALANCE_TRESHHOLD
       const isBigDelegator = walletInfo.balance > BIG_DELEGATOR_THRESHOLD
       setState({
-        accounts: {
-          0: walletInfo,
-        },
+        accounts: accountsInfo,
         walletIsLoaded: true,
-        ...walletInfo,
+        ...accountsInfo[0],
         loading: false,
         mnemonicAuthForm: {
           mnemonicInputValue: '',

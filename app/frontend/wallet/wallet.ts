@@ -6,13 +6,13 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
 
   const accounts: Array<ReturnType<typeof Account>> = []
 
-  accounts[0] = Account({
-    config,
-    isShelleyCompatible,
-    cryptoProvider,
-    blockchainExplorer,
-    accountIndex: 0,
-  })
+  // accounts[0] = Account({
+  //   config,
+  //   isShelleyCompatible,
+  //   cryptoProvider,
+  //   blockchainExplorer,
+  //   accountIndex: 0,
+  // })
 
   function loadNewAccount(accountIndex: number) {
     const newAccount = Account({
@@ -23,6 +23,24 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
       accountIndex,
     })
     accounts.push(newAccount)
+  }
+
+  async function discoverAccounts() {
+    let isAccountUsed = true
+    let accountIndex = 0
+    while (isAccountUsed) {
+      // for
+      const newAccount = Account({
+        config,
+        isShelleyCompatible,
+        cryptoProvider,
+        blockchainExplorer,
+        accountIndex,
+      })
+      isAccountUsed = await newAccount.isAccountUsed()
+      accountIndex += 1
+      if (isAccountUsed) accounts.push(newAccount)
+    }
   }
 
   function isHwWallet() {
@@ -62,6 +80,13 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
     return 0
   }
 
+  async function getAccountsInfo() {
+    await discoverAccounts()
+    console.log(accounts)
+    const accountsInfo = await Promise.all(accounts.map((account) => account.getWalletInfo()))
+    return Object.assign({}, accountsInfo)
+  }
+
   return {
     isHwWallet,
     getHwWalletName,
@@ -72,6 +97,8 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
     getBalance,
     accounts,
     loadNewAccount,
+    discoverAccounts,
+    getAccountsInfo,
   }
 }
 
