@@ -19,12 +19,7 @@ import {
 import shuffleArray from './helpers/shuffleArray'
 import {MaxAmountCalculator} from './max-amount-calculator'
 import {ByronAddressProvider, accountXpub as accoutXpubByron} from './byron/byron-address-provider'
-import {
-  isShelleyFormat,
-  bechAddressToHex,
-  isBase,
-  base58AddressToHex,
-} from './shelley/helpers/addresses'
+import {bechAddressToHex, isBase, addressToHex} from './shelley/helpers/addresses'
 import {
   ShelleyTxAux,
   ShelleyTxInputFromUtxo,
@@ -151,30 +146,6 @@ const Account = ({
     blockchainExplorer,
   })
 
-  const addressToHex = (
-    address // TODO: move to addresses
-  ) => (isShelleyFormat(address) ? bechAddressToHex(address) : base58AddressToHex(address))
-
-  function isHwWallet() {
-    return cryptoProvider.isHwWallet()
-  }
-
-  function getHwWalletName() {
-    return isHwWallet ? (cryptoProvider as any).getHwWalletName() : undefined
-  }
-
-  function submitTx(signedTx): Promise<any> {
-    const {txBody, txHash} = signedTx
-    return blockchainExplorer.submitTxRaw(txHash, txBody)
-  }
-
-  function getWalletSecretDef() {
-    return {
-      rootSecret: cryptoProvider.getWalletSecret(),
-      derivationScheme: cryptoProvider.getDerivationScheme(),
-    }
-  }
-
   async function calculateTtl() {
     try {
       const bestSlot = await blockchainExplorer.getBestSlot().then((res) => res.Right.bestSlot)
@@ -241,7 +212,8 @@ const Account = ({
     rewards: any
   }
 
-  const utxoTxPlanner = async (args: utxoArgs, accountAddress) => {
+  const getTxPlan = async (args: utxoArgs) => {
+    const accountAddress = await myAddresses.accountAddrManager._deriveAddress(accountIndex)
     const {address, coins, donationAmount, poolHash, stakingKeyRegistered, txType, rewards} = args
     const changeAddress = await getChangeAddress()
     const availableUtxos = await getUtxos()
@@ -268,18 +240,6 @@ const Account = ({
       rewards
     )
     return plan
-  }
-
-  async function getTxPlan(args: utxoArgs) {
-    // TODO: passing accountAddress to plan is useless, as well as this function
-    const accountAddress = await myAddresses.accountAddrManager._deriveAddress(accountIndex)
-    const txPlanners = {
-      sendAda: utxoTxPlanner,
-      convert: utxoTxPlanner,
-      delegate: utxoTxPlanner,
-      withdraw: utxoTxPlanner,
-    }
-    return await txPlanners[args.txType](args, accountAddress)
   }
 
   async function getPoolInfo(url) {
@@ -370,10 +330,6 @@ const Account = ({
     return blockchainExplorer.getValidStakepools()
   }
 
-  async function fetchTxInfo(txHash) {
-    return await blockchainExplorer.fetchTxInfo(txHash)
-  }
-
   async function getChangeAddress() {
     /*
     * We use visible addresses as change addresses to mainintain
@@ -421,20 +377,7 @@ const Account = ({
     }
   }
 
-  function checkCryptoProviderVersion() {
-    try {
-      cryptoProvider.checkVersion(true)
-    } catch (e) {
-      return {code: e.name, message: e.message}
-    }
-    return null
-  }
-
   return {
-    isHwWallet,
-    getHwWalletName,
-    getWalletSecretDef,
-    submitTx,
     signTxAux,
     getBalance,
     getChangeAddress,
@@ -446,13 +389,11 @@ const Account = ({
     getVisibleAddresses,
     prepareTxAux,
     verifyAddress,
-    fetchTxInfo,
     generateNewSeeds,
     getAccountInfo,
     getValidStakepools,
     getWalletInfo,
     getPoolInfo,
-    checkCryptoProviderVersion,
     accountIndex,
   }
 }

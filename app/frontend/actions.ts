@@ -31,10 +31,11 @@ import captureBySentry from './helpers/captureBySentry'
 import {State, Ada, Lovelace, GetStateFn, SetStateFn} from './state'
 import ShelleyCryptoProviderFactory from './wallet/shelley/shelley-crypto-provider-factory'
 import {Account} from './wallet/account'
+import {Wallet} from './wallet/wallet'
 import getDonationAddress from './helpers/getDonationAddress'
 import {localStorageVars} from './localStorage'
 
-// let wallet: ReturnType<typeof ShelleyWallet>
+let wallet: ReturnType<typeof Wallet>
 let account: ReturnType<typeof Account>
 const accounts = new Map()
 let cryptoProvider
@@ -134,19 +135,25 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         forceWebUsb,
       })
 
-      const newWallet = await Account({
+      wallet = await Wallet({
+        config: ADALITE_CONFIG,
+        cryptoProvider,
+        isShelleyCompatible,
+      })
+
+      const newAccount = await Account({
         config: ADALITE_CONFIG,
         cryptoProvider,
         isShelleyCompatible,
         accountIndex: 0,
       })
-      accounts.set(0, newWallet)
+      accounts.set(0, newAccount)
       account = accounts.get(0)
 
       const walletInfo = await account.getWalletInfo()
       const conversionRatesPromise = getConversionRates(state)
-      const usingHwWallet = account.isHwWallet()
-      const hwWalletName = usingHwWallet ? account.getWalletName() : undefined
+      const usingHwWallet = wallet.isHwWallet()
+      const hwWalletName = usingHwWallet ? wallet.getHwWalletName() : undefined
       if (usingHwWallet) loadingAction(state, `Waiting for ${hwWalletName}...`)
       const demoRootSecret = (await mnemonicToWalletSecretDef(
         ADALITE_CONFIG.ADALITE_DEMO_WALLET_MNEMONIC
@@ -544,7 +551,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const prepareTxPlan = async (args) => {
     const state = getState()
-    const plan = await account.getTxPlan(args)
+    const plan: any = await account.getTxPlan(args) // FIXME: this cant be any
     if (plan.error) {
       stopLoadingAction(state, {})
       resetDelegationWithoutHash(state)
@@ -806,7 +813,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const rewards = state.shelleyBalances.rewardsAccountBalance
     const plan = await prepareTxPlan({rewards, txType: 'withdraw'})
     const withdrawalValidationError =
-      withdrawalPlanValidator(rewards, state.balance, plan) || account.checkCryptoProviderVersion()
+      withdrawalPlanValidator(rewards, state.balance, plan) || wallet.checkCryptoProviderVersion()
     if (withdrawalValidationError) {
       setErrorState('transactionSubmissionError', withdrawalValidationError, {
         shouldShowTransactionErrorModal: true,
@@ -978,7 +985,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     loadingAction(state, 'Transaction submitted - syncing wallet...')
 
     for (let pollingCounter = 0; pollingCounter < maxRetries; pollingCounter++) {
-      if ((await account.fetchTxInfo(txHash)) !== undefined) {
+      if ((await wallet.fetchTxInfo(txHash)) !== undefined) {
         /*
          * theoretically we should clear the request cache of the wallet
          * to be sure that we fetch the current wallet state
@@ -1022,7 +1029,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         setState({waitingForHwWallet: false})
         loadingAction(state, 'Submitting transaction...')
       }
-      txSubmitResult = await account.submitTx(signedTx)
+      txSubmitResult = await wallet.submitTx(signedTx)
 
       if (!txSubmitResult) {
         // TODO: this seems useless here
@@ -1066,7 +1073,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const exportJsonWallet = async (state, password, walletName) => {
     const walletExport = JSON.stringify(
-      await exportWalletSecretDef(account.getWalletSecretDef(), password, walletName)
+      await exportWalletSecretDef(wallet.getWalletSecretDef(), password, walletName)
     )
 
     const blob = new Blob([walletExport], {
