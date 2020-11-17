@@ -23,21 +23,20 @@ import {
 } from './wallet/constants'
 import NamedError from './helpers/NamedError'
 import {exportWalletSecretDef} from './wallet/keypass-json'
-import {CardanoWallet} from './wallet/cardano-wallet'
 import mnemonicToWalletSecretDef from './wallet/helpers/mnemonicToWalletSecretDef'
 import sanitizeMnemonic from './helpers/sanitizeMnemonic'
 import {initialState} from './store'
 import {toCoins, toAda, roundWholeAdas} from './helpers/adaConverters'
 import captureBySentry from './helpers/captureBySentry'
 import {State, Ada, Lovelace, GetStateFn, SetStateFn} from './state'
-import CryptoProviderFactory from './wallet/byron/crypto-provider-factory'
 import ShelleyCryptoProviderFactory from './wallet/shelley/shelley-crypto-provider-factory'
-import {ShelleyWallet} from './wallet/shelley-wallet'
+import {Account} from './wallet/account'
 import getDonationAddress from './helpers/getDonationAddress'
 import {localStorageVars} from './localStorage'
 
-let wallet: ReturnType<typeof CardanoWallet | typeof ShelleyWallet>
-const wallets = new Map()
+// let wallet: ReturnType<typeof ShelleyWallet>
+let account: ReturnType<typeof Account>
+const accounts = new Map()
 let cryptoProvider
 
 const debounceEvent = (callback, time) => {
@@ -128,48 +127,26 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
     const isShelleyCompatible = !(walletSecretDef && walletSecretDef.derivationScheme.type === 'v1')
     try {
-      switch (ADALITE_CONFIG.ADALITE_CARDANO_VERSION) {
-        case 'byron': {
-          const cryptoProvider = await CryptoProviderFactory.getCryptoProvider(cryptoProviderType, {
-            walletSecretDef,
-            network: NETWORKS.BYRON.MAINNET,
-            config: ADALITE_CONFIG,
-          })
+      cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(cryptoProviderType, {
+        walletSecretDef,
+        network: NETWORKS.SHELLEY[ADALITE_CONFIG.ADALITE_NETWORK],
+        config: ADALITE_CONFIG,
+        forceWebUsb,
+      })
 
-          wallet = CardanoWallet({
-            cryptoProvider,
-            config: ADALITE_CONFIG,
-          })
-          break
-        }
-        case 'shelley': {
-          cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(
-            cryptoProviderType,
-            {
-              walletSecretDef,
-              network: NETWORKS.SHELLEY[ADALITE_CONFIG.ADALITE_NETWORK],
-              config: ADALITE_CONFIG,
-              forceWebUsb,
-            }
-          )
+      const newWallet = await Account({
+        config: ADALITE_CONFIG,
+        cryptoProvider,
+        isShelleyCompatible,
+        accountIndex: 0,
+      })
+      accounts.set(0, newWallet)
+      account = accounts.get(0)
 
-          const newWallet = await ShelleyWallet({
-            config: ADALITE_CONFIG,
-            cryptoProvider,
-            isShelleyCompatible,
-            accountIndex: 0,
-          })
-          wallets.set(0, newWallet)
-          wallet = wallets.get(0)
-          break
-        }
-        default:
-          throw Error('bad cardano version')
-      }
-      const walletInfo = await wallet.getWalletInfo()
+      const walletInfo = await account.getWalletInfo()
       const conversionRatesPromise = getConversionRates(state)
-      const usingHwWallet = wallet.isHwWallet()
-      const hwWalletName = usingHwWallet ? wallet.getWalletName() : undefined
+      const usingHwWallet = account.isHwWallet()
+      const hwWalletName = usingHwWallet ? account.getWalletName() : undefined
       if (usingHwWallet) loadingAction(state, `Waiting for ${hwWalletName}...`)
       const demoRootSecret = (await mnemonicToWalletSecretDef(
         ADALITE_CONFIG.ADALITE_DEMO_WALLET_MNEMONIC
@@ -227,7 +204,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   const reloadWalletInfo = async (state) => {
     loadingAction(state, 'Reloading wallet info...')
     try {
-      const walletInfo = await wallet.getWalletInfo()
+      const walletInfo = await account.getWalletInfo()
       const conversionRates = getConversionRates(state)
 
       // timeout setting loading state, so that loading shows even if everything was cached
@@ -235,7 +212,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       setState({
         accounts: {
           ...state.accounts,
-          [wallet.accountIndex]: walletInfo,
+          [account.accountIndex]: walletInfo,
         },
         ...walletInfo,
       })
@@ -290,7 +267,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const logout = () => {
-    wallet = null
+    account = null
     setState(
       {
         ...initialState,
@@ -361,7 +338,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
           waitingForHwWallet: true,
           addressVerificationError: false,
         })
-        await wallet.verifyAddress(address || newState.showAddressDetail.address)
+        await account.verifyAddress(address || newState.showAddressDetail.address)
         setState({
           waitingForHwWallet: false,
         })
@@ -403,12 +380,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const newState = getState()
     try {
       if (newState.sendTransactionSummary.plan) {
-        txAux = await wallet.prepareTxAux(newState.sendTransactionSummary.plan)
+        txAux = await account.prepareTxAux(newState.sendTransactionSummary.plan)
       } else {
         loadingAction(state, 'Preparing transaction plan...')
         await sleep(1000) // wait for plan to be set in case of unfortunate timing
         const retriedState = getState()
-        txAux = await wallet.prepareTxAux(retriedState.sendTransactionSummary.plan)
+        txAux = await account.prepareTxAux(retriedState.sendTransactionSummary.plan)
       }
     } catch (e) {
       throw NamedError('TransactionCorrupted', {causedBy: e})
@@ -567,7 +544,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const prepareTxPlan = async (args) => {
     const state = getState()
-    const plan = await wallet.getTxPlan(args)
+    const plan = await account.getTxPlan(args)
     if (plan.error) {
       stopLoadingAction(state, {})
       resetDelegationWithoutHash(state)
@@ -707,7 +684,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const calculateMaxDonationAmount = async () => {
     const state = getState()
-    await wallet
+    await account
       .getMaxDonationAmount(state.sendAddress.fieldValue, state.sendAmount.coins as Lovelace)
       .then((maxDonationAmount) => {
         let newMaxDonationAmount
@@ -783,7 +760,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const sendMaxFunds = async (state) => {
     setState({calculatingFee: true})
-    await wallet
+    await account
       .getMaxSendableAmount(
         state.sendAddress.fieldValue,
         state.donationAmount.fieldValue !== '',
@@ -804,8 +781,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const convertNonStakingUtxos = async (state) => {
     loadingAction(state, 'Preparing transaction...')
-    const address = await wallet.getChangeAddress()
-    const maxAmount = await wallet.getMaxNonStakingAmount(address)
+    const address = await account.getChangeAddress()
+    const maxAmount = await account.getMaxNonStakingAmount(address)
     const coins = maxAmount && maxAmount.sendAmount
     const plan = await prepareTxPlan({address, coins, txType: 'convert'})
     const validationError = txPlanValidator(coins, state.balance, plan)
@@ -829,7 +806,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const rewards = state.shelleyBalances.rewardsAccountBalance
     const plan = await prepareTxPlan({rewards, txType: 'withdraw'})
     const withdrawalValidationError =
-      withdrawalPlanValidator(rewards, state.balance, plan) || wallet.checkCryptoProviderVersion()
+      withdrawalPlanValidator(rewards, state.balance, plan) || account.checkCryptoProviderVersion()
     if (withdrawalValidationError) {
       setErrorState('transactionSubmissionError', withdrawalValidationError, {
         shouldShowTransactionErrorModal: true,
@@ -886,7 +863,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     if (hasPoolIdentifiersChanged(state)) {
       return
     }
-    const poolInfo = await wallet.getPoolInfo(state.shelleyDelegation.selectedPool.url)
+    const poolInfo = await account.getPoolInfo(state.shelleyDelegation.selectedPool.url)
     if (hasPoolIdentifiersChanged(state)) {
       return
     }
@@ -1001,7 +978,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     loadingAction(state, 'Transaction submitted - syncing wallet...')
 
     for (let pollingCounter = 0; pollingCounter < maxRetries; pollingCounter++) {
-      if ((await wallet.fetchTxInfo(txHash)) !== undefined) {
+      if ((await account.fetchTxInfo(txHash)) !== undefined) {
         /*
          * theoretically we should clear the request cache of the wallet
          * to be sure that we fetch the current wallet state
@@ -1038,14 +1015,14 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     let txSubmitResult
     const txTab = state.sendTransactionSummary.tab
     try {
-      const txAux = await wallet.prepareTxAux(state.sendTransactionSummary.plan)
-      const signedTx = await wallet.signTxAux(txAux)
+      const txAux = await account.prepareTxAux(state.sendTransactionSummary.plan)
+      const signedTx = await account.signTxAux(txAux)
 
       if (state.usingHwWallet) {
         setState({waitingForHwWallet: false})
         loadingAction(state, 'Submitting transaction...')
       }
-      txSubmitResult = await wallet.submitTx(signedTx)
+      txSubmitResult = await account.submitTx(signedTx)
 
       if (!txSubmitResult) {
         // TODO: this seems useless here
@@ -1074,7 +1051,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       resetSendFormFields(state)
       resetSendFormState(state)
       resetAmountFields(state)
-      wallet.generateNewSeeds()
+      account.generateNewSeeds()
       await reloadWalletInfo(state)
       selectAdaliteStakepool(state)
       setState({
@@ -1089,7 +1066,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const exportJsonWallet = async (state, password, walletName) => {
     const walletExport = JSON.stringify(
-      await exportWalletSecretDef(wallet.getWalletSecretDef(), password, walletName)
+      await exportWalletSecretDef(account.getWalletSecretDef(), password, walletName)
     )
 
     const blob = new Blob([walletExport], {
@@ -1182,11 +1159,11 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const loadWalletInfo = async (state) => {
-    const walletInfo = await wallet.getWalletInfo()
+    const walletInfo = await account.getWalletInfo()
     setState({
       accounts: {
         ...state.accounts,
-        [wallet.accountIndex]: walletInfo,
+        [account.accountIndex]: walletInfo,
       },
     })
     stopLoadingAction(state, {})
@@ -1194,22 +1171,22 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const loadNewAccount = async (state: State, accountIndex: number) => {
     loadingAction(state, 'Loading account')
-    const newWallet = await ShelleyWallet({
+    const newWallet = await Account({
       config: ADALITE_CONFIG,
       cryptoProvider,
       isShelleyCompatible: true,
       accountIndex,
     })
-    wallets.set(accountIndex, newWallet)
-    wallet = wallets.get(accountIndex)
+    accounts.set(accountIndex, newWallet)
+    account = accounts.get(accountIndex)
     await loadWalletInfo(state)
   }
 
   const setWalletInfo = async (state, accountIndex: number) => {
-    if (!wallets.has(accountIndex)) {
+    if (!accounts.has(accountIndex)) {
       await loadNewAccount(state, accountIndex)
     }
-    wallet = wallets.get(accountIndex)
+    account = accounts.get(accountIndex)
     const newState = getState()
     const walletInfo = newState.accounts[accountIndex]
     setState({
