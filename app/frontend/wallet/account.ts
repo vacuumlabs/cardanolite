@@ -1,5 +1,4 @@
 import AddressManager from './address-manager'
-import BlockchainExplorer from './blockchain-explorer'
 import PseudoRandom from './helpers/PseudoRandom'
 import {MAX_INT32} from './constants'
 import NamedError from '../helpers/NamedError'
@@ -123,6 +122,7 @@ const Account = ({
   randomChangeSeed,
   cryptoProvider,
   isShelleyCompatible,
+  blockchainExplorer,
   accountIndex,
 }: any) => {
   const {
@@ -136,8 +136,6 @@ const Account = ({
   }
 
   generateNewSeeds()
-
-  const blockchainExplorer = BlockchainExplorer(config)
 
   const myAddresses = MyAddresses({
     accountIndex,

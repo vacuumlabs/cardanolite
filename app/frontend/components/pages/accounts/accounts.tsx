@@ -4,7 +4,7 @@ import actions from '../../../actions'
 import range from '../../../../frontend/wallet/helpers/range'
 import {ACCOUNT_COUNT} from '../../../../frontend/wallet/constants'
 
-const Accounts = ({setWalletInfo}) => (
+const Accounts = ({setAccount}) => (
   <div className="card" style={'width: 100%;'}>
     <h2 className="card-title small-margin" />
     <div className="account-dropdown">
@@ -12,7 +12,7 @@ const Accounts = ({setWalletInfo}) => (
         <a
           key={i}
           onClick={() => {
-            setWalletInfo(i)
+            setAccount(i)
           }}
         >
           Account {i}

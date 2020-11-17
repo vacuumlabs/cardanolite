@@ -1,7 +1,29 @@
+import {Account} from './account'
 import BlockchainExplorer from './blockchain-explorer'
 
 const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
   const blockchainExplorer = BlockchainExplorer(config)
+
+  const accounts: Array<ReturnType<typeof Account>> = []
+
+  accounts[0] = Account({
+    config,
+    isShelleyCompatible,
+    cryptoProvider,
+    blockchainExplorer,
+    accountIndex: 0,
+  })
+
+  function loadNewAccount(accountIndex: number) {
+    const newAccount = Account({
+      config,
+      isShelleyCompatible,
+      cryptoProvider,
+      blockchainExplorer,
+      accountIndex,
+    })
+    accounts.push(newAccount)
+  }
 
   function isHwWallet() {
     return cryptoProvider.isHwWallet()
@@ -48,6 +70,8 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
     fetchTxInfo,
     checkCryptoProviderVersion,
     getBalance,
+    accounts,
+    loadNewAccount,
   }
 }
 
