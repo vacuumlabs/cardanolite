@@ -30,6 +30,7 @@ const CardanoWalletSecretCryptoProvider = ({
 
   const deriveXpub = CachedDeriveXpubFactory(
     derivationScheme,
+    false,
     (derivationPath) => deriveHdNode(derivationPath).extendedPublicKey
   )
 

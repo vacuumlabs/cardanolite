@@ -66,11 +66,14 @@ const ShelleyLedgerCryptoProvider = async ({network, config, forceWebUsb}) => {
   const isHwWallet = () => true
   const getWalletName = () => 'Ledger'
 
-  const deriveXpub = CachedDeriveXpubFactory(derivationScheme, async (absDerivationPath) => {
-    const response = await ledger.getExtendedPublicKey(absDerivationPath)
-    const xpubHex = response.publicKeyHex + response.chainCodeHex
-    return Buffer.from(xpubHex, 'hex')
-  })
+  const deriveXpub = CachedDeriveXpubFactory(
+    derivationScheme,
+    config.shouldExportPubKeyBulk,
+    async (absDerivationPaths) => {
+      const response = await ledger.getExtendedPublicKeys(absDerivationPaths)
+      return response.map((res) => Buffer.from(res.publicKeyHex + res.chainCodeHex, 'hex'))
+    }
+  )
 
   function checkVersion(recommended: boolean = false) {
     if (!hasMinimalVersion(version, recommended)) {

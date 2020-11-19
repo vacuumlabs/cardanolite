@@ -1,4 +1,4 @@
-import {h} from 'preact'
+import {Fragment, h} from 'preact'
 import {connect} from '../../../libs/unistore/preact'
 import actions from '../../../actions'
 
@@ -6,8 +6,14 @@ const Keys = ({byronXpub, shelleyXpub, accountPubkeyHex}) => {
   return (
     <div className="card">
       <h2 className="card-title small-margin">Keys</h2>
-      <div className="advanced-label">Byron extended public key ({byronXpub.path.join("'/")}')</div>
-      <div className="advanced-value">{byronXpub.xpub}</div>
+      {byronXpub && (
+        <Fragment>
+          <div className="advanced-label">
+            Byron extended public key ({byronXpub.path.join("'/")}')
+          </div>
+          <div className="advanced-value">{byronXpub.xpub}</div>
+        </Fragment>
+      )}
       <div className="advanced-label">
         Shelley extended public key ({shelleyXpub.path.join("'/")}')
       </div>

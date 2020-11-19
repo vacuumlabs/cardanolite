@@ -2,13 +2,12 @@ import {h} from 'preact'
 import {connect} from '../../../helpers/connect'
 import actions from '../../../actions'
 import range from '../../../../frontend/wallet/helpers/range'
-import {ACCOUNT_COUNT} from '../../../../frontend/wallet/constants'
 
 const Accounts = ({setAccount}) => (
   <div className="card" style={'width: 100%;'}>
     <h2 className="card-title small-margin" />
     <div className="account-dropdown">
-      {range(0, ACCOUNT_COUNT).map((i) => (
+      {range(0, 5).map((i) => (
         <a
           key={i}
           onClick={() => {

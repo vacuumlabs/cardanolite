@@ -116,7 +116,7 @@ export interface State {
   currentDelegation?: {
     stakePool?: any
   }
-  stakingHistory?: any
+  stakingHistory: any
   validStakepools?: any | null
   ticker2Id?: any | null
   delegationValidationError?: any
@@ -201,6 +201,7 @@ const initialState: State = {
   rawTransaction: '',
   shouldShowMnemonicInfoAlert: false,
   transactionHistory: [],
+  stakingHistory: [],
   sendResponse: {},
   checkedDonationType: '',
   shouldShowCustomDonationInput: false,

@@ -1,23 +1,14 @@
 import {Account} from './account'
 import BlockchainExplorer from './blockchain-explorer'
 
-const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
+const Wallet = ({config, cryptoProvider}) => {
   const blockchainExplorer = BlockchainExplorer(config)
 
   const accounts: Array<ReturnType<typeof Account>> = []
 
-  // accounts[0] = Account({
-  //   config,
-  //   isShelleyCompatible,
-  //   cryptoProvider,
-  //   blockchainExplorer,
-  //   accountIndex: 0,
-  // })
-
   function loadNewAccount(accountIndex: number) {
     const newAccount = Account({
       config,
-      isShelleyCompatible,
       cryptoProvider,
       blockchainExplorer,
       accountIndex,
@@ -26,20 +17,20 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
   }
 
   async function discoverAccounts() {
-    let isAccountUsed = true
+    let shouldExplore = true
     let accountIndex = 0
-    while (isAccountUsed) {
-      // for
+    while (shouldExplore) {
       const newAccount = Account({
         config,
-        isShelleyCompatible,
         cryptoProvider,
         blockchainExplorer,
         accountIndex,
       })
-      isAccountUsed = await newAccount.isAccountUsed()
+      const isAccountUsed = await newAccount.isAccountUsed()
+      if (isAccountUsed || accountIndex === 0) accounts.push(newAccount)
+
       accountIndex += 1
-      if (isAccountUsed) accounts.push(newAccount)
+      shouldExplore = isAccountUsed && config.shouldExportPubKeyBulk && accountIndex < 100
     }
   }
 
@@ -82,7 +73,6 @@ const Wallet = ({config, cryptoProvider, isShelleyCompatible}) => {
 
   async function getAccountsInfo() {
     await discoverAccounts()
-    console.log(accounts)
     const accountsInfo = await Promise.all(accounts.map((account) => account.getWalletInfo()))
     return Object.assign({}, accountsInfo)
   }

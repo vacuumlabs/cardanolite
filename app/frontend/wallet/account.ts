@@ -29,18 +29,35 @@ import {
   ShelleyWitdrawal,
 } from './shelley/shelley-transaction'
 import {StakingHistoryObject} from '../components/pages/delegations/stakingHistoryPage'
-const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer}) => {
-  const legacyExtManager = AddressManager({
-    addressProvider: ByronAddressProvider(cryptoProvider, accountIndex, false),
-    gapLimit,
-    blockchainExplorer,
-  })
 
-  const legacyIntManager = AddressManager({
-    addressProvider: ByronAddressProvider(cryptoProvider, accountIndex, true),
-    gapLimit,
-    blockchainExplorer,
-  })
+const DummyAddressManager = () => {
+  return {
+    discoverAddresses: () => [],
+    discoverAddressesWithMeta: () => [],
+    getAddressToAbsPathMapping: () => ({}),
+  }
+}
+
+export default DummyAddressManager
+
+const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer}) => {
+  const legacyExtManager =
+    accountIndex === 0
+      ? AddressManager({
+        addressProvider: ByronAddressProvider(cryptoProvider, accountIndex, false),
+        gapLimit,
+        blockchainExplorer,
+      })
+      : DummyAddressManager()
+
+  const legacyIntManager =
+    accountIndex === 0
+      ? AddressManager({
+        addressProvider: ByronAddressProvider(cryptoProvider, accountIndex, true),
+        gapLimit,
+        blockchainExplorer,
+      })
+      : DummyAddressManager()
 
   const accountAddrManager = AddressManager({
     addressProvider: ShelleyStakingAccountProvider(cryptoProvider, accountIndex),
@@ -102,7 +119,9 @@ const MyAddresses = ({accountIndex, cryptoProvider, gapLimit, blockchainExplorer
     for (const key in mappingShelley) {
       fixedShelley[bechAddressToHex(key)] = mappingShelley[key]
     }
-    return (address) => mappingLegacy[address] || fixedShelley[address] || mappingShelley[address]
+    return (address) => {
+      return mappingLegacy[address] || fixedShelley[address] || mappingShelley[address]
+    }
   }
 
   async function areAddressesUsed() {
@@ -130,7 +149,6 @@ const Account = ({
   randomInputSeed,
   randomChangeSeed,
   cryptoProvider,
-  isShelleyCompatible,
   blockchainExplorer,
   accountIndex,
 }: any) => {
@@ -306,7 +324,7 @@ const Account = ({
 
   async function getAccountInfo(validStakepools) {
     const shelleyXpub = await accoutXpubShelley(cryptoProvider, accountIndex)
-    const byronXpub = await accoutXpubByron(cryptoProvider, accountIndex)
+    const byronXpub = accountIndex === 0 && (await accoutXpubByron(cryptoProvider, accountIndex))
     const accountPubkeyHex = await stakeAccountPubkeyHex(cryptoProvider, accountIndex)
     const {nextRewardDetails, ...accountInfo} = await blockchainExplorer.getAccountInfo(
       accountPubkeyHex
@@ -359,7 +377,7 @@ const Account = ({
   }
 
   async function getVisibleAddresses() {
-    const addresses = isShelleyCompatible
+    const addresses = config.isShelleyCompatible
       ? await myAddresses.baseExtAddrManager.discoverAddressesWithMeta()
       : await myAddresses.legacyExtManager.discoverAddressesWithMeta()
     return addresses
