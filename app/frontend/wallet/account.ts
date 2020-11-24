@@ -279,6 +279,10 @@ const Account = ({
     const visibleAddresses = await getVisibleAddresses()
     const transactionHistory = await getHistory()
     const stakingHistory = await getStakingHistory(shelleyAccountInfo, validStakepools)
+    const poolRecommendation = await getPoolRecommendation(
+      shelleyAccountInfo.delegation,
+      stakingBalance
+    )
     return {
       validStakepools,
       balance,
@@ -292,6 +296,7 @@ const Account = ({
       transactionHistory,
       stakingHistory,
       visibleAddresses,
+      poolRecommendation,
     }
   }
 
@@ -402,6 +407,22 @@ const Account = ({
     }
   }
 
+  async function getPoolRecommendation(pool: any, stake: number): Promise<any> {
+    const poolHash = pool ? pool.poolHash : null
+    const poolRecommendation = await blockchainExplorer.getPoolRecommendation(poolHash, stake)
+    if (!poolRecommendation.recommendedPoolHash || config.ADALITE_ENFORCE_STAKEPOOL) {
+      Object.assign(poolRecommendation, {
+        recommendedPoolHash: config.ADALITE_STAKE_POOL_ID,
+      })
+    }
+    const delegatesToRecommended = poolRecommendation.recommendedPoolHash === pool.poolHash
+    return {
+      ...poolRecommendation,
+      shouldShowSaturatedBanner:
+        !delegatesToRecommended && poolRecommendation.status === 'GivenPoolSaturated',
+    }
+  }
+
   function isAccountUsed(): Promise<boolean> {
     return myAddresses.areAddressesUsed()
   }
@@ -424,6 +445,7 @@ const Account = ({
     getWalletInfo,
     getPoolInfo,
     accountIndex,
+    getPoolRecommendation,
     isAccountUsed,
   }
 }

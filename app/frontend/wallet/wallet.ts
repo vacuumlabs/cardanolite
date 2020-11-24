@@ -38,13 +38,17 @@ const Wallet = ({config, cryptoProvider}) => {
     return cryptoProvider.isHwWallet()
   }
 
-  function getHwWalletName() {
-    return isHwWallet ? (cryptoProvider as any).getHwWalletName() : undefined
+  function getWalletName() {
+    return cryptoProvider.getWalletName()
   }
 
   function submitTx(signedTx): Promise<any> {
+    const params = {
+      walletType: getWalletName(),
+      // TODO: stakeKey
+    }
     const {txBody, txHash} = signedTx
-    return blockchainExplorer.submitTxRaw(txHash, txBody)
+    return blockchainExplorer.submitTxRaw(txHash, txBody, params)
   }
 
   function getWalletSecretDef() {
@@ -79,7 +83,7 @@ const Wallet = ({config, cryptoProvider}) => {
 
   return {
     isHwWallet,
-    getHwWalletName,
+    getWalletName,
     submitTx,
     getWalletSecretDef,
     fetchTxInfo,
