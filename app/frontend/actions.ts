@@ -126,7 +126,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       walletLoadingError: undefined,
     })
     const isShelleyCompatible = !(walletSecretDef && walletSecretDef.derivationScheme.type === 'v1')
-    const shouldExportPubKeyBulk = false // isShelleyCompatible && true
+    const shouldExportPubKeyBulk = true // isShelleyCompatible && true
     const config = {...ADALITE_CONFIG, isShelleyCompatible, shouldExportPubKeyBulk}
     try {
       cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(cryptoProviderType, {
@@ -804,7 +804,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const rewards = state.shelleyBalances.rewardsAccountBalance
     const plan = await prepareTxPlan({rewards, txType: 'withdraw'})
     const withdrawalValidationError =
-      withdrawalPlanValidator(rewards, state.balance, plan) || wallet.checkCryptoProviderVersion()
+      withdrawalPlanValidator(rewards, state.balance, plan) ||
+      wallet.checkCryptoProviderVersion('WITHDRAWAL')
     if (withdrawalValidationError) {
       setErrorState('transactionSubmissionError', withdrawalValidationError, {
         shouldShowTransactionErrorModal: true,

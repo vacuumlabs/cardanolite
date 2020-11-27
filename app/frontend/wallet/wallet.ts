@@ -62,9 +62,9 @@ const Wallet = ({config, cryptoProvider}) => {
     return await blockchainExplorer.fetchTxInfo(txHash)
   }
 
-  function checkCryptoProviderVersion() {
+  function checkCryptoProviderVersion(type: string) {
     try {
-      cryptoProvider.checkVersion(true)
+      cryptoProvider.checkVersion(type)
     } catch (e) {
       return {code: e.name, message: e.message}
     }

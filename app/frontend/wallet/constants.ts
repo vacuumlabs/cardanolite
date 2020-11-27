@@ -104,16 +104,22 @@ export const CRYPTO_PROVIDER_TYPES = {
 export const SENTRY_USER_FEEDBACK_API =
   'https://sentry.io/api/0/projects/vacuumlabs-sro/adalite-frontend/user-feedback/'
 
-export const MINIMAL_LEDGER_APP_VERSION = {
-  major: 2,
-  minor: 0,
-  patch: 2,
-}
-
-export const RECOMMENDED_LEDGER_APP_VERSION = {
-  major: 2,
-  minor: 0,
-  patch: 4,
+export const LEDGER_VERSIONS = {
+  MINIMAL: {
+    major: 2,
+    minor: 0,
+    patch: 2,
+  },
+  WITHDRAWAL: {
+    major: 2,
+    minor: 0,
+    patch: 4,
+  },
+  BULK_EXPORT: {
+    major: 2,
+    minor: 1,
+    patch: 0,
+  },
 }
 
 export const UNKNOWN_POOL_NAME = '<Unknown pool>'
