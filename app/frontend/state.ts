@@ -146,6 +146,7 @@ export interface State {
   }
   isBigDelegator: boolean
   accounts: any
+  activeAccount: number
   selectedAccount: number
   shouldShowSendTransactionModal: boolean
   shouldShowDelegationModal: boolean
@@ -260,6 +261,7 @@ const initialState: State = {
   },
   isBigDelegator: false,
   accounts: {},
+  activeAccount: 0,
   selectedAccount: 0,
   shouldShowSendTransactionModal: false,
   shouldShowDelegationModal: false,

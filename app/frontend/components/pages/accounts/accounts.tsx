@@ -38,10 +38,11 @@ const Account = ({
       className="button primary nowrap account-button"
       disabled={isSelected}
       onClick={() => {
-        setAccount(i)
         showSendTransactionModal(
+          i,
           firstAddressPerAccount[selectedAccount],
-          `Send ADA from account ${i} to account ${selectedAccount}`
+          `Send ADA from account ${i} to account ${selectedAccount}`,
+          true
         )
       }}
     >
@@ -54,8 +55,10 @@ const Account = ({
       disabled={isSelected}
       onClick={() =>
         showSendTransactionModal(
+          i,
           firstAddressPerAccount[i],
-          `Send ADA from account ${selectedAccount} to account ${i}`
+          `Send ADA from account ${selectedAccount} to account ${i}`,
+          false
         )
       }
     >
@@ -66,8 +69,7 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       onClick={() => {
-        setAccount(i)
-        showDelegationModal(`Delegate Account ${i} Stake`)
+        showDelegationModal(i, `Delegate Account ${i} Stake`, true)
       }}
     >
       Delegate
@@ -85,7 +87,7 @@ const Account = ({
           className="button primary nowrap"
           disabled={isSelected}
           onClick={() => {
-            setAccount(i)
+            setAccount(i, true)
           }}
         >
           {account ? 'Activate' : 'Explore'}
@@ -146,12 +148,12 @@ const Account = ({
 const Accounts = ({
   accounts,
   setAccount,
-  selectedAccount,
   reloadWalletInfo,
   showSendTransactionModal,
   showDelegationModal,
   shouldShowSendTransactionModal,
   shouldShowDelegationModal,
+  selectedAccount,
 }) => {
   const accountInfos = Object.values(accounts)
   const totalBalance = accountInfos.reduce(
@@ -258,9 +260,9 @@ export default connect(
   (state) => ({
     isDemoWallet: state.isDemoWallet,
     accounts: state.accounts,
-    selectedAccount: state.selectedAccount,
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
+    selectedAccount: state.selectedAccount,
   }),
   actions
 )(Accounts)
