@@ -373,6 +373,41 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
+  /* ACCOUNT MODALS */
+
+  const showSendTransactionModal = (state, address, title) => {
+    setState({
+      sendTransactionTitle: title,
+      sendAddress: {fieldValue: address},
+      shouldShowSendTransactionModal: true,
+      txSuccessTab: '',
+      keepConfirmationDialogOpen: true,
+    })
+  }
+
+  const closeSendTransactionModal = (state) => {
+    setState({
+      sendAddress: {fieldValue: ''},
+      sendAmount: {fieldValue: '', coins: 0},
+      shouldShowSendTransactionModal: false,
+    })
+  }
+
+  const showDelegationModal = (state, title) => {
+    setState({
+      delegationTitle: title,
+      shouldShowDelegationModal: true,
+      txSuccessTab: '',
+      keepConfirmationDialogOpen: true,
+    })
+  }
+
+  const closeDelegationModal = (state) => {
+    setState({
+      shouldShowDelegationModal: false,
+    })
+  }
+
   /* TRANSACTION */
 
   const confirmTransaction = async (state, txConfirmType) => {
@@ -411,6 +446,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const cancelTransaction = () => ({
     shouldShowConfirmTransactionDialog: false,
+    shouldShowSendTransactionModal: false,
+    shouldShowDelegationModal: false,
   })
 
   const setRawTransactionOpen = (state, open) => {
@@ -815,6 +852,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       stopLoadingAction(state, {})
       return
     }
+    setState({
+      keepConfirmationDialogOpen: true,
+    })
     setTransactionSummary('stake', plan, rewards)
     await confirmTransaction(getState(), 'withdraw')
     stopLoadingAction(state, {})
@@ -1001,6 +1041,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const submitTransaction = async (state) => {
+    setState({
+      shouldShowSendTransactionModal: false,
+      shouldShowDelegationModal: false,
+    })
     if (!state.keepConfirmationDialogOpen) {
       setState({
         shouldShowConfirmTransactionDialog: false,
@@ -1190,35 +1234,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     resetTransactionSummary(newState)
   }
 
-  const shouldShowSendTransactionModal = (state, address, title) => {
-    setState({
-      sendTransactionTitle: title,
-      sendAddress: {fieldValue: address},
-      shouldShowSendTransactionModal: true,
-    })
-  }
-
-  const closeSendTransactionModal = (state) => {
-    setState({
-      sendAddress: {fieldValue: ''},
-      sendAmount: {fieldValue: '', coins: 0},
-      shouldShowSendTransactionModal: false,
-    })
-  }
-
-  const shouldShowDelegationModal = (state, title) => {
-    setState({
-      delegationTitle: title,
-      shouldShowDelegationModal: true,
-    })
-  }
-
-  const closeDelegationModal = (state) => {
-    setState({
-      shouldShowDelegationModal: false,
-    })
-  }
-
   return {
     loadingAction,
     stopLoadingAction,
@@ -1270,9 +1285,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     openInfoModal,
     closeInfoModal,
     closePremiumBanner,
-    shouldShowSendTransactionModal,
+    showSendTransactionModal,
     closeSendTransactionModal,
-    shouldShowDelegationModal,
+    showDelegationModal,
     closeDelegationModal,
   }
 }

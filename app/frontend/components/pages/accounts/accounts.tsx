@@ -16,9 +16,11 @@ const Account = ({
   firstAddressPerAccount,
   setAccount,
   selectedAccount,
-  shouldShowDelegationModal,
-  shouldShowSendTransactionModal,
+  showDelegationModal,
+  showSendTransactionModal,
 }) => {
+  const isSelected = selectedAccount === i
+
   const Balance = ({value}: {value: Lovelace}) => (
     <Fragment>
       {printAda(value, 3)}
@@ -34,13 +36,14 @@ const Account = ({
   const SendFromButton = () => (
     <button
       className="button primary nowrap account-button"
-      disabled={selectedAccount === i}
-      onClick={() =>
-        shouldShowSendTransactionModal(
+      disabled={isSelected}
+      onClick={() => {
+        setAccount(i)
+        showSendTransactionModal(
           firstAddressPerAccount[selectedAccount],
           `Send ADA from account ${i} to account ${selectedAccount}`
         )
-      }
+      }}
     >
       Send from
     </button>
@@ -48,9 +51,9 @@ const Account = ({
   const SendToButton = () => (
     <button
       className="button primary nowrap account-button"
-      disabled={selectedAccount === i}
+      disabled={isSelected}
       onClick={() =>
-        shouldShowSendTransactionModal(
+        showSendTransactionModal(
           firstAddressPerAccount[i],
           `Send ADA from account ${selectedAccount} to account ${i}`
         )
@@ -62,14 +65,17 @@ const Account = ({
   const DelegateButton = () => (
     <button
       className="button primary nowrap account-button"
-      onClick={() => shouldShowDelegationModal(`Delegate Account ${i} Stake`)}
+      onClick={() => {
+        setAccount(i)
+        showDelegationModal(`Delegate Account ${i} Stake`)
+      }}
     >
       Delegate
     </button>
   )
 
   return (
-    <div key={i} className={`card account ${selectedAccount === i ? 'selected' : ''}`}>
+    <div key={i} className={`card account ${isSelected ? 'selected' : ''}`}>
       <div className="header-wrapper mobile">
         <h2 className="card-title small-margin">Account {i}</h2>
       </div>
@@ -77,7 +83,7 @@ const Account = ({
         <h2 className="card-title small-margin account-header desktop">Account {i}</h2>
         <button
           className="button primary nowrap"
-          disabled={selectedAccount === i}
+          disabled={isSelected}
           onClick={() => {
             setAccount(i)
           }}
@@ -123,10 +129,10 @@ const Account = ({
         </div>
       </div>
       <div className="account-action-buttons desktop">
-        <div {...tooltip(`Transfer funds from account ${i}`, selectedAccount !== i)}>
+        <div {...tooltip(`Transfer funds from account ${i}`, !isSelected)}>
           <SendFromButton />
         </div>
-        <div {...tooltip(`Transfer funds to account ${i}`, selectedAccount !== i)}>
+        <div {...tooltip(`Transfer funds to account ${i}`, !isSelected)}>
           <SendToButton />
         </div>
         <div {...tooltip(`Delegate account ${i} stake`, true)}>
@@ -142,7 +148,7 @@ const Accounts = ({
   setAccount,
   selectedAccount,
   reloadWalletInfo,
-  showTransactionModal,
+  showSendTransactionModal,
   showDelegationModal,
   shouldShowSendTransactionModal,
   shouldShowDelegationModal,
@@ -190,8 +196,8 @@ const Accounts = ({
 
   return (
     <Fragment>
-      {showTransactionModal && <SendTransactionModal />}
-      {showDelegationModal && <DelegationModal />}
+      {shouldShowSendTransactionModal && <SendTransactionModal />}
+      {shouldShowDelegationModal && <DelegationModal />}
       <div className="dashboard-column account">
         <div className="card account-aggregated">
           <div className="balance">
@@ -232,8 +238,8 @@ const Accounts = ({
                       firstAddressPerAccount={firstAddressPerAccount}
                       setAccount={setAccount}
                       selectedAccount={selectedAccount}
-                      shouldShowSendTransactionModal={shouldShowSendTransactionModal}
-                      shouldShowDelegationModal={shouldShowDelegationModal}
+                      showSendTransactionModal={showSendTransactionModal}
+                      showDelegationModal={showDelegationModal}
                     />
                   )
               )}
@@ -253,8 +259,8 @@ export default connect(
     isDemoWallet: state.isDemoWallet,
     accounts: state.accounts,
     selectedAccount: state.selectedAccount,
-    showTransactionModal: state.shouldShowSendTransactionModal,
-    showDelegationModal: state.shouldShowDelegationModal,
+    shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
+    shouldShowDelegationModal: state.shouldShowDelegationModal,
   }),
   actions
 )(Accounts)
