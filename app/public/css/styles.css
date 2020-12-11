@@ -3046,6 +3046,26 @@ input:checked + .slider:before {
   fill: var(--color-grey-medium);
 }
 
+.delegation-input-row {
+  display: flex;
+  align-items: center;
+}
+
+.delegation-input-row.focus {
+  outline: none;
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.06);
+}
+
+.delegation-input {
+  border: none;
+  flex: 1 1 auto;
+}
+
+.delegation-input-label {
+  padding-top: 2px;
+  padding-right: 4px;
+}
+
 .stake-pool-info {
   margin-left: 12px;
   height: 16px;
