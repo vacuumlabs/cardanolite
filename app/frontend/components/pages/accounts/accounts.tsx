@@ -46,6 +46,16 @@ const Account = ({
         )
       }}
     >
+      {false && (
+        <a
+          {...tooltip(
+            'Balance on your payment addresses available to be used in transactions. In order to add your Rewards Balance to Available Balance, you need to withdraw them.',
+            true
+          )}
+        >
+          <span className="show-info">{''}</span>
+        </a>
+      )}
       Send from
     </button>
   )
@@ -62,6 +72,16 @@ const Account = ({
         )
       }
     >
+      {false && (
+        <a
+          {...tooltip(
+            'Balance on your payment addresses available to be used in transactions. In order to add your Rewards Balance to Available Balance, you need to withdraw them.',
+            true
+          )}
+        >
+          <span className="show-info">{''}</span>
+        </a>
+      )}
       Send to
     </button>
   )
@@ -72,6 +92,16 @@ const Account = ({
         showDelegationModal(i, `Delegate Account ${i} Stake`, true)
       }}
     >
+      {false && (
+        <a
+          {...tooltip(
+            'Balance on your payment addresses available to be used in transactions. In order to add your Rewards Balance to Available Balance, you need to withdraw them.',
+            true
+          )}
+        >
+          <span className="show-info">{''}</span>
+        </a>
+      )}
       Delegate
     </button>
   )
@@ -107,10 +137,12 @@ const Account = ({
           )}
         </div>
         <div className="mobile">
-          <div className="account-action-buttons">
-            <SendFromButton />
-            <SendToButton />
-          </div>
+          {account && (
+            <div className="account-action-buttons">
+              <SendFromButton />
+              <SendToButton />
+            </div>
+          )}
         </div>
       </div>
       <div className="card-column account-item-info-wrapper tablet-offset">
@@ -125,22 +157,20 @@ const Account = ({
           <PoolTicker />
         </div>
         <div className="mobile">
-          <div className="account-action-buttons">
-            <DelegateButton />
-          </div>
+          {account && (
+            <div className="account-action-buttons">
+              <DelegateButton />
+            </div>
+          )}
         </div>
       </div>
-      <div className="account-action-buttons desktop">
-        <div {...tooltip(`Transfer funds from account ${i}`, !isSelected)}>
+      {account && (
+        <div className="account-action-buttons desktop">
           <SendFromButton />
-        </div>
-        <div {...tooltip(`Transfer funds to account ${i}`, !isSelected)}>
           <SendToButton />
-        </div>
-        <div {...tooltip(`Delegate account ${i} stake`, true)}>
           <DelegateButton />
         </div>
-      </div>
+      )}
     </div>
   )
 }

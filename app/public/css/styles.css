@@ -1557,6 +1557,11 @@ li.main-tab input + label.selected:after {
   margin-left: 8px;
 }
 
+.account-button .show-info::after {
+  left: 72px;
+  top: -4px;
+}
+
 .account-action-buttons {
   display: flex;
 }
