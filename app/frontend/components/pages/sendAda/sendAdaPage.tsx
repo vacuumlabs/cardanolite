@@ -14,6 +14,7 @@ import CustomDonationInput from './customDonationInput'
 import Conversions from '../../common/conversions'
 import {ADALITE_CONFIG} from '../../../config'
 import {toCoins} from '../../../helpers/adaConverters'
+import AddressVerification from '../../common/addressVerification'
 
 import tooltip from '../../common/tooltip'
 
@@ -64,6 +65,7 @@ interface Props {
   showDonationFields: boolean
   isModal: boolean
   title: string
+  showVerification: boolean
 }
 
 class SendAdaPage extends Component<Props> {
@@ -99,6 +101,7 @@ class SendAdaPage extends Component<Props> {
     showDonationFields,
     isModal,
     title,
+    showVerification,
   }) {
     const sendFormValidationError =
       sendAddressValidationError || sendAmountValidationError || donationAmountValidationError
@@ -118,7 +121,7 @@ class SendAdaPage extends Component<Props> {
         <input
           type="text"
           id="send-address"
-          className="input send-address fullwidth"
+          className={`input ${showVerification && isModal ? '' : 'send-address'} fullwidth`}
           name="send-address"
           placeholder="Receiving address"
           value={sendAddress}
@@ -127,6 +130,9 @@ class SendAdaPage extends Component<Props> {
           onKeyDown={(e) => e.key === 'Enter' && this.amountField.focus()}
           disabled={isModal}
         />
+        <div className="account-verify-wrapper">
+          {isModal && <AddressVerification address={sendAddress} />}
+        </div>
         <div className="send-values">
           <label className="ada-label amount" htmlFor="send-amount">
             Amount
@@ -257,6 +263,7 @@ export default connect(
     transactionFee: state.transactionFee,
     txSuccessTab: state.txSuccessTab,
     balance: state.balance,
+    showVerification: state.shouldShowAddressVerification,
   }),
   actions
 )(SendAdaPage)

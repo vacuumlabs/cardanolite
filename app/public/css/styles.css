@@ -1579,6 +1579,12 @@ li.main-tab input + label.selected:after {
   flex-direction: column;
 }
 
+.account-verify-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
 /* AUTHENTICATION */
 
 .authentication {
