@@ -3059,6 +3059,11 @@ input:checked + .slider:before {
 .delegation-input {
   border: none;
   flex: 1 1 auto;
+  font-family: JTMarnie, Arial, Helvetica, sans-serif;
+}
+
+.delegation-input:focus {
+  outline: none;
 }
 
 .delegation-input-label {

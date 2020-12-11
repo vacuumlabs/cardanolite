@@ -148,6 +148,7 @@ export interface State {
   accounts: any
   activeAccount: number
   selectedAccount: number
+  targetAccount: number
   shouldShowSendTransactionModal: boolean
   shouldShowDelegationModal: boolean
   sendTransactionTitle: string
@@ -263,6 +264,7 @@ const initialState: State = {
   accounts: {},
   activeAccount: 0,
   selectedAccount: 0,
+  targetAccount: 0,
   shouldShowSendTransactionModal: false,
   shouldShowDelegationModal: false,
   sendTransactionTitle: '',

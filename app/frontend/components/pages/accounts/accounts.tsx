@@ -42,7 +42,7 @@ const Account = ({
           i,
           firstAddressPerAccount[selectedAccount],
           `Send ADA from account ${i} to account ${selectedAccount}`,
-          true
+          selectedAccount
         )
       }}
     >
@@ -68,7 +68,7 @@ const Account = ({
           i,
           firstAddressPerAccount[i],
           `Send ADA from account ${selectedAccount} to account ${i}`,
-          false
+          i
         )
       }
     >
@@ -89,7 +89,7 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       onClick={() => {
-        showDelegationModal(i, `Delegate Account ${i} Stake`, true)
+        showDelegationModal(i, `Delegate Account ${i} Stake`, i)
       }}
     >
       {false && (
