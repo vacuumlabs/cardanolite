@@ -160,6 +160,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const shouldShowPremiumBanner =
         state.shouldShowPremiumBanner && PREMIUM_MEMBER_BALANCE_TRESHHOLD < 0
       // should work for full wallet balance
+      const isBigDelegator = BIG_DELEGATOR_THRESHOLD > 0 // todo
       setState({
         accounts: accountsInfo,
         walletIsLoaded: true,
