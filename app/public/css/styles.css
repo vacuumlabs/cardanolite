@@ -4631,6 +4631,10 @@ input:checked + .slider:before {
     margin-top: 24px;
   }
 
+  .modal-body .alert.news {
+    margin-top: 42px;
+  }
+
   /* ALERTS */
 
   .alert {
