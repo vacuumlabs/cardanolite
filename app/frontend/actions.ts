@@ -1259,8 +1259,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
-  const toggleDisplayStakingPage = (state, value) => {
-    setState({displayStakingPage: value})
+  const selectMainTab = (state, value) => {
+    setState({selectedMainTab: value})
     resetTransactionSummary(state)
     resetSendFormFields(state)
   }
@@ -1323,7 +1323,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     resetDonation,
     closeStakingBanner,
     updateStakePoolIdentifier,
-    toggleDisplayStakingPage,
+    selectMainTab,
     selectAdaliteStakepool,
     convertNonStakingUtxos,
     loadErrorBannerContent,

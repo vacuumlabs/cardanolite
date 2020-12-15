@@ -21,8 +21,8 @@ import Keys from '../advanced/keys'
 import Accounts from '../accounts/accounts'
 
 interface Props {
-  displayStakingPage: any
-  toggleDisplayStakingPage?: (value: string) => void
+  selectedMainTab: any
+  selectMainTab?: (value: string) => void
 }
 
 const StakingPage = () => {
@@ -76,32 +76,23 @@ const AccountsPage = () => {
 class DashboardPage extends Component<Props> {
   constructor(props) {
     super(props)
-    this.state = {
-      selectedMainTab: 'Sending',
-    }
     this.selectMainTab = this.selectMainTab.bind(this)
   }
 
   selectMainTab(name) {
-    this.setState({
-      selectedMainTab: name,
-    })
-    this.props.toggleDisplayStakingPage(name)
+    this.props.selectMainTab(name)
   }
 
-  render(
-    {
-      shouldShowExportOption,
-      displayStakingPage,
-      isShelleyCompatible,
-      shouldShowNonShelleyCompatibleDialog,
-      displayInfoModal,
-      shouldShowPremiumBanner,
-      shouldShowSaturatedBanner,
-      selectedAccount,
-    },
-    {selectedMainTab}
-  ) {
+  render({
+    shouldShowExportOption,
+    selectedMainTab,
+    isShelleyCompatible,
+    shouldShowNonShelleyCompatibleDialog,
+    displayInfoModal,
+    shouldShowPremiumBanner,
+    shouldShowSaturatedBanner,
+    selectedAccount,
+  }) {
     // TODO: this approach doesnt allow multi-word tabs
     const mainTabs = ['Accounts', 'Sending', 'Staking', 'Advanced']
     // TODO: refactor this ^ to array of objects
@@ -130,19 +121,19 @@ class DashboardPage extends Component<Props> {
               <MainTab
                 key={i}
                 name={name}
-                selectedTab={displayStakingPage}
+                selectedTab={selectedMainTab}
                 selectTab={this.selectMainTab}
                 displayName={name === 'Accounts' && `Account #${selectedAccount}`}
               />
             ))}
           </ul>
         )}
-        <div className="dashboard desktop">{displayedPages[displayStakingPage]}</div>
+        <div className="dashboard desktop">{displayedPages[selectedMainTab]}</div>
 
         <div className="dashboard mobile">
           {displayedSubPages[selectedMainTab]}
-          <DashboardMobileContent displayStakingPage={displayStakingPage} />
-          {displayStakingPage === 'Sending' && shouldShowExportOption && <ExportCard />}
+          <DashboardMobileContent selectedMainTab={selectedMainTab} />
+          {selectedMainTab === 'Sending' && shouldShowExportOption && <ExportCard />}
         </div>
       </div>
     )
@@ -177,7 +168,7 @@ class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
   stakingTabs = ['Delegate ADA', 'Current Delegation', 'Staking history']
   sendingTabs = ['Send ADA', 'Transactions', 'Recieve ADA']
   advancedTabs = ['Keys']
-  render({displayStakingPage}, {selectedSubTab}) {
+  render({selectedMainTab}, {selectedSubTab}) {
     const selectedDefultSubTabs = {
       Accounts: 'Accounts',
       Sending: 'Transactions',
@@ -190,14 +181,14 @@ class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
       Staking: this.stakingTabs,
       Advanced: this.advancedTabs,
     }
-    if (!tabs[displayStakingPage].includes(selectedSubTab)) {
-      this.selectSubTab(selectedDefultSubTabs[displayStakingPage])
+    if (!tabs[selectedMainTab].includes(selectedSubTab)) {
+      this.selectSubTab(selectedDefultSubTabs[selectedMainTab])
     }
     const Page = this.pages[selectedSubTab]
     return (
       <div className="dashboard-content">
         <ul className="dashboard-tabs">
-          {tabs[displayStakingPage].map((name, i) => (
+          {tabs[selectedMainTab].map((name, i) => (
             <SubTab
               key={i}
               name={name}
@@ -215,7 +206,7 @@ class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
 export default connect(
   (state) => ({
     shouldShowExportOption: state.shouldShowExportOption,
-    displayStakingPage: state.displayStakingPage,
+    selectedMainTab: state.selectedMainTab,
     displayInfoModal: state.displayInfoModal,
     isShelleyCompatible: state.isShelleyCompatible,
     shouldShowNonShelleyCompatibleDialog: state.shouldShowNonShelleyCompatibleDialog,

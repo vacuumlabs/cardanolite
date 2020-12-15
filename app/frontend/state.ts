@@ -112,7 +112,7 @@ export interface State {
     selectedPool?: any
     delegationFee?: any
   }
-  displayStakingPage?: any
+  selectedMainTab: string
   currentDelegation?: {
     stakePool?: any
   }
@@ -226,7 +226,7 @@ const initialState: State = {
     ADALITE_CONFIG.ADALITE_ENV === 'local' && ADALITE_CONFIG.ADALITE_DEVEL_AUTO_LOGIN === 'true',
 
   // shelley
-  displayStakingPage: 'Sending',
+  selectedMainTab: 'Sending',
   shelleyDelegation: {
     delegationFee: 0.0,
     selectedPool: {
