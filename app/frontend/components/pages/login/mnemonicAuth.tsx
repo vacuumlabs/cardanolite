@@ -42,7 +42,7 @@ class LoadByMnemonicSectionClass extends Component<Props> {
     await this.props.loadWallet({
       cryptoProviderType: CRYPTO_PROVIDER_TYPES.WALLET_SECRET,
       walletSecretDef: await mnemonicToWalletSecretDef(sanitizedMnemonic),
-      bulkExportPubKeys: true,
+      shouldExportPubKeyBulk: true,
     })
   }
 
@@ -96,7 +96,7 @@ class LoadByMnemonicSectionClass extends Component<Props> {
                 cryptoProviderType: CRYPTO_PROVIDER_TYPES.WALLET_SECRET,
                 // TODO(ppershing): get rid of mnemonic sanitization in this component
                 walletSecretDef: await mnemonicToWalletSecretDef(sanitizedMnemonic),
-                bulkExportPubKeys: true,
+                shouldExportPubKeyBulk: true,
               })
             }
             {...tooltip(
