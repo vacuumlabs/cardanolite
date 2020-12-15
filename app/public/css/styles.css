@@ -1463,12 +1463,12 @@ li.main-tab input + label.selected:after {
 }
 
 .card-column {
-  padding-left: 8px;
   flex-grow: 1;
+  width: 25%;
 }
 
 .card-column > button {
-  width: 80%;
+  width: 144px;
 }
 
 .card-column > .item {
@@ -1529,7 +1529,7 @@ li.main-tab input + label.selected:after {
   text-align: center;
   font-size: 20px;
   padding-bottom: 8px;
-  width: 80%;
+  width: 144px;
 }
 
 .account.list {
@@ -1564,6 +1564,7 @@ li.main-tab input + label.selected:after {
 
 .account-action-buttons {
   display: flex;
+  justify-items: center;
 }
 
 .account-action-buttons .account-button {
@@ -1572,7 +1573,6 @@ li.main-tab input + label.selected:after {
   margin-top: 6px;
   margin-right: 8px;
   font-size: 12px;
-  margin-left: 0px;
 }
 
 .account-action-buttons.desktop {
@@ -4297,9 +4297,14 @@ input:checked + .slider:before {
     border-bottom: 1px solid var(--color-grey-light);
   }
 
+  .card-column {
+    width: unset;
+  }
+
   .card-column > .item {
     margin-top: unset;
     margin-bottom: unset;
+    padding-left: unset;
   }
 
   .card.account .header-wrapper {
@@ -4837,7 +4842,6 @@ input:checked + .slider:before {
   }
 
   .account-item-info-wrapper {
-    padding-left: 8px;
     flex: 1 1 33%;
   }
 
@@ -5298,6 +5302,11 @@ input:checked + .slider:before {
   .card-column > .item {
     margin-top: unset;
     margin-bottom: unset;
+    padding-left: unset;
+  }
+
+  .card-column {
+    width: unset;
   }
 
   .card-column.tablet-offset {
@@ -5340,7 +5349,7 @@ input:checked + .slider:before {
 
   .account-item-info-wrapper {
     padding-left: 8px;
-    flex: 1 1 33%;
+    flex: 1 1 32%;
   }
 
   .account-item-info-wrapper {

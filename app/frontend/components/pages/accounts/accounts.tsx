@@ -41,18 +41,13 @@ const Account = ({
         showSendTransactionModal(
           i,
           firstAddressPerAccount[selectedAccount],
-          `Send ADA from account ${i} to account ${selectedAccount}`,
+          `Send ADA from Account #${i} to Account #${selectedAccount}`,
           selectedAccount
         )
       }}
     >
       {false && (
-        <a
-          {...tooltip(
-            'Balance on your payment addresses available to be used in transactions. In order to add your Rewards Balance to Available Balance, you need to withdraw them.',
-            true
-          )}
-        >
+        <a {...tooltip(`Send ADA from Account #${i} to Account #${selectedAccount}`, true)}>
           <span className="show-info">{''}</span>
         </a>
       )}
@@ -73,12 +68,7 @@ const Account = ({
       }
     >
       {false && (
-        <a
-          {...tooltip(
-            'Balance on your payment addresses available to be used in transactions. In order to add your Rewards Balance to Available Balance, you need to withdraw them.',
-            true
-          )}
-        >
+        <a {...tooltip(`Send ADA from account ${selectedAccount} to account ${i}`, true)}>
           <span className="show-info">{''}</span>
         </a>
       )}
@@ -89,16 +79,11 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       onClick={() => {
-        showDelegationModal(i, `Delegate Account ${i} Stake`, i)
+        showDelegationModal(i, `Delegate Account #${i} Stake`, i)
       }}
     >
       {false && (
-        <a
-          {...tooltip(
-            'Balance on your payment addresses available to be used in transactions. In order to add your Rewards Balance to Available Balance, you need to withdraw them.',
-            true
-          )}
-        >
+        <a {...tooltip(`Delegate Account #${i} Stake`, true)}>
           <span className="show-info">{''}</span>
         </a>
       )}
@@ -106,13 +91,19 @@ const Account = ({
     </button>
   )
 
+  const buttonLabel = () => {
+    if (isSelected) return 'Active'
+    if (!account) return 'Explore'
+    return 'Activate'
+  }
+
   return (
     <div key={i} className={`card account ${isSelected ? 'selected' : ''}`}>
       <div className="header-wrapper mobile">
-        <h2 className="card-title small-margin">Account {i}</h2>
+        <h2 className="card-title small-margin">Account #{i}</h2>
       </div>
       <div className="card-column account-button-wrapper">
-        <h2 className="card-title small-margin account-header desktop">Account {i}</h2>
+        <h2 className="card-title small-margin account-header desktop">Account #{i}</h2>
         <button
           className="button primary nowrap"
           disabled={isSelected}
@@ -120,7 +111,7 @@ const Account = ({
             setAccount(i, true)
           }}
         >
-          {account ? 'Activate' : 'Explore'}
+          {buttonLabel()}
         </button>
       </div>
       <div className="card-column account-item-info-wrapper">
@@ -164,12 +155,14 @@ const Account = ({
           )}
         </div>
       </div>
-      {account && (
+      {account ? (
         <div className="account-action-buttons desktop">
           <SendFromButton />
           <SendToButton />
           <DelegateButton />
         </div>
+      ) : (
+        <div className="account-action-buttons desktop" style="width: 94px;" />
       )}
     </div>
   )
