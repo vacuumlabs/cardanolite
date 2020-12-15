@@ -220,7 +220,7 @@ export default connect(
     isShelleyCompatible: state.isShelleyCompatible,
     shouldShowNonShelleyCompatibleDialog: state.shouldShowNonShelleyCompatibleDialog,
     shouldShowPremiumBanner: state.shouldShowPremiumBanner,
-    shouldShowSaturatedBanner: state.poolRecommendation.shouldShowSaturatedBanner,
+    shouldShowSaturatedBanner: state.shouldShowSaturatedBanner,
     selectedAccount: state.selectedAccount,
   }),
   actions

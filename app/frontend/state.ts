@@ -144,11 +144,14 @@ export interface State {
     status: string
     shouldShowSaturatedBanner: boolean
   }
+  shouldShowSaturatedBanner?: boolean
   isBigDelegator: boolean
   accounts: any
   activeAccount: number
   selectedAccount: number
   targetAccount: number
+  totalWalletBalance: number
+  totalRewardsBalance: number
   shouldShowSendTransactionModal: boolean
   shouldShowDelegationModal: boolean
   sendTransactionTitle: string
@@ -265,6 +268,8 @@ const initialState: State = {
   activeAccount: 0,
   selectedAccount: 0,
   targetAccount: 0,
+  totalWalletBalance: 0,
+  totalRewardsBalance: 0,
   shouldShowSendTransactionModal: false,
   shouldShowDelegationModal: false,
   sendTransactionTitle: '',

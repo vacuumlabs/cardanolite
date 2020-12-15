@@ -15,4 +15,3 @@ server.cert
 server.key
 app/tests/.chrome/*
 app/tests/*.module.wasm
-.scannerwork

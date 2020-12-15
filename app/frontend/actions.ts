@@ -37,7 +37,6 @@ import {localStorageVars} from './localStorage'
 
 let wallet: ReturnType<typeof Wallet>
 let account: ReturnType<typeof Account>
-let cryptoProvider
 
 const debounceEvent = (callback, time) => {
   let interval
@@ -132,20 +131,28 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const shouldExportPubKeyBulk = bulkExportPubKeys
     const config = {...ADALITE_CONFIG, isShelleyCompatible, shouldExportPubKeyBulk}
     try {
-      cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(cryptoProviderType, {
-        walletSecretDef,
-        network: NETWORKS.SHELLEY[ADALITE_CONFIG.ADALITE_NETWORK],
-        config: ADALITE_CONFIG,
-        forceWebUsb,
-      })
+      const cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(
+        cryptoProviderType,
+        {
+          walletSecretDef,
+          network: NETWORKS.SHELLEY[ADALITE_CONFIG.ADALITE_NETWORK],
+          config,
+          forceWebUsb, // TODO: into config
+        }
+      )
 
       wallet = await Wallet({
         config,
         cryptoProvider,
       })
 
-      const accountsInfo = await wallet.getAccountsInfo()
-      account = wallet.accounts[0] // THIS is not right
+      const {
+        accountsInfo,
+        totalRewardsBalance,
+        totalWalletBalance,
+        shouldShowSaturatedBanner,
+      } = await wallet.getAccountsInfo()
+      account = wallet.accounts[0] // TODO: Make accounts private
 
       const conversionRatesPromise = getConversionRates(state)
       const usingHwWallet = wallet.isHwWallet()
@@ -158,11 +165,13 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const autoLogin = state.autoLogin
       const ticker2Id = null
       const shouldShowPremiumBanner =
-        state.shouldShowPremiumBanner && PREMIUM_MEMBER_BALANCE_TRESHHOLD < 0
-      // should work for full wallet balance
-      const isBigDelegator = BIG_DELEGATOR_THRESHOLD > 0 // todo
+        state.shouldShowPremiumBanner && PREMIUM_MEMBER_BALANCE_TRESHHOLD < totalWalletBalance
+      const isBigDelegator = totalWalletBalance > BIG_DELEGATOR_THRESHOLD
       setState({
         accounts: accountsInfo,
+        totalWalletBalance,
+        totalRewardsBalance,
+        shouldShowSaturatedBanner,
         walletIsLoaded: true,
         ...accountsInfo[0],
         loading: false,
@@ -203,18 +212,24 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     return true
   }
 
-  //TODO reloadAccountInfo function
-
   const reloadWalletInfo = async (state) => {
     loadingAction(state, 'Reloading wallet info...')
     try {
-      const accountsInfo = await wallet.getAccountsInfo()
+      const {
+        accountsInfo,
+        totalRewardsBalance,
+        totalWalletBalance,
+        shouldShowSaturatedBanner,
+      } = await wallet.getAccountsInfo()
       const conversionRates = getConversionRates(state)
 
       // timeout setting loading state, so that loading shows even if everything was cached
       setTimeout(() => setState({loading: false}), 500)
       setState({
         accounts: accountsInfo,
+        totalWalletBalance,
+        totalRewardsBalance,
+        shouldShowSaturatedBanner,
         ...accountsInfo[account.accountIndex],
       })
       await fetchConversionRates(conversionRates)

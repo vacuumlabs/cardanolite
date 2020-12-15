@@ -184,17 +184,10 @@ const Accounts = ({
   shouldShowSendTransactionModal,
   shouldShowDelegationModal,
   selectedAccount,
+  totalWalletBalance,
+  totalRewardsBalance,
 }) => {
   const accountInfos = Object.values(accounts)
-  const totalBalance = accountInfos.reduce(
-    (a, {shelleyBalances}) =>
-      shelleyBalances.stakingBalance + shelleyBalances.nonStakingBalance + a,
-    0
-  )
-  const totalRewardBalance = accountInfos.reduce(
-    (a, {shelleyBalances}) => shelleyBalances.rewardsAccountBalance + a,
-    0
-  )
   const firstAddressPerAccount = accountInfos.map((e: any) => e.visibleAddresses[0].address)
   const InfoAlert = () => (
     <Fragment>
@@ -236,14 +229,14 @@ const Accounts = ({
             <div className="item">
               <h2 className="card-title small-margin">Total balance</h2>
               <div className="balance-amount">
-                {printAda(totalBalance as Lovelace)}
+                {printAda(totalWalletBalance as Lovelace)}
                 <AdaIcon />
               </div>
             </div>
             <div className="item">
               <h2 className="card-title small-margin">Total rewards balance</h2>
               <div className="balance-amount">
-                {printAda(totalRewardBalance as Lovelace)}
+                {printAda(totalRewardsBalance as Lovelace)}
                 <AdaIcon />
               </div>
             </div>
@@ -293,6 +286,8 @@ export default connect(
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
     selectedAccount: state.selectedAccount,
+    totalRewardsBalance: state.totalRewardsBalance,
+    totalWalletBalance: state.totalWalletBalance,
   }),
   actions
 )(Accounts)

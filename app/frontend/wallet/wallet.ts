@@ -71,14 +71,27 @@ const Wallet = ({config, cryptoProvider}) => {
     return null
   }
 
-  function getBalance() {
-    return 0
-  }
-
   async function getAccountsInfo() {
     await discoverAccounts()
     const accountsInfo = await Promise.all(accounts.map((account) => account.getWalletInfo()))
-    return Object.assign({}, accountsInfo)
+    const totalWalletBalance = accountsInfo.reduce(
+      (a, {shelleyBalances}) =>
+        shelleyBalances.stakingBalance + shelleyBalances.nonStakingBalance + a,
+      0
+    )
+    const totalRewardsBalance = accountsInfo.reduce(
+      (a, {shelleyBalances}) => shelleyBalances.rewardsAccountBalance + a,
+      0
+    )
+    const shouldShowSaturatedBanner = accountsInfo.some(
+      ({poolRecommendation}) => poolRecommendation.shouldShowSaturatedBanner
+    )
+    return {
+      accountsInfo: Object.assign({}, accountsInfo),
+      totalWalletBalance,
+      totalRewardsBalance,
+      shouldShowSaturatedBanner,
+    }
   }
 
   return {
@@ -88,7 +101,6 @@ const Wallet = ({config, cryptoProvider}) => {
     getWalletSecretDef,
     fetchTxInfo,
     checkCryptoProviderVersion,
-    getBalance,
     accounts,
     loadNewAccount,
     discoverAccounts,
