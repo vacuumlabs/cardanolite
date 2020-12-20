@@ -13,8 +13,7 @@ import tooltip from '../../common/tooltip'
 const Account = ({
   i,
   account,
-  firstAddressPerAccount,
-  setAccount,
+  setSelectedAccount,
   selectedAccount,
   showDelegationModal,
   showSendTransactionModal,
@@ -37,14 +36,7 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       disabled={isSelected}
-      onClick={() =>
-        showSendTransactionModal(
-          i,
-          firstAddressPerAccount[i],
-          `Send ADA from account ${selectedAccount} to account ${i}`,
-          i
-        )
-      }
+      onClick={() => showSendTransactionModal(selectedAccount, i)}
     >
       {false && (
         <a {...tooltip(`Send ADA from account ${selectedAccount} to account ${i}`, true)}>
@@ -58,7 +50,7 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       onClick={() => {
-        showDelegationModal(i, `Delegate Account #${i} Stake`, i)
+        showDelegationModal(i, i)
       }}
     >
       {false && (
@@ -87,7 +79,7 @@ const Account = ({
           className="button primary nowrap"
           disabled={isSelected}
           onClick={() => {
-            setAccount(i, true)
+            setSelectedAccount(i)
           }}
         >
           {buttonLabel()}
@@ -147,7 +139,7 @@ const Account = ({
 
 const Accounts = ({
   accounts,
-  setAccount,
+  setSelectedAccount,
   reloadWalletInfo,
   showSendTransactionModal,
   showDelegationModal,
@@ -158,7 +150,6 @@ const Accounts = ({
   totalRewardsBalance,
 }) => {
   const accountInfos = Object.values(accounts)
-  const firstAddressPerAccount = accountInfos.map((e: any) => e.visibleAddresses[0].address)
   const InfoAlert = () => (
     <Fragment>
       <div className="dashboard-column account sidebar-item info">
@@ -230,8 +221,7 @@ const Accounts = ({
                       key={i}
                       i={i}
                       account={accounts[i]}
-                      firstAddressPerAccount={firstAddressPerAccount}
-                      setAccount={setAccount}
+                      setSelectedAccount={setSelectedAccount}
                       selectedAccount={selectedAccount}
                       showSendTransactionModal={showSendTransactionModal}
                       showDelegationModal={showDelegationModal}

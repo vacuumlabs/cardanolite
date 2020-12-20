@@ -14,43 +14,12 @@ import CustomDonationInput from './customDonationInput'
 import Conversions from '../../common/conversions'
 import {ADALITE_CONFIG} from '../../../config'
 import {toCoins} from '../../../helpers/adaConverters'
-import {useState, useCallback} from 'preact/hooks'
 
 import tooltip from '../../common/tooltip'
-import range from '../../../wallet/helpers/range'
+import AccountDropdown from '../accounts/accountDropdown'
+import {State} from '../../../state'
 
 const {ADALITE_MIN_DONATION_VALUE} = ADALITE_CONFIG
-
-const AccountDropdown = ({accountIndex}) => {
-  const [shouldHideAccountDropdown, hideAccountDropdown] = useState(true)
-  const toggleAccountDropdown = useCallback(
-    () => {
-      hideAccountDropdown(!shouldHideAccountDropdown)
-    },
-    [shouldHideAccountDropdown]
-  )
-  const [selectedAccountIndex, selectAccountIndex] = useState(accountIndex)
-  return (
-    <div className="account-dropdown">
-      <button className="account-dropdown-button" onClick={() => toggleAccountDropdown()}>
-        Account {selectedAccountIndex}
-      </button>
-      <div className={`account-dropdown-content ${shouldHideAccountDropdown ? 'hide' : 'show'}`}>
-        {range(0, 4).map((i) => (
-          <a
-            key={i}
-            onClick={() => {
-              hideAccountDropdown(true)
-              selectAccountIndex(i)
-            }}
-          >
-            Account {i}
-          </a>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 const CalculatingFee = () => <div className="validation-message send">Calculating fee...</div>
 
@@ -97,7 +66,10 @@ interface Props {
   showDonationFields: boolean
   isModal: boolean
   title: string
-  accounts: any
+  sourceAccount: number
+  targetAccount: number
+  setSourceAccount: any
+  setTargetAccount: any
 }
 
 class SendAdaPage extends Component<Props> {
@@ -133,7 +105,10 @@ class SendAdaPage extends Component<Props> {
     showDonationFields,
     isModal,
     title,
-    accounts,
+    sourceAccount,
+    targetAccount,
+    setSourceAccount,
+    setTargetAccount,
   }) {
     const sendFormValidationError =
       sendAddressValidationError || sendAmountValidationError || donationAmountValidationError
@@ -168,9 +143,9 @@ class SendAdaPage extends Component<Props> {
           {isModal && (
             <Fragment>
               <label className="account-label">From</label>
-              <AccountDropdown accountIndex={0} />
+              <AccountDropdown accountIndex={sourceAccount} setAccountFunc={setSourceAccount} />
               <label className="account-label">To</label>
-              <AccountDropdown accountIndex={0} />
+              <AccountDropdown accountIndex={targetAccount} setAccountFunc={setTargetAccount} />
             </Fragment>
           )}
           <label className="ada-label amount" htmlFor="send-amount">
@@ -282,7 +257,7 @@ SendAdaPage.defaultProps = {
 }
 
 export default connect(
-  (state) => ({
+  (state: State) => ({
     transactionSubmissionError: state.transactionSubmissionError,
     sendResponse: state.sendResponse,
     sendAddressValidationError: state.sendAddressValidationError,
@@ -302,7 +277,8 @@ export default connect(
     transactionFee: state.transactionFee,
     txSuccessTab: state.txSuccessTab,
     balance: state.balance,
-    accounts: state.accounts,
+    sourceAccount: state.sourceAccount,
+    targetAccount: state.targetAccount,
   }),
   actions
 )(SendAdaPage)

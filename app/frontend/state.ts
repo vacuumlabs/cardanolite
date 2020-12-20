@@ -147,7 +147,7 @@ export interface State {
   shouldShowSaturatedBanner?: boolean
   isBigDelegator: boolean
   accounts: any
-  activeAccount: number
+  sourceAccount: number
   selectedAccount: number
   targetAccount: number
   totalWalletBalance: number
@@ -265,7 +265,7 @@ const initialState: State = {
   },
   isBigDelegator: false,
   accounts: {},
-  activeAccount: 0,
+  sourceAccount: 0,
   selectedAccount: 0,
   targetAccount: 0,
   totalWalletBalance: 0,

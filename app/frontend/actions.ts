@@ -480,12 +480,14 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const resetAmountFields = (state) => {
     setState({
+      sendAmount: {fieldValue: '', coins: 0},
       donationAmount: {fieldValue: '', coins: 0},
       transactionFee: 0, // TODO(merc): call resetDonation instead?
       maxDonationAmount: Infinity,
       checkedDonationType: '',
       shouldShowCustomDonationInput: false,
     })
+    setErrorState('sendAmountValidationError', null)
     resetPercentageDonation()
   }
 
@@ -722,11 +724,11 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       })
   }
 
-  const updateAddress = (state, e) => {
+  const updateAddress = (state, e, address?: string) => {
     setState({
       sendResponse: '',
       sendAddress: Object.assign({}, state.sendAddress, {
-        fieldValue: e.target.value,
+        fieldValue: address || e.target.value,
       }),
     })
     validateSendFormAndCalculateFee()
@@ -990,7 +992,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const selectAdaliteStakepool = (state: State) => {
-    updateStakePoolIdentifier(getState(), null, state.poolRecommendation.recommendedPoolHash)
+    const newState = getState()
+    updateStakePoolIdentifier(newState, null, newState.poolRecommendation.recommendedPoolHash)
   }
 
   /* MULTIPLE ACCOUNTS */
@@ -1006,11 +1009,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
-  const setAccount = async (
-    state: State,
-    accountIndex: number,
-    shoudlChangeSelectedAccount?: boolean
-  ) => {
+  const setAccount = async (state: State, accountIndex: number) => {
     loadingAction(state, 'Loading account')
     if (!wallet.accounts[accountIndex]) {
       await loadNewAccount(state, accountIndex)
@@ -1018,36 +1017,50 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     stopLoadingAction(state, {})
     account = wallet.accounts[accountIndex]
     const newState = getState()
-    const walletInfo = newState.accounts[accountIndex]
+    const accountInfo = newState.accounts[accountIndex]
     setState({
-      ...walletInfo,
-      activeAccount: accountIndex,
+      ...accountInfo,
     })
-    if (shoudlChangeSelectedAccount) {
-      setState({
-        selectedAccount: accountIndex,
-        targetAccount: accountIndex,
-      })
-    }
-    resetSendFormFields(newState)
-    selectAdaliteStakepool(newState)
     resetTransactionSummary(newState)
   }
 
-  /* ACCOUNT MODALS */
+  const setSelectedAccount = (state: State, accountIndex: number) => {
+    setAccount(state, accountIndex)
+    setState({
+      selectedAccount: accountIndex,
+      targetAccount: accountIndex,
+      sourceAccount: accountIndex,
+    })
+    selectAdaliteStakepool(state)
+  }
 
-  const showSendTransactionModal = (
+  const setTargetAccount = async (state: State, accountIndex: number) => {
+    const targetAddress = await wallet.accounts[accountIndex].getChangeAddress()
+    setState({
+      targetAccount: accountIndex,
+    })
+    updateAddress(state, null, targetAddress)
+  }
+
+  const setSourceAccount = async (state: State, accountIndex: number) => {
+    setAccount(state, accountIndex)
+    setState({
+      sourceAccount: accountIndex,
+    })
+    const targetAddress = await wallet.accounts[getState().targetAccount].getChangeAddress()
+    updateAddress(state, null, targetAddress)
+  }
+
+  const showSendTransactionModal = async (
     state: State,
     sourceAccount: number,
-    address: string,
-    title: string,
     targetAccount: number
   ) => {
+    const targetAddress = await wallet.accounts[targetAccount].getChangeAddress()
     if (sourceAccount !== targetAccount) setAccount(state, sourceAccount)
     setState({
-      targetAccount,
-      sendTransactionTitle: title,
-      sendAddress: {fieldValue: address},
+      sendTransactionTitle: 'Transfer funds between accounts',
+      sendAddress: {fieldValue: targetAddress},
       shouldShowSendTransactionModal: true,
       txSuccessTab: '',
       keepConfirmationDialogOpen: true,
@@ -1058,22 +1071,19 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     setAccount(state, state.selectedAccount)
     setState({
       targetAccount: state.selectedAccount,
+      sourceAccount: state.selectedAccount,
       sendAddress: {fieldValue: ''},
       sendAmount: {fieldValue: '', coins: 0},
       shouldShowSendTransactionModal: false,
     })
   }
 
-  const showDelegationModal = (
-    state: State,
-    sourceAccount: number,
-    title: string,
-    targetAccount: number
-  ) => {
-    if (sourceAccount !== targetAccount) setAccount(state, sourceAccount)
+  const showDelegationModal = (state: State, sourceAccount: number) => {
+    setAccount(state, sourceAccount)
+    selectAdaliteStakepool(state)
     setState({
-      targetAccount,
-      delegationTitle: title,
+      sourceAccount,
+      delegationTitle: `Delegate Account #${sourceAccount} Stake`,
       shouldShowDelegationModal: true,
       txSuccessTab: '',
       keepConfirmationDialogOpen: true,
@@ -1082,8 +1092,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const closeDelegationModal = (state) => {
     setAccount(state, state.selectedAccount)
+    resetDelegation()
     setState({
       targetAccount: state.selectedAccount,
+      sourceAccount: state.selectedAccount,
       shouldShowDelegationModal: false,
     })
   }
@@ -1284,7 +1296,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     loadingAction,
     stopLoadingAction,
     setAuthMethod,
-    setAccount,
     loadWallet,
     logout,
     exportJsonWallet,
@@ -1335,5 +1346,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     closeSendTransactionModal,
     showDelegationModal,
     closeDelegationModal,
+    setSelectedAccount,
+    setTargetAccount,
+    setSourceAccount,
   }
 }
