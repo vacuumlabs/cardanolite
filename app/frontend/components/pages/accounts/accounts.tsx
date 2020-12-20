@@ -33,28 +33,7 @@ const Account = ({
     }
     return '-'
   }
-  const SendFromButton = () => (
-    <button
-      className="button primary nowrap account-button"
-      disabled={isSelected}
-      onClick={() => {
-        showSendTransactionModal(
-          i,
-          firstAddressPerAccount[selectedAccount],
-          `Send ADA from Account #${i} to Account #${selectedAccount}`,
-          selectedAccount
-        )
-      }}
-    >
-      {false && (
-        <a {...tooltip(`Send ADA from Account #${i} to Account #${selectedAccount}`, true)}>
-          <span className="show-info">{''}</span>
-        </a>
-      )}
-      Send from
-    </button>
-  )
-  const SendToButton = () => (
+  const TransferButton = () => (
     <button
       className="button primary nowrap account-button"
       disabled={isSelected}
@@ -72,7 +51,7 @@ const Account = ({
           <span className="show-info">{''}</span>
         </a>
       )}
-      Send to
+      Transfer
     </button>
   )
   const DelegateButton = () => (
@@ -130,8 +109,7 @@ const Account = ({
         <div className="mobile">
           {account && (
             <div className="account-action-buttons">
-              <SendFromButton />
-              <SendToButton />
+              <TransferButton />
             </div>
           )}
         </div>
@@ -157,8 +135,7 @@ const Account = ({
       </div>
       {account ? (
         <div className="account-action-buttons desktop">
-          <SendFromButton />
-          <SendToButton />
+          <TransferButton />
           <DelegateButton />
         </div>
       ) : (

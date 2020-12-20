@@ -304,6 +304,7 @@ const Account = ({
       visibleAddresses,
       poolRecommendation,
       isUsed,
+      accountIndex,
     }
   }
 

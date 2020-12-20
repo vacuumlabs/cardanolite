@@ -14,11 +14,43 @@ import CustomDonationInput from './customDonationInput'
 import Conversions from '../../common/conversions'
 import {ADALITE_CONFIG} from '../../../config'
 import {toCoins} from '../../../helpers/adaConverters'
-import AddressVerification from '../../common/addressVerification'
+import {useState, useCallback} from 'preact/hooks'
 
 import tooltip from '../../common/tooltip'
+import range from '../../../wallet/helpers/range'
 
 const {ADALITE_MIN_DONATION_VALUE} = ADALITE_CONFIG
+
+const AccountDropdown = ({accountIndex}) => {
+  const [shouldHideAccountDropdown, hideAccountDropdown] = useState(true)
+  const toggleAccountDropdown = useCallback(
+    () => {
+      hideAccountDropdown(!shouldHideAccountDropdown)
+    },
+    [shouldHideAccountDropdown]
+  )
+  const [selectedAccountIndex, selectAccountIndex] = useState(accountIndex)
+  return (
+    <div className="account-dropdown">
+      <button className="account-dropdown-button" onClick={() => toggleAccountDropdown()}>
+        Account {selectedAccountIndex}
+      </button>
+      <div className={`account-dropdown-content ${shouldHideAccountDropdown ? 'hide' : 'show'}`}>
+        {range(0, 4).map((i) => (
+          <a
+            key={i}
+            onClick={() => {
+              hideAccountDropdown(true)
+              selectAccountIndex(i)
+            }}
+          >
+            Account {i}
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 const CalculatingFee = () => <div className="validation-message send">Calculating fee...</div>
 
@@ -65,7 +97,7 @@ interface Props {
   showDonationFields: boolean
   isModal: boolean
   title: string
-  showVerification: boolean
+  accounts: any
 }
 
 class SendAdaPage extends Component<Props> {
@@ -101,7 +133,7 @@ class SendAdaPage extends Component<Props> {
     showDonationFields,
     isModal,
     title,
-    showVerification,
+    accounts,
   }) {
     const sendFormValidationError =
       sendAddressValidationError || sendAmountValidationError || donationAmountValidationError
@@ -118,22 +150,29 @@ class SendAdaPage extends Component<Props> {
     return (
       <div className="send card">
         <h2 className={`card-title ${isModal ? 'show' : ''}`}>{title}</h2>
-        <input
-          type="text"
-          id="send-address"
-          className={`input ${showVerification && isModal ? '' : 'send-address'} fullwidth`}
-          name="send-address"
-          placeholder="Receiving address"
-          value={sendAddress}
-          onInput={updateAddress}
-          autoComplete="off"
-          onKeyDown={(e) => e.key === 'Enter' && this.amountField.focus()}
-          disabled={isModal}
-        />
-        <div className="account-verify-wrapper">
-          {isModal && <AddressVerification address={sendAddress} />}
-        </div>
+        {!isModal && (
+          <input
+            type="text"
+            id="send-address"
+            className={`input ${isModal ? '' : 'send-address'} fullwidth`}
+            name="send-address"
+            placeholder="Receiving address"
+            value={sendAddress}
+            onInput={updateAddress}
+            autoComplete="off"
+            onKeyDown={(e) => e.key === 'Enter' && this.amountField.focus()}
+            disabled={isModal}
+          />
+        )}
         <div className="send-values">
+          {isModal && (
+            <Fragment>
+              <label className="account-label">From</label>
+              <AccountDropdown accountIndex={0} />
+              <label className="account-label">To</label>
+              <AccountDropdown accountIndex={0} />
+            </Fragment>
+          )}
           <label className="ada-label amount" htmlFor="send-amount">
             Amount
           </label>
@@ -263,7 +302,7 @@ export default connect(
     transactionFee: state.transactionFee,
     txSuccessTab: state.txSuccessTab,
     balance: state.balance,
-    showVerification: state.shouldShowAddressVerification,
+    accounts: state.accounts,
   }),
   actions
 )(SendAdaPage)
