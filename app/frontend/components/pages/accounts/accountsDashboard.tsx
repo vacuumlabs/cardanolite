@@ -13,11 +13,11 @@ const AccountTile = ({
   accountIndex,
   account,
   setSelectedAccount,
-  selectedAccount,
+  selectedAccountIndex,
   showDelegationModal,
   showSendTransactionModal,
 }) => {
-  const isSelected = selectedAccount === accountIndex
+  const isSelected = selectedAccountIndex === accountIndex
 
   const Balance = ({value}: {value: Lovelace}) => (
     <Fragment>
@@ -35,7 +35,7 @@ const AccountTile = ({
     <button
       className="button primary nowrap account-button"
       disabled={isSelected}
-      onClick={() => showSendTransactionModal(selectedAccount, accountIndex)}
+      onClick={() => showSendTransactionModal(selectedAccountIndex, accountIndex)}
     >
       Transfer
     </button>
@@ -134,7 +134,7 @@ type Props = {
   showDelegationModal: boolean
   shouldShowSendTransactionModal: boolean
   shouldShowDelegationModal: boolean
-  selectedAccount: number
+  selectedAccountIndex: number
   totalWalletBalance: number
   totalRewardsBalance: number
 }
@@ -147,7 +147,7 @@ const AccountsDashboard = ({
   showDelegationModal,
   shouldShowSendTransactionModal,
   shouldShowDelegationModal,
-  selectedAccount,
+  selectedAccountIndex,
   totalWalletBalance,
   totalRewardsBalance,
 }: Props) => {
@@ -226,7 +226,7 @@ const AccountsDashboard = ({
                   accountIndex={accountIndex}
                   account={accounts[accountIndex]}
                   setSelectedAccount={setSelectedAccount}
-                  selectedAccount={selectedAccount}
+                  selectedAccountIndex={selectedAccountIndex}
                   showSendTransactionModal={showSendTransactionModal}
                   showDelegationModal={showDelegationModal}
                 />
@@ -248,7 +248,7 @@ export default connect(
     accounts: state.accounts,
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
-    selectedAccount: state.selectedAccount,
+    selectedAccountIndex: state.selectedAccountIndex,
     totalRewardsBalance: state.totalRewardsBalance,
     totalWalletBalance: state.totalWalletBalance,
   }),

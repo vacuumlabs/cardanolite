@@ -91,7 +91,7 @@ class DashboardPage extends Component<Props> {
     displayInfoModal,
     shouldShowPremiumBanner,
     shouldShowSaturatedBanner,
-    selectedAccount,
+    selectedAccountIndex,
   }) {
     // TODO: this approach doesnt allow multi-word tabs
     const mainTabs = ['Accounts', 'Sending', 'Staking', 'Advanced']
@@ -123,7 +123,7 @@ class DashboardPage extends Component<Props> {
                 name={name}
                 selectedTab={selectedMainTab}
                 selectTab={this.selectMainTab}
-                displayName={name === 'Accounts' && `Account #${selectedAccount}`}
+                displayName={name === 'Accounts' && `Account #${selectedAccountIndex}`}
               />
             ))}
           </ul>
@@ -212,7 +212,7 @@ export default connect(
     shouldShowNonShelleyCompatibleDialog: state.shouldShowNonShelleyCompatibleDialog,
     shouldShowPremiumBanner: state.shouldShowPremiumBanner,
     shouldShowSaturatedBanner: state.shouldShowSaturatedBanner,
-    selectedAccount: state.selectedAccount,
+    selectedAccountIndex: state.selectedAccountIndex,
   }),
   actions
 )(DashboardPage)

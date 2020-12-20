@@ -66,8 +66,8 @@ interface Props {
   showDonationFields: boolean
   isModal: boolean
   title: string
-  sourceAccount: number
-  targetAccount: number
+  sourceAccountIndex: number
+  targetAccountIndex: number
   setSourceAccount: any
   setTargetAccount: any
 }
@@ -105,8 +105,8 @@ class SendAdaPage extends Component<Props> {
     showDonationFields,
     isModal,
     title,
-    sourceAccount,
-    targetAccount,
+    sourceAccountIndex,
+    targetAccountIndex,
     setSourceAccount,
     setTargetAccount,
   }) {
@@ -143,9 +143,15 @@ class SendAdaPage extends Component<Props> {
           {isModal && (
             <Fragment>
               <label className="account-label">From</label>
-              <AccountDropdown accountIndex={sourceAccount} setAccountFunc={setSourceAccount} />
+              <AccountDropdown
+                accountIndex={sourceAccountIndex}
+                setAccountFunc={setSourceAccount}
+              />
               <label className="account-label">To</label>
-              <AccountDropdown accountIndex={targetAccount} setAccountFunc={setTargetAccount} />
+              <AccountDropdown
+                accountIndex={targetAccountIndex}
+                setAccountFunc={setTargetAccount}
+              />
             </Fragment>
           )}
           <label className="ada-label amount" htmlFor="send-amount">
@@ -277,8 +283,8 @@ export default connect(
     transactionFee: state.transactionFee,
     txSuccessTab: state.txSuccessTab,
     balance: state.balance,
-    sourceAccount: state.sourceAccount,
-    targetAccount: state.targetAccount,
+    sourceAccountIndex: state.sourceAccountIndex,
+    targetAccountIndex: state.targetAccountIndex,
   }),
   actions
 )(SendAdaPage)

@@ -1,4 +1,4 @@
-import {h, Component, Fragment} from 'preact'
+import {h} from 'preact'
 import {connect} from '../../../libs/unistore/preact'
 import actions from '../../../actions'
 import {useState, useCallback} from 'preact/hooks'
@@ -41,7 +41,7 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accounts}) => {
 export default connect(
   (state: State) => ({
     accounts: state.accounts,
-    selectedAccount: state.selectedAccount,
+    selectedAccountIndex: state.selectedAccountIndex,
   }),
   actions
 )(AccountDropdown)
