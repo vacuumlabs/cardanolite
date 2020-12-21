@@ -8,17 +8,16 @@ import {AdaIcon} from '../../common/svg'
 import Alert from '../../common/alert'
 import SendTransactionModal from './sendTransactionModal'
 import DelegationModal from './delegationModal'
-import tooltip from '../../common/tooltip'
 
-const Account = ({
-  i,
+const AccountTile = ({
+  accountIndex,
   account,
   setSelectedAccount,
   selectedAccount,
   showDelegationModal,
   showSendTransactionModal,
 }) => {
-  const isSelected = selectedAccount === i
+  const isSelected = selectedAccount === accountIndex
 
   const Balance = ({value}: {value: Lovelace}) => (
     <Fragment>
@@ -36,13 +35,8 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       disabled={isSelected}
-      onClick={() => showSendTransactionModal(selectedAccount, i)}
+      onClick={() => showSendTransactionModal(selectedAccount, accountIndex)}
     >
-      {false && (
-        <a {...tooltip(`Send ADA from account ${selectedAccount} to account ${i}`, true)}>
-          <span className="show-info">{''}</span>
-        </a>
-      )}
       Transfer
     </button>
   )
@@ -50,14 +44,9 @@ const Account = ({
     <button
       className="button primary nowrap account-button"
       onClick={() => {
-        showDelegationModal(i, i)
+        showDelegationModal(accountIndex)
       }}
     >
-      {false && (
-        <a {...tooltip(`Delegate Account #${i} Stake`, true)}>
-          <span className="show-info">{''}</span>
-        </a>
-      )}
       Delegate
     </button>
   )
@@ -69,17 +58,17 @@ const Account = ({
   }
 
   return (
-    <div key={i} className={`card account ${isSelected ? 'selected' : ''}`}>
+    <div key={accountIndex} className={`card account ${isSelected ? 'selected' : ''}`}>
       <div className="header-wrapper mobile">
-        <h2 className="card-title small-margin">Account #{i}</h2>
+        <h2 className="card-title small-margin">Account #{accountIndex}</h2>
       </div>
       <div className="card-column account-button-wrapper">
-        <h2 className="card-title small-margin account-header desktop">Account #{i}</h2>
+        <h2 className="card-title small-margin account-header desktop">Account #{accountIndex}</h2>
         <button
           className="button primary nowrap"
           disabled={isSelected}
           onClick={() => {
-            setSelectedAccount(i)
+            setSelectedAccount(accountIndex)
           }}
         >
           {buttonLabel()}
@@ -137,7 +126,20 @@ const Account = ({
   )
 }
 
-const Accounts = ({
+type Props = {
+  accounts: Object
+  setSelectedAccount: any
+  reloadWalletInfo: any
+  showSendTransactionModal: boolean
+  showDelegationModal: boolean
+  shouldShowSendTransactionModal: boolean
+  shouldShowDelegationModal: boolean
+  selectedAccount: number
+  totalWalletBalance: number
+  totalRewardsBalance: number
+}
+
+const AccountsDashboard = ({
   accounts,
   setSelectedAccount,
   reloadWalletInfo,
@@ -148,8 +150,7 @@ const Accounts = ({
   selectedAccount,
   totalWalletBalance,
   totalRewardsBalance,
-}) => {
-  const accountInfos = Object.values(accounts)
+}: Props) => {
   const InfoAlert = () => (
     <Fragment>
       <div className="dashboard-column account sidebar-item info">
@@ -178,6 +179,11 @@ const Accounts = ({
         </Alert>
       </div>
     </Fragment>
+  )
+
+  const usedAccountsCount = Object.values(accounts).reduce(
+    (a: number, {isUsed}) => (isUsed ? a + 1 : a),
+    0
   )
 
   return (
@@ -214,20 +220,17 @@ const Accounts = ({
         <div className="accounts-wrapper">
           <div className="dashboard-column account list">
             <div>
-              {range(0, Object.keys(accounts).length + 1).map(
-                (i) =>
-                  (i === 0 || accounts[i - 1].isUsed) && (
-                    <Account
-                      key={i}
-                      i={i}
-                      account={accounts[i]}
-                      setSelectedAccount={setSelectedAccount}
-                      selectedAccount={selectedAccount}
-                      showSendTransactionModal={showSendTransactionModal}
-                      showDelegationModal={showDelegationModal}
-                    />
-                  )
-              )}
+              {range(0, usedAccountsCount + 1).map((accountIndex) => (
+                <AccountTile
+                  key={accountIndex}
+                  accountIndex={accountIndex}
+                  account={accounts[accountIndex]}
+                  setSelectedAccount={setSelectedAccount}
+                  selectedAccount={selectedAccount}
+                  showSendTransactionModal={showSendTransactionModal}
+                  showDelegationModal={showDelegationModal}
+                />
+              ))}
             </div>
           </div>
           <div className="desktop">
@@ -250,4 +253,4 @@ export default connect(
     totalWalletBalance: state.totalWalletBalance,
   }),
   actions
-)(Accounts)
+)(AccountsDashboard)

@@ -18,7 +18,7 @@ import DashboardErrorBanner from './dashboardErrorBanner'
 import PremiumBanner from './premiumBanner'
 import SaturationErrorBanner from './saturationErrorBanner'
 import Keys from '../advanced/keys'
-import Accounts from '../accounts/accounts'
+import AccountsDashboard from '../accounts/accountsDashboard'
 
 interface Props {
   selectedMainTab: any
@@ -70,7 +70,7 @@ const AdvancedPage = () => {
 }
 
 const AccountsPage = () => {
-  return <Accounts />
+  return <AccountsDashboard />
 }
 
 class DashboardPage extends Component<Props> {
@@ -161,12 +161,12 @@ class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
     'Transactions': TransactionHistory,
     'Recieve ADA': MyAddresses,
     Keys,
-    Accounts,
+    'Accounts': AccountsDashboard,
   }
   // TODO: refactor
   accountsTabs = ['Accounts']
   stakingTabs = ['Delegate ADA', 'Current Delegation', 'Staking history']
-  sendingTabs = ['Send ADA', 'Transactions', 'Recieve ADA']
+  sendingTabs = ['Send ADA', 'Transactions', 'Receive ADA']
   advancedTabs = ['Keys']
   render({selectedMainTab}, {selectedSubTab}) {
     const selectedDefultSubTabs = {

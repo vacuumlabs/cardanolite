@@ -191,7 +191,7 @@ class Delegate extends Component<Props, {dropShadow: boolean}> {
             }
             onClick={delegationHandler}
             {...tooltip(
-              'You are using Shelley incompatible wallet. To delegate your ADA, follow the instructions to convert you wallet.',
+              'You are using Shelley incompatible wallet. To delegate your ADA, follow the instructions to convert your wallet.',
               !isShelleyCompatible
             )}
           >

@@ -13,15 +13,15 @@ interface Props {
 }
 
 const LoadByHardwareWalletSection = ({loadWallet}: Props) => {
-  const [dontBulkExportPubKeys, setBulkExport] = useState(
-    window.localStorage.getItem(localStorageVars.BULK_EXPORT) === 'true'
+  const [enableBulkExport, setBulkExport] = useState(
+    window.localStorage.getItem(localStorageVars.BULK_EXPORT) !== 'true'
   )
   const toggleBulkExport = useCallback(
     () => {
-      window.localStorage.setItem(localStorageVars.BULK_EXPORT, `${!dontBulkExportPubKeys}`)
-      setBulkExport(!dontBulkExportPubKeys)
+      window.localStorage.setItem(localStorageVars.BULK_EXPORT, `${enableBulkExport}`)
+      setBulkExport(!enableBulkExport)
     },
-    [dontBulkExportPubKeys]
+    [enableBulkExport]
   )
 
   const TrezorAffiliateLink = (title) => (
@@ -61,7 +61,7 @@ const LoadByHardwareWalletSection = ({loadWallet}: Props) => {
             onClick={() =>
               loadWallet({
                 cryptoProviderType: CRYPTO_PROVIDER_TYPES.TREZOR,
-                shouldExportPubKeyBulk: !dontBulkExportPubKeys,
+                shouldExportPubKeyBulk: enableBulkExport,
               })
             }
           >
@@ -93,7 +93,7 @@ const LoadByHardwareWalletSection = ({loadWallet}: Props) => {
             onClick={() =>
               loadWallet({
                 cryptoProviderType: CRYPTO_PROVIDER_TYPES.LEDGER,
-                shouldExportPubKeyBulk: !dontBulkExportPubKeys,
+                shouldExportPubKeyBulk: enableBulkExport,
               })
             }
           >
@@ -110,7 +110,7 @@ const LoadByHardwareWalletSection = ({loadWallet}: Props) => {
               loadWallet({
                 cryptoProviderType: CRYPTO_PROVIDER_TYPES.LEDGER,
                 forceWebUsb: true,
-                shouldExportPubKeyBulk: !dontBulkExportPubKeys,
+                shouldExportPubKeyBulk: enableBulkExport,
               })
             }
           >
@@ -122,7 +122,7 @@ const LoadByHardwareWalletSection = ({loadWallet}: Props) => {
         <label className="checkbox">
           <input
             type="checkbox"
-            checked={!dontBulkExportPubKeys}
+            checked={enableBulkExport}
             onChange={toggleBulkExport}
             className="checkbox-input"
           />

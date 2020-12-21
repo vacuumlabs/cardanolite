@@ -6,7 +6,7 @@ const Wallet = ({config, cryptoProvider}) => {
 
   const accounts: Array<ReturnType<typeof Account>> = []
 
-  function loadNewAccount(accountIndex: number) {
+  function loadAccount(accountIndex: number) {
     const newAccount = Account({
       config,
       cryptoProvider,
@@ -102,7 +102,7 @@ const Wallet = ({config, cryptoProvider}) => {
     fetchTxInfo,
     checkCryptoProviderVersion,
     accounts,
-    loadNewAccount,
+    loadAccount,
     discoverAccounts,
     getAccountsInfo,
   }

@@ -18,7 +18,7 @@ import getConversionRates from './helpers/getConversionRates'
 import sleep from './helpers/sleep'
 import {
   NETWORKS,
-  PREMIUM_MEMBER_BALANCE_TRESHHOLD,
+  PREMIUM_MEMBER_BALANCE_TRESHOLD,
   BIG_DELEGATOR_THRESHOLD,
 } from './wallet/constants'
 import NamedError from './helpers/NamedError'
@@ -163,7 +163,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const autoLogin = state.autoLogin
       const ticker2Id = null
       const shouldShowPremiumBanner =
-        state.shouldShowPremiumBanner && PREMIUM_MEMBER_BALANCE_TRESHHOLD < totalWalletBalance
+        state.shouldShowPremiumBanner && PREMIUM_MEMBER_BALANCE_TRESHOLD < totalWalletBalance
       const isBigDelegator = totalWalletBalance > BIG_DELEGATOR_THRESHOLD
       setState({
         accounts: accountsInfo,
@@ -282,6 +282,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const logout = () => {
     account = null
+    wallet = null
     setState(
       {
         ...initialState,
@@ -999,12 +1000,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   /* MULTIPLE ACCOUNTS */
 
   const loadNewAccount = async (state: State, accountIndex: number) => {
-    await wallet.loadNewAccount(accountIndex)
-    const walletInfo = await wallet.accounts[accountIndex].getWalletInfo()
+    await wallet.loadAccount(accountIndex)
+    const accountInfo = await wallet.accounts[accountIndex].getWalletInfo()
     setState({
       accounts: {
         ...state.accounts,
-        [accountIndex]: walletInfo,
+        [accountIndex]: accountInfo,
       },
     })
   }
@@ -1059,6 +1060,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const targetAddress = await wallet.accounts[targetAccount].getChangeAddress()
     if (sourceAccount !== targetAccount) setAccount(state, sourceAccount)
     setState({
+      targetAccount,
       sendTransactionTitle: 'Transfer funds between accounts',
       sendAddress: {fieldValue: targetAddress},
       shouldShowSendTransactionModal: true,
