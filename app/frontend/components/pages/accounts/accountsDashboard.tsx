@@ -34,7 +34,6 @@ const AccountTile = ({
   const TransferButton = () => (
     <button
       className="button primary nowrap account-button"
-      disabled={isSelected}
       onClick={() => showSendTransactionModal(selectedAccountIndex, accountIndex)}
     >
       Transfer

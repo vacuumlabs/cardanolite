@@ -103,7 +103,7 @@ class SendAdaPage extends Component<Props> {
     txSuccessTab,
     balance,
     showDonationFields,
-    isModal,
+    isModal, // TODO: remove
     title,
     sourceAccountIndex,
     targetAccountIndex,

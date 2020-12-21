@@ -393,7 +393,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   /* TRANSACTION */
 
-  const confirmTransaction = async (state, txConfirmType) => {
+  const confirmTransaction = async (state: State, txConfirmType) => {
     let txAux
     const newState = getState()
     try {
@@ -411,9 +411,14 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       stopLoadingAction(state, {})
     }
 
+    // TODO: implement tx differenciation here and drop the txConfirmType
+
+    const isTxBetweenAccounts = state.selectedMainTab === 'Accounts' && txConfirmType === 'send'
+    // TODO: refactor
+
     setState({
       shouldShowConfirmTransactionDialog: true,
-      txConfirmType,
+      txConfirmType: isTxBetweenAccounts ? 'crossAccount' : txConfirmType,
       // TODO: maybe do this only on demand
       rawTransaction: Buffer.from(encode(txAux)).toString('hex'),
       rawTransactionOpen: false,
@@ -1001,7 +1006,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   /* MULTIPLE ACCOUNTS */
 
-  const loadNewAccount = async (state: State, accountIndex: number) => {
+  const loadAccount = async (state: State, accountIndex: number) => {
+    loadingAction(state, 'Loading account')
     await wallet.loadAccount(accountIndex)
     const accountInfo = await wallet.accounts[accountIndex].getAccountInfo(state.validStakepools)
     setState({
@@ -1013,11 +1019,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const setAccount = async (state: State, accountIndex: number) => {
-    loadingAction(state, 'Loading account')
     if (!wallet.accounts[accountIndex]) {
-      await loadNewAccount(state, accountIndex)
+      await loadAccount(state, accountIndex)
     }
-    stopLoadingAction(state, {})
     account = wallet.accounts[accountIndex]
     const newState = getState()
     const accountInfo = newState.accounts[accountIndex]
@@ -1025,6 +1029,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       ...accountInfo,
     })
     resetTransactionSummary(newState)
+    stopLoadingAction(state, {})
   }
 
   const setSelectedAccount = (state: State, accountIndex: number) => {
