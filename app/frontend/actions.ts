@@ -144,12 +144,13 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         cryptoProvider,
       })
 
+      const {validStakepools} = await wallet.getValidStakepools()
       const {
         accountsInfo,
         totalRewardsBalance,
         totalWalletBalance,
         shouldShowSaturatedBanner,
-      } = await wallet.getAccountsInfo()
+      } = await wallet.getAccountsInfo(validStakepools)
       account = wallet.accounts[0] // TODO: Make accounts private
 
       const conversionRatesPromise = getConversionRates(state)
@@ -166,6 +167,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         state.shouldShowPremiumBanner && PREMIUM_MEMBER_BALANCE_TRESHOLD < totalWalletBalance
       const isBigDelegator = totalWalletBalance > BIG_DELEGATOR_THRESHOLD
       setState({
+        validStakepools,
         accounts: accountsInfo,
         totalWalletBalance,
         totalRewardsBalance,
@@ -210,7 +212,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     return true
   }
 
-  const reloadWalletInfo = async (state) => {
+  const reloadWalletInfo = async (state: State) => {
     loadingAction(state, 'Reloading wallet info...')
     try {
       const {
@@ -218,7 +220,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         totalRewardsBalance,
         totalWalletBalance,
         shouldShowSaturatedBanner,
-      } = await wallet.getAccountsInfo()
+      } = await wallet.getAccountsInfo(state.validStakepools)
       const conversionRates = getConversionRates(state)
 
       // timeout setting loading state, so that loading shows even if everything was cached
@@ -1001,7 +1003,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const loadNewAccount = async (state: State, accountIndex: number) => {
     await wallet.loadAccount(accountIndex)
-    const accountInfo = await wallet.accounts[accountIndex].getWalletInfo()
+    const accountInfo = await wallet.accounts[accountIndex].getAccountInfo(state.validStakepools)
     setState({
       accounts: {
         ...state.accounts,

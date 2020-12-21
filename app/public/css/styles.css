@@ -1577,6 +1577,7 @@ li.main-tab input + label.selected:after {
 
 .account-action-buttons.desktop {
   flex-direction: column;
+  margin-left: -48px;
 }
 
 .account-verify-wrapper {
@@ -5378,7 +5379,7 @@ input:checked + .slider:before {
   }
 
   .card-column.tablet-offset {
-    margin-bottom: 36px;
+    align-self: flex-start;
   }
 
   .card.account {

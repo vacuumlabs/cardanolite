@@ -368,7 +368,7 @@ const blockchainExplorer = (ADALITE_CONFIG) => {
     }))
   }
 
-  async function getAccountInfo(accountPubkeyHex) {
+  async function getStakingInfo(accountPubkeyHex) {
     // TODO: not pubkey, address
     const url = `${
       ADALITE_CONFIG.ADALITE_BLOCKCHAIN_EXPLORER_URL
@@ -401,7 +401,7 @@ const blockchainExplorer = (ADALITE_CONFIG) => {
     getStakingHistory,
     getRewardDetails,
     getPoolRecommendation,
-    getAccountInfo,
+    getStakingInfo,
     getBestSlot,
     getValidStakepools,
   }

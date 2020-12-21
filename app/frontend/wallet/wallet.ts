@@ -71,9 +71,11 @@ const Wallet = ({config, cryptoProvider}) => {
     return null
   }
 
-  async function getAccountsInfo() {
+  async function getAccountsInfo(validStakepools) {
     await discoverAccounts()
-    const accountsInfo = await Promise.all(accounts.map((account) => account.getWalletInfo()))
+    const accountsInfo = await Promise.all(
+      accounts.map((account) => account.getAccountInfo(validStakepools))
+    )
     const totalWalletBalance = accountsInfo.reduce(
       (a, {shelleyBalances}) =>
         shelleyBalances.stakingBalance + shelleyBalances.nonStakingBalance + a,
@@ -94,6 +96,10 @@ const Wallet = ({config, cryptoProvider}) => {
     }
   }
 
+  function getValidStakepools(): Promise<any> {
+    return blockchainExplorer.getValidStakepools()
+  }
+
   return {
     isHwWallet,
     getWalletName,
@@ -105,6 +111,7 @@ const Wallet = ({config, cryptoProvider}) => {
     loadAccount,
     discoverAccounts,
     getAccountsInfo,
+    getValidStakepools,
   }
 }
 

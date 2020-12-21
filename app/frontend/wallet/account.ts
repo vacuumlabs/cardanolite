@@ -276,10 +276,9 @@ const Account = ({
     return myAddresses.areAddressesUsed()
   }
 
-  async function getWalletInfo() {
-    const {validStakepools} = await getValidStakepools()
+  async function getAccountInfo(validStakepools) {
     const {stakingBalance, nonStakingBalance, balance} = await getBalance()
-    const shelleyAccountInfo = await getAccountInfo(validStakepools)
+    const shelleyAccountInfo = await getStakingInfo(validStakepools)
     const visibleAddresses = await getVisibleAddresses()
     const transactionHistory = await getHistory()
     const stakingHistory = await getStakingHistory(shelleyAccountInfo, validStakepools)
@@ -290,7 +289,6 @@ const Account = ({
     const isUsed = await isAccountUsed()
 
     return {
-      validStakepools,
       balance,
       shelleyBalances: {
         nonStakingBalance,
@@ -335,11 +333,11 @@ const Account = ({
     )
   }
 
-  async function getAccountInfo(validStakepools) {
+  async function getStakingInfo(validStakepools) {
     const shelleyXpub = await accoutXpubShelley(cryptoProvider, accountIndex)
     const byronXpub = accountIndex === 0 && (await accoutXpubByron(cryptoProvider, accountIndex))
     const accountPubkeyHex = await stakeAccountPubkeyHex(cryptoProvider, accountIndex)
-    const {nextRewardDetails, ...accountInfo} = await blockchainExplorer.getAccountInfo(
+    const {nextRewardDetails, ...accountInfo} = await blockchainExplorer.getStakingInfo(
       accountPubkeyHex
     )
     const poolInfo = await getPoolInfo(accountInfo.delegation.url)
@@ -362,10 +360,6 @@ const Account = ({
       rewardDetails,
       value: accountInfo.rewards ? parseInt(accountInfo.rewards, 10) : 0,
     }
-  }
-
-  function getValidStakepools(): Promise<any> {
-    return blockchainExplorer.getValidStakepools()
   }
 
   async function getChangeAddress() {
@@ -445,8 +439,7 @@ const Account = ({
     verifyAddress,
     generateNewSeeds,
     getAccountInfo,
-    getValidStakepools,
-    getWalletInfo,
+    getStakingInfo,
     getPoolInfo,
     accountIndex,
     getPoolRecommendation,

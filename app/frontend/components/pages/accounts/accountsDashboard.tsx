@@ -120,7 +120,7 @@ const AccountTile = ({
           <DelegateButton />
         </div>
       ) : (
-        <div className="account-action-buttons desktop" style="width: 94px;" />
+        <div className="account-action-buttons desktop" style="width: 98px;" />
       )}
     </div>
   )
