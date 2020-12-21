@@ -46,7 +46,7 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
   function createPathBulk(derivationPath: BIP32Path): BIP32Path[] {
     const paths: BIP32Path[] = []
     const accountIndex = derivationPath[2] - HARDENED_THRESHOLD
-    const baseAccountIndex = accountIndex - (accountIndex % MAX_BULK_EXPORT_AMOUNT)
+    const currentAccountPage = Math.floor(accountIndex / MAX_BULK_EXPORT_AMOUNT)
 
     /*
     * in case of the account 0 we append also the byron path
@@ -55,7 +55,7 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     if (accountIndex === 0) paths.push(BYRON_V2_PATH)
 
     for (let i = 0; i < MAX_BULK_EXPORT_AMOUNT; i += 1) {
-      const nextAccountIndex = baseAccountIndex + i + HARDENED_THRESHOLD
+      const nextAccountIndex = currentAccountPage * MAX_BULK_EXPORT_AMOUNT + i + HARDENED_THRESHOLD
       const nextAccountPath = [...derivationPath.slice(0, -1), nextAccountIndex]
       paths.push(nextAccountPath)
     }
@@ -64,7 +64,6 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
 
   async function deriveXpubHardenedFn(derivationPath: BIP32Path): Promise<any> {
     const paths = shouldExportPubKeyBulk ? createPathBulk(derivationPath) : [derivationPath]
-
     const xPubBulk = await deriveXpubFn(paths)
     const _derivedXpubs = {}
     xPubBulk.forEach((xpub: Buffer, i: number) => {
