@@ -587,6 +587,21 @@ p.hey {
   padding: 0;
 }
 
+.button.account-switch {
+  background-image: url('../assets/switch-icon.svg');
+  text-indent: -9999px;
+  background-position: center;
+  background-size: 20px;
+  background-position: center;
+  background-position-x: right;
+  background-repeat: no-repeat;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin-top: -16px;
+  margin-bottom: -16px;
+}
+
 /* ACCORDIONS */
 
 .accordion {
@@ -3285,6 +3300,16 @@ input:checked + .slider:before {
   color: var(--color-grey);
 }
 
+.send-values.dropdowns {
+  margin-bottom: 32px;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  grid-row-gap: 16px;
+  grid-column-gap: 96px;
+  align-items: center;
+  color: var(--color-grey);
+}
+
 .ada-label {
   padding-right: 16px;
   position: relative;
@@ -4879,6 +4904,11 @@ input:checked + .slider:before {
 
   .send-values,
   .send-total  {
+    grid-template-columns: 72px 1fr;
+    grid-column-gap: 24px;
+  }
+
+  .send-values.dropdowns  {
     grid-template-columns: 72px 1fr;
     grid-column-gap: 24px;
   }

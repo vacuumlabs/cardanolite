@@ -70,6 +70,7 @@ interface Props {
   targetAccountIndex: number
   setSourceAccount: any
   setTargetAccount: any
+  switchSourceAndTargetAccounts: any
 }
 
 class SendAdaPage extends Component<Props> {
@@ -109,6 +110,7 @@ class SendAdaPage extends Component<Props> {
     targetAccountIndex,
     setSourceAccount,
     setTargetAccount,
+    switchSourceAndTargetAccounts,
   }) {
     const sendFormValidationError =
       sendAddressValidationError || sendAmountValidationError || donationAmountValidationError
@@ -139,21 +141,19 @@ class SendAdaPage extends Component<Props> {
             disabled={isModal}
           />
         )}
+        {isModal && (
+          <div className="send-values dropdowns">
+            <label className="account-label">From</label>
+            <AccountDropdown accountIndex={sourceAccountIndex} setAccountFunc={setSourceAccount} />
+            <button className="button account-switch" onClick={switchSourceAndTargetAccounts}>
+              Switch
+            </button>
+            <div />
+            <label className="account-label">To</label>
+            <AccountDropdown accountIndex={targetAccountIndex} setAccountFunc={setTargetAccount} />
+          </div>
+        )}
         <div className="send-values">
-          {isModal && (
-            <Fragment>
-              <label className="account-label">From</label>
-              <AccountDropdown
-                accountIndex={sourceAccountIndex}
-                setAccountFunc={setSourceAccount}
-              />
-              <label className="account-label">To</label>
-              <AccountDropdown
-                accountIndex={targetAccountIndex}
-                setAccountFunc={setTargetAccount}
-              />
-            </Fragment>
-          )}
           <label className="ada-label amount" htmlFor="send-amount">
             Amount
           </label>

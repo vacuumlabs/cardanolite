@@ -1079,7 +1079,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
-  const closeSendTransactionModal = async (state) => {
+  const closeSendTransactionModal = async (state: State) => {
     await setAccount(state, state.selectedAccountIndex)
     setState({
       targetAccountIndex: state.selectedAccountIndex,
@@ -1089,6 +1089,18 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       transactionFee: 0,
       shouldShowSendTransactionModal: false,
     })
+  }
+
+  const switchSourceAndTargetAccounts = async (state: State) => {
+    const targetAccountIndex = state.sourceAccountIndex
+    const sourceAccountIndex = state.targetAccountIndex
+    await setAccount(state, sourceAccountIndex)
+    setState({
+      sourceAccountIndex,
+      targetAccountIndex,
+    })
+    const targetAddress = await wallet.accounts[targetAccountIndex].getChangeAddress()
+    updateAddress(state, null, targetAddress)
   }
 
   const showDelegationModal = async (state: State, sourceAccountIndex: number) => {
@@ -1196,9 +1208,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       resetSendFormFields(state)
       resetSendFormState(state)
       resetAmountFields(state)
-      account.generateNewSeeds()
       await reloadWalletInfo(state)
       await setAccount(state, state.selectedAccountIndex)
+      account.generateNewSeeds()
       selectAdaliteStakepool(state)
       setState({
         targetAccountIndex: state.selectedAccountIndex,
@@ -1362,5 +1374,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     setSelectedAccount,
     setTargetAccount,
     setSourceAccount,
+    switchSourceAndTargetAccounts,
   }
 }

@@ -14,11 +14,11 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accounts}) => {
     },
     [shouldHideAccountDropdown]
   )
-  const [selectedAccountIndex, selectAccountIndex] = useState(accountIndex)
+
   return (
     <div className="account-dropdown">
       <button className="account-dropdown-button" onClick={() => toggleAccountDropdown()}>
-        Account {selectedAccountIndex}
+        Account {accountIndex}
       </button>
       <div className={`account-dropdown-content ${shouldHideAccountDropdown ? 'hide' : 'show'}`}>
         {range(0, Object.values(accounts).length).map((i) => (
@@ -26,7 +26,6 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accounts}) => {
             key={i}
             onClick={() => {
               hideAccountDropdown(true)
-              selectAccountIndex(i)
               setAccountFunc(i)
             }}
           >
