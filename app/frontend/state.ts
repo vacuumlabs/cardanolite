@@ -116,43 +116,41 @@ export interface State {
   txSuccessTab: string
   shouldShowSaturatedBanner?: boolean
   isBigDelegator: boolean
-  accountsInfo: {
-    [key: number]: {
-      balance: number
-      shelleyBalances: {
-        stakingBalance?: number
-        nonStakingBalance?: number
-        rewardsAccountBalance?: number
-      }
-      stakePubkeyHex: string
-      shelleyAccountInfo: {
-        accountPubkeyHex: string
-        shelleyXpub: any
-        byronXpub: any
-        currentEpoch: number
-        delegation: any
-        hasStakingKey: boolean
-        rewards: number
-        rewardDetails: {
-          upcoming: any
-          nearest: any
-          currentDelegation: any
-        }
-        value: number
-      }
-      transactionHistory: Array<Transaction>
-      stakingHistory: any
-      visibleAddresses: Array<any>
-      poolRecommendation: {
-        isInRecommendedPoolSet: boolean
-        recommendedPoolHash: string
-        status: string
-        shouldShowSaturatedBanner: boolean
-      }
-      isUsed: boolean
-      accountIndex: number
+  accountsInfo: Array<{
+    balance: number
+    shelleyBalances: {
+      stakingBalance?: number
+      nonStakingBalance?: number
+      rewardsAccountBalance?: number
     }
-  }
+    stakePubkeyHex: string
+    shelleyAccountInfo: {
+      accountPubkeyHex: string
+      shelleyXpub: any
+      byronXpub: any
+      currentEpoch: number
+      delegation: any
+      hasStakingKey: boolean
+      rewards: number
+      rewardDetails: {
+        upcoming: any
+        nearest: any
+        currentDelegation: any
+      }
+      value: number
+    }
+    transactionHistory: Array<Transaction>
+    stakingHistory: any
+    visibleAddresses: Array<any>
+    poolRecommendation: {
+      isInRecommendedPoolSet: boolean
+      recommendedPoolHash: string
+      status: string
+      shouldShowSaturatedBanner: boolean
+    }
+    isUsed: boolean
+    accountIndex: number
+  }>
   sourceAccountIndex: number
   selectedAccountIndex: number
   targetAccountIndex: number
@@ -241,7 +239,7 @@ const initialState: State = {
   txSuccessTab: '',
   keepConfirmationDialogOpen: false,
   isBigDelegator: false,
-  accountsInfo: {},
+  accountsInfo: [],
   sourceAccountIndex: 0,
   selectedAccountIndex: 0,
   targetAccountIndex: 0,

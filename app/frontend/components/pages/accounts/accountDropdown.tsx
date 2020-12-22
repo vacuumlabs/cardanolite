@@ -21,7 +21,7 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accountsInfo}) => {
         Account {accountIndex}
       </button>
       <div className={`account-dropdown-content ${shouldHideAccountDropdown ? 'hide' : 'show'}`}>
-        {range(0, Object.values(accountsInfo).length).map((i) => (
+        {range(0, accountsInfo.length).map((i) => (
           <a
             key={i}
             onClick={() => {

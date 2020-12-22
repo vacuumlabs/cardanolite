@@ -89,7 +89,7 @@ const Wallet = ({config, cryptoProvider}) => {
       ({poolRecommendation}) => poolRecommendation.shouldShowSaturatedBanner
     )
     return {
-      accountsInfo: Object.assign({}, accountsInfo),
+      accountsInfo,
       totalWalletBalance,
       totalRewardsBalance,
       shouldShowSaturatedBanner,

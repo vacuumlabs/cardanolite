@@ -1031,10 +1031,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     await wallet.loadAccount(accountIndex)
     const accountInfo = await wallet.accounts[accountIndex].getAccountInfo(state.validStakepools)
     setState({
-      accountsInfo: {
-        ...state.accountsInfo,
-        [accountIndex]: accountInfo,
-      },
+      accountsInfo: [...state.accountsInfo, accountInfo],
     })
     stopLoadingAction(state, {})
   }

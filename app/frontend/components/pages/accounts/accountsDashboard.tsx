@@ -127,7 +127,7 @@ const AccountTile = ({
 }
 
 type Props = {
-  accountsInfo: Object
+  accountsInfo: Array<any>
   setSelectedAccount: any
   reloadWalletInfo: any
   showSendTransactionModal: boolean
@@ -183,10 +183,7 @@ const AccountsDashboard = ({
     </Fragment>
   )
 
-  const usedAccountsCount = Object.values(accountsInfo).reduce(
-    (a: number, {isUsed}) => (isUsed ? a + 1 : a),
-    0
-  )
+  const usedAccountsCount = accountsInfo.reduce((a: number, {isUsed}) => (isUsed ? a + 1 : a), 0)
 
   return (
     <Fragment>
