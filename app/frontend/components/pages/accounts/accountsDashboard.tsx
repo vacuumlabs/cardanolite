@@ -127,7 +127,7 @@ const AccountTile = ({
 }
 
 type Props = {
-  accounts: Object
+  accountsInfo: Object
   setSelectedAccount: any
   reloadWalletInfo: any
   showSendTransactionModal: boolean
@@ -141,7 +141,7 @@ type Props = {
 }
 
 const AccountsDashboard = ({
-  accounts,
+  accountsInfo,
   setSelectedAccount,
   reloadWalletInfo,
   showSendTransactionModal,
@@ -183,7 +183,7 @@ const AccountsDashboard = ({
     </Fragment>
   )
 
-  const usedAccountsCount = Object.values(accounts).reduce(
+  const usedAccountsCount = Object.values(accountsInfo).reduce(
     (a: number, {isUsed}) => (isUsed ? a + 1 : a),
     0
   )
@@ -226,7 +226,7 @@ const AccountsDashboard = ({
                 <AccountTile
                   key={accountIndex}
                   accountIndex={accountIndex}
-                  account={accounts[accountIndex]}
+                  account={accountsInfo[accountIndex]}
                   setSelectedAccount={setSelectedAccount}
                   selectedAccountIndex={selectedAccountIndex}
                   showSendTransactionModal={showSendTransactionModal}
@@ -248,7 +248,7 @@ const AccountsDashboard = ({
 export default connect(
   (state: State) => ({
     isDemoWallet: state.isDemoWallet,
-    accounts: state.accounts,
+    accountsInfo: state.accountsInfo,
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
     selectedAccountIndex: state.selectedAccountIndex,

@@ -165,7 +165,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const isBigDelegator = totalWalletBalance > BIG_DELEGATOR_THRESHOLD
       setState({
         validStakepools,
-        accounts: accountsInfo,
+        accountsInfo,
         totalWalletBalance,
         totalRewardsBalance,
         shouldShowSaturatedBanner,
@@ -222,7 +222,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       // timeout setting loading state, so that loading shows even if everything was cached
       setTimeout(() => setState({loading: false}), 500)
       setState({
-        accounts: accountsInfo,
+        accountsInfo,
         totalWalletBalance,
         totalRewardsBalance,
         shouldShowSaturatedBanner,
@@ -1031,8 +1031,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     await wallet.loadAccount(accountIndex)
     const accountInfo = await wallet.accounts[accountIndex].getAccountInfo(state.validStakepools)
     setState({
-      accounts: {
-        ...state.accounts,
+      accountsInfo: {
+        ...state.accountsInfo,
         [accountIndex]: accountInfo,
       },
     })

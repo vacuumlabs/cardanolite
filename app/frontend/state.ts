@@ -116,7 +116,7 @@ export interface State {
   txSuccessTab: string
   shouldShowSaturatedBanner?: boolean
   isBigDelegator: boolean
-  accounts: {
+  accountsInfo: {
     [key: number]: {
       balance: number
       shelleyBalances: {
@@ -241,7 +241,7 @@ const initialState: State = {
   txSuccessTab: '',
   keepConfirmationDialogOpen: false,
   isBigDelegator: false,
-  accounts: {},
+  accountsInfo: {},
   sourceAccountIndex: 0,
   selectedAccountIndex: 0,
   targetAccountIndex: 0,
@@ -255,7 +255,7 @@ const initialState: State = {
 export type SetStateFn = (newState: Partial<State>) => void
 export type GetStateFn = () => State
 
-export const sourceAccountState = (state: State) => state.accounts[state.sourceAccountIndex]
-export const selectedAccountState = (state: State) => state.accounts[state.selectedAccountIndex]
+export const sourceAccountState = (state: State) => state.accountsInfo[state.sourceAccountIndex]
+export const selectedAccountState = (state: State) => state.accountsInfo[state.selectedAccountIndex]
 
 export {initialState}
