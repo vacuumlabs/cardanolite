@@ -3,11 +3,12 @@ import {connect} from '../../../helpers/connect'
 import actions from '../../../actions'
 import range from '../../../../frontend/wallet/helpers/range'
 import printAda from '../../../helpers/printAda'
-import {Lovelace} from '../../../state'
+import {Lovelace, State} from '../../../state'
 import {AdaIcon} from '../../common/svg'
 import Alert from '../../common/alert'
 import SendTransactionModal from './sendTransactionModal'
 import DelegationModal from './delegationModal'
+import ConfirmTransactionDialog from '../../../../frontend/components/pages/sendAda/confirmTransactionDialog'
 
 const AccountTile = ({
   accountIndex,
@@ -136,6 +137,7 @@ type Props = {
   selectedAccountIndex: number
   totalWalletBalance: number
   totalRewardsBalance: number
+  shouldShowConfirmTransactionDialog: boolean
 }
 
 const AccountsDashboard = ({
@@ -149,6 +151,7 @@ const AccountsDashboard = ({
   selectedAccountIndex,
   totalWalletBalance,
   totalRewardsBalance,
+  shouldShowConfirmTransactionDialog,
 }: Props) => {
   const InfoAlert = () => (
     <Fragment>
@@ -237,12 +240,13 @@ const AccountsDashboard = ({
           </div>
         </div>
       </div>
+      {shouldShowConfirmTransactionDialog && <ConfirmTransactionDialog />}
     </Fragment>
   )
 }
 
 export default connect(
-  (state) => ({
+  (state: State) => ({
     isDemoWallet: state.isDemoWallet,
     accounts: state.accounts,
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
@@ -250,6 +254,7 @@ export default connect(
     selectedAccountIndex: state.selectedAccountIndex,
     totalRewardsBalance: state.totalRewardsBalance,
     totalWalletBalance: state.totalWalletBalance,
+    shouldShowConfirmTransactionDialog: state.shouldShowConfirmTransactionDialog,
   }),
   actions
 )(AccountsDashboard)

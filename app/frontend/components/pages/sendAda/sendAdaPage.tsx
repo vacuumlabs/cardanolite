@@ -247,7 +247,7 @@ class SendAdaPage extends Component<Props> {
             showHelp={errorHasHelp(transactionSubmissionError.code)}
           />
         )}
-        {shouldShowConfirmTransactionDialog && <ConfirmTransactionDialog />}
+        {shouldShowConfirmTransactionDialog && !isModal && <ConfirmTransactionDialog />}
         {shouldShowThanksForDonation && (
           <DonateThanksModal closeThanksForDonationModal={closeThanksForDonationModal} />
         )}
