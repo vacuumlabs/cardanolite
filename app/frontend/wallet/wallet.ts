@@ -6,31 +6,26 @@ const Wallet = ({config, cryptoProvider}) => {
 
   const accounts: Array<ReturnType<typeof Account>> = []
 
-  function loadAccount(accountIndex: number) {
+  function discoverNewAccount() {
     const newAccount = Account({
       config,
       cryptoProvider,
       blockchainExplorer,
-      accountIndex,
+      accountIndex: accounts.length,
     })
     accounts.push(newAccount)
+    return newAccount
   }
 
   async function discoverAccounts() {
     let shouldExplore = true
     let accountIndex = 0
-    while (shouldExplore && !accounts[accountIndex]) {
-      const newAccount = Account({
-        config,
-        cryptoProvider,
-        blockchainExplorer,
-        accountIndex,
-      })
+    while (shouldExplore) {
+      const newAccount = accounts[accountIndex] || discoverNewAccount()
       const isAccountUsed = await newAccount.isAccountUsed()
-      if (isAccountUsed || accountIndex === 0) accounts.push(newAccount)
 
+      shouldExplore = isAccountUsed && config.shouldExportPubKeyBulk && accounts.length < 100
       accountIndex += 1
-      shouldExplore = isAccountUsed && config.shouldExportPubKeyBulk && accountIndex < 100
     }
   }
 
@@ -108,7 +103,7 @@ const Wallet = ({config, cryptoProvider}) => {
     fetchTxInfo,
     checkCryptoProviderVersion,
     accounts,
-    loadAccount,
+    discoverNewAccount,
     discoverAccounts,
     getAccountsInfo,
     getValidStakepools,

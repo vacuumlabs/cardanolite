@@ -278,6 +278,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const logout = () => {
+    window.history.pushState({}, '/', '/')
     wallet = null
     setState(
       {
@@ -288,7 +289,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       // @ts-ignore (we don't have types for forced state overwrite)
       true
     ) // force overwriting the state
-    window.history.pushState({}, '/', '/')
   }
 
   /* MNEMONIC */
@@ -1028,7 +1028,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const loadAccount = async (state: State, accountIndex: number) => {
     loadingAction(state, 'Loading account')
-    await wallet.loadAccount(accountIndex)
+    await wallet.discoverNewAccount()
     const accountInfo = await wallet.accounts[accountIndex].getAccountInfo(state.validStakepools)
     setState({
       accountsInfo: [...state.accountsInfo, accountInfo],
@@ -1319,6 +1319,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
+  const setLastAccountExplored = () => {
+    setState({
+      isLastAccountExplored: true,
+    })
+  }
+
   return {
     loadingAction,
     stopLoadingAction,
@@ -1377,5 +1383,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     setTargetAccount,
     setSourceAccount,
     switchSourceAndTargetAccounts,
+    setLastAccountExplored,
   }
 }

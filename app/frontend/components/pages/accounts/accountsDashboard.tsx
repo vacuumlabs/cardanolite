@@ -9,6 +9,9 @@ import Alert from '../../common/alert'
 import SendTransactionModal from './sendTransactionModal'
 import DelegationModal from './delegationModal'
 import ConfirmTransactionDialog from '../../../../frontend/components/pages/sendAda/confirmTransactionDialog'
+import {errorHasHelp} from '../../../../frontend/helpers/errorsWithHelp'
+import TransactionErrorModal from '../sendAda/transactionErrorModal'
+import {getTranslation} from '../../../../frontend/translations'
 
 const AccountTile = ({
   accountIndex,
@@ -17,8 +20,13 @@ const AccountTile = ({
   selectedAccountIndex,
   showDelegationModal,
   showSendTransactionModal,
+  setLastAccountExplored,
+  isLastAccountExplored,
 }) => {
   const isSelected = selectedAccountIndex === accountIndex
+
+  const shouldShowAccountInfo =
+    account && (account.isUsed || isLastAccountExplored || accountIndex === 0)
 
   const Balance = ({value}: {value: Lovelace}) => (
     <Fragment>
@@ -27,7 +35,7 @@ const AccountTile = ({
     </Fragment>
   )
   const PoolTicker = () => {
-    if (account) {
+    if (shouldShowAccountInfo) {
       return account.shelleyAccountInfo.delegation.ticker || '-'
     }
     return '-'
@@ -36,6 +44,7 @@ const AccountTile = ({
     <button
       className="button primary nowrap account-button"
       onClick={() => showSendTransactionModal(selectedAccountIndex, accountIndex)}
+      disabled={isSelected}
     >
       Transfer
     </button>
@@ -53,7 +62,7 @@ const AccountTile = ({
 
   const buttonLabel = () => {
     if (isSelected) return 'Active'
-    if (!account) return 'Explore'
+    if (!shouldShowAccountInfo) return 'Explore'
     return 'Activate'
   }
 
@@ -68,6 +77,7 @@ const AccountTile = ({
           className="button primary nowrap"
           disabled={isSelected}
           onClick={() => {
+            if (!shouldShowAccountInfo) setLastAccountExplored()
             setSelectedAccount(accountIndex)
           }}
         >
@@ -77,7 +87,7 @@ const AccountTile = ({
       <div className="card-column account-item-info-wrapper">
         <h2 className="card-title small-margin">Available balance</h2>
         <div className="balance-amount small item">
-          {account ? (
+          {shouldShowAccountInfo ? (
             <Balance
               value={
                 account.shelleyBalances.stakingBalance + account.shelleyBalances.nonStakingBalance
@@ -88,7 +98,7 @@ const AccountTile = ({
           )}
         </div>
         <div className="mobile">
-          {account && (
+          {shouldShowAccountInfo && (
             <div className="account-action-buttons">
               <TransferButton />
             </div>
@@ -98,7 +108,11 @@ const AccountTile = ({
       <div className="card-column account-item-info-wrapper tablet-offset">
         <h2 className="card-title small-margin">Rewards balance</h2>
         <div className="balance-amount small item">
-          {account ? <Balance value={account.shelleyBalances.rewardsAccountBalance} /> : '-'}
+          {shouldShowAccountInfo ? (
+            <Balance value={account.shelleyBalances.rewardsAccountBalance} />
+          ) : (
+            '-'
+          )}
         </div>
       </div>
       <div className="card-column account-item-info-wrapper">
@@ -107,14 +121,14 @@ const AccountTile = ({
           <PoolTicker />
         </div>
         <div className="mobile">
-          {account && (
+          {shouldShowAccountInfo && (
             <div className="account-action-buttons">
               <DelegateButton />
             </div>
           )}
         </div>
       </div>
-      {account ? (
+      {shouldShowAccountInfo ? (
         <div className="account-action-buttons desktop">
           <TransferButton />
           <DelegateButton />
@@ -138,6 +152,11 @@ type Props = {
   totalWalletBalance: number
   totalRewardsBalance: number
   shouldShowConfirmTransactionDialog: boolean
+  setLastAccountExplored: any
+  isLastAccountExplored: boolean
+  shouldShowTransactionErrorModal: boolean
+  transactionSubmissionError: any
+  closeTransactionErrorModal: any
 }
 
 const AccountsDashboard = ({
@@ -152,6 +171,11 @@ const AccountsDashboard = ({
   totalWalletBalance,
   totalRewardsBalance,
   shouldShowConfirmTransactionDialog,
+  setLastAccountExplored,
+  isLastAccountExplored,
+  shouldShowTransactionErrorModal,
+  transactionSubmissionError,
+  closeTransactionErrorModal,
 }: Props) => {
   const InfoAlert = () => (
     <Fragment>
@@ -183,7 +207,7 @@ const AccountsDashboard = ({
     </Fragment>
   )
 
-  const usedAccountsCount = accountsInfo.reduce((a: number, {isUsed}) => (isUsed ? a + 1 : a), 0)
+  const usedAccountsCount = accountsInfo.filter(({isUsed}) => isUsed).length
 
   return (
     <Fragment>
@@ -228,6 +252,8 @@ const AccountsDashboard = ({
                   selectedAccountIndex={selectedAccountIndex}
                   showSendTransactionModal={showSendTransactionModal}
                   showDelegationModal={showDelegationModal}
+                  setLastAccountExplored={setLastAccountExplored}
+                  isLastAccountExplored={isLastAccountExplored}
                 />
               ))}
             </div>
@@ -237,6 +263,16 @@ const AccountsDashboard = ({
           </div>
         </div>
       </div>
+      {shouldShowTransactionErrorModal && (
+        <TransactionErrorModal
+          onRequestClose={closeTransactionErrorModal}
+          errorMessage={getTranslation(
+            transactionSubmissionError.code,
+            transactionSubmissionError.params
+          )}
+          showHelp={errorHasHelp(transactionSubmissionError.code)}
+        />
+      )}
       {shouldShowConfirmTransactionDialog && <ConfirmTransactionDialog />}
     </Fragment>
   )
@@ -252,6 +288,9 @@ export default connect(
     totalRewardsBalance: state.totalRewardsBalance,
     totalWalletBalance: state.totalWalletBalance,
     shouldShowConfirmTransactionDialog: state.shouldShowConfirmTransactionDialog,
+    shouldShowTransactionErrorModal: state.shouldShowTransactionErrorModal,
+    transactionSubmissionError: state.transactionSubmissionError,
+    isLastAccountExplored: state.isLastAccountExplored,
   }),
   actions
 )(AccountsDashboard)

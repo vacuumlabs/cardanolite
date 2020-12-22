@@ -116,6 +116,7 @@ export interface State {
   txSuccessTab: string
   shouldShowSaturatedBanner?: boolean
   isBigDelegator: boolean
+  isLastAccountExplored: boolean
   accountsInfo: Array<{
     balance: number
     shelleyBalances: {
@@ -239,6 +240,7 @@ const initialState: State = {
   txSuccessTab: '',
   keepConfirmationDialogOpen: false,
   isBigDelegator: false,
+  isLastAccountExplored: false,
   accountsInfo: [],
   sourceAccountIndex: 0,
   selectedAccountIndex: 0,
