@@ -2,7 +2,7 @@ import {Fragment, h} from 'preact'
 import {connect} from '../../../libs/unistore/preact'
 import actions from '../../../actions'
 import printAda from '../../../helpers/printAda'
-import {Lovelace} from '../../../state'
+import {Lovelace, State, selectedAccountState} from '../../../state'
 import {LinkIconToPool} from './common'
 import {EpochDateTime} from '../common'
 import roundNumber from './../../../helpers/roundNumber'
@@ -108,12 +108,13 @@ const CurrentDelegationPage = ({
 }
 
 export default connect(
-  (state) => ({
-    pool: state.shelleyAccountInfo.delegation,
+  (state: State) => ({
+    pool: selectedAccountState(state).shelleyAccountInfo.delegation,
     delegationValidationError: state.delegationValidationError,
     calculatingDelegationFee: state.calculatingDelegationFee,
-    nearestReward: state.shelleyAccountInfo.rewardDetails.nearest,
-    currentDelegationReward: state.shelleyAccountInfo.rewardDetails.currentDelegation,
+    nearestReward: selectedAccountState(state).shelleyAccountInfo.rewardDetails.nearest,
+    currentDelegationReward: selectedAccountState(state).shelleyAccountInfo.rewardDetails
+      .currentDelegation,
   }),
   actions
 )(CurrentDelegationPage)

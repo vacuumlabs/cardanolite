@@ -117,10 +117,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     }
   }
 
+  const currentAccountState = () => getState().accounts[account.accountIndex]
+
   /* LOADING WALLET */
 
   const loadWallet = async (
-    state,
+    state: State,
     {cryptoProviderType, walletSecretDef, forceWebUsb, shouldExportPubKeyBulk}
   ) => {
     loadingAction(state, 'Loading wallet data...', {
@@ -173,7 +175,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         totalRewardsBalance,
         shouldShowSaturatedBanner,
         walletIsLoaded: true,
-        ...accountsInfo[0],
         loading: false,
         mnemonicAuthForm: {
           mnemonicInputValue: '',
@@ -230,7 +231,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         totalWalletBalance,
         totalRewardsBalance,
         shouldShowSaturatedBanner,
-        ...accountsInfo[account.accountIndex],
       })
       await fetchConversionRates(conversionRates)
     } catch (e) {
@@ -537,14 +537,18 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     setErrorState('sendAddressValidationError', sendAddressValidator(state.sendAddress.fieldValue))
     setErrorState(
       'sendAmountValidationError',
-      sendAmountValidator(state.sendAmount.fieldValue, state.sendAmount.coins, state.balance)
+      sendAmountValidator(
+        state.sendAmount.fieldValue,
+        state.sendAmount.coins,
+        currentAccountState().balance
+      )
     )
     setErrorState(
       'donationAmountValidationError',
       donationAmountValidator(
         state.donationAmount.fieldValue,
         state.donationAmount.coins,
-        state.balance
+        currentAccountState().balance
       )
     )
   }
@@ -604,7 +608,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     ) {
       return
     }
-    const validationError = txPlanValidator(coins, state.balance, plan, donationAmount)
+    const validationError = txPlanValidator(
+      coins,
+      currentAccountState().balance,
+      plan,
+      donationAmount
+    )
     setErrorState('sendAmountValidationError', validationError)
     if (!validationError) {
       setTransactionSummary('send', plan, coins, donationAmount)
@@ -812,7 +821,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const maxAmount = await account.getMaxNonStakingAmount(address)
     const coins = maxAmount && maxAmount.sendAmount
     const plan = await prepareTxPlan({address, coins, txType: 'convert'})
-    const validationError = txPlanValidator(coins, state.balance, plan)
+    const validationError = txPlanValidator(coins, currentAccountState().balance, plan)
     if (validationError) {
       setErrorState('transactionSubmissionError', validationError, {
         shouldShowTransactionErrorModal: true,
@@ -830,10 +839,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const withdrawRewards = async (state) => {
     loadingAction(state, 'Preparing transaction...')
-    const rewards = state.shelleyBalances.rewardsAccountBalance
+    const rewards = currentAccountState().shelleyBalances.rewardsAccountBalance
     const plan = await prepareTxPlan({rewards, txType: 'withdraw'})
     const withdrawalValidationError =
-      withdrawalPlanValidator(rewards, state.balance, plan) ||
+      withdrawalPlanValidator(rewards, currentAccountState().balance, plan) ||
       wallet.checkCryptoProviderVersion('WITHDRAWAL')
     if (withdrawalValidationError) {
       setErrorState('transactionSubmissionError', withdrawalValidationError, {
@@ -916,13 +925,13 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const state = getState()
     setPoolInfo(state)
     const poolHash = state.shelleyDelegation.selectedPool.poolHash
-    const stakingKeyRegistered = state.shelleyAccountInfo.hasStakingKey
+    const stakingKeyRegistered = currentAccountState().shelleyAccountInfo.hasStakingKey
     const plan = await prepareTxPlan({poolHash, stakingKeyRegistered, txType: 'delegate'})
     const newState = getState()
     if (hasPoolIdentifiersChanged(newState)) {
       return
     }
-    const validationError = delegationPlanValidator(newState.balance, plan)
+    const validationError = delegationPlanValidator(currentAccountState().balance, plan)
     if (validationError) {
       setErrorState('delegationValidationError', validationError, {
         calculatingDelegationFee: false,
@@ -1001,7 +1010,11 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const selectAdaliteStakepool = (state: State) => {
     const newState = getState()
-    updateStakePoolIdentifier(newState, null, newState.poolRecommendation.recommendedPoolHash)
+    updateStakePoolIdentifier(
+      newState,
+      null,
+      currentAccountState().poolRecommendation.recommendedPoolHash
+    )
   }
 
   /* MULTIPLE ACCOUNTS */
@@ -1023,12 +1036,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       await loadAccount(state, accountIndex)
     }
     account = wallet.accounts[accountIndex]
-    const newState = getState()
-    const accountInfo = newState.accounts[accountIndex]
-    setState({
-      ...accountInfo,
-    })
-    resetTransactionSummary(newState)
+    resetTransactionSummary(state)
     stopLoadingAction(state, {})
   }
 

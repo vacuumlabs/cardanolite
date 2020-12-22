@@ -1,6 +1,7 @@
 import {Fragment, h} from 'preact'
 import {connect} from '../../../libs/unistore/preact'
 import actions from '../../../actions'
+import {State, selectedAccountState} from '../../../state'
 
 const Keys = ({byronXpub, shelleyXpub, accountPubkeyHex}) => {
   return (
@@ -27,10 +28,10 @@ const Keys = ({byronXpub, shelleyXpub, accountPubkeyHex}) => {
 }
 
 export default connect(
-  (state) => ({
-    shelleyXpub: state.shelleyAccountInfo.shelleyXpub,
-    byronXpub: state.shelleyAccountInfo.byronXpub,
-    accountPubkeyHex: state.shelleyAccountInfo.accountPubkeyHex,
+  (state: State) => ({
+    shelleyXpub: selectedAccountState(state).shelleyAccountInfo.shelleyXpub,
+    byronXpub: selectedAccountState(state).shelleyAccountInfo.byronXpub,
+    accountPubkeyHex: selectedAccountState(state).shelleyAccountInfo.accountPubkeyHex,
   }),
   actions
 )(Keys)

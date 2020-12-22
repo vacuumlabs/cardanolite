@@ -25,7 +25,6 @@ export interface State {
   walletIsLoaded: boolean
   shouldShowStakingBanner: boolean
   errorBannerContent: string
-  visibleAddresses: Array<any> // TODO
   sendAddress: any // TODO
   sendAmount: any // TODO
   keepConfirmationDialogOpen: boolean
@@ -51,7 +50,6 @@ export interface State {
   rawTransactionOpen: boolean
   rawTransaction: string
   shouldShowMnemonicInfoAlert: boolean
-  transactionHistory: Array<Transaction>
   sendResponse: any // TODO
   checkedDonationType: string // TODO: enum
   shouldShowCustomDonationInput: boolean
@@ -83,7 +81,6 @@ export interface State {
   shouldShowExportOption?: boolean
 
   conversionRates?: {data: {USD: number; EUR: number}}
-  balance?: number
   shouldShowGenerateMnemonicDialog?: boolean
 
   walletLoadingError?: any
@@ -103,11 +100,6 @@ export interface State {
   calculatingDelegationFee?: any
   isDelegationValid?: any
 
-  shelleyBalances?: {
-    stakingBalance?: number
-    nonStakingBalance?: number
-    rewardsAccountBalance?: number
-  }
   shelleyDelegation?: {
     selectedPool?: any
     delegationFee?: any
@@ -116,37 +108,51 @@ export interface State {
   currentDelegation?: {
     stakePool?: any
   }
-  stakingHistory: any
   validStakepools?: any | null
   ticker2Id?: any | null
   delegationValidationError?: any
   gettingPoolInfo: boolean
-  shelleyAccountInfo?: {
-    accountPubkeyHex: string
-    shelleyXpub: any
-    byronXpub: any
-    currentEpoch: number
-    delegation: any
-    hasStakingKey: boolean
-    rewards: number
-    rewardDetails: {
-      upcoming: any
-      nearest: any
-      currentDelegation: any
-    }
-    value: number
-  }
   txConfirmType: string
   txSuccessTab: string
-  poolRecommendation: {
-    isInRecommendedPoolSet: boolean
-    recommendedPoolHash: string
-    status: string
-    shouldShowSaturatedBanner: boolean
-  }
   shouldShowSaturatedBanner?: boolean
   isBigDelegator: boolean
-  accounts: any
+  accounts: {
+    [key: number]: {
+      balance: number
+      shelleyBalances: {
+        stakingBalance?: number
+        nonStakingBalance?: number
+        rewardsAccountBalance?: number
+      }
+      stakePubkeyHex: string
+      shelleyAccountInfo: {
+        accountPubkeyHex: string
+        shelleyXpub: any
+        byronXpub: any
+        currentEpoch: number
+        delegation: any
+        hasStakingKey: boolean
+        rewards: number
+        rewardDetails: {
+          upcoming: any
+          nearest: any
+          currentDelegation: any
+        }
+        value: number
+      }
+      transactionHistory: Array<Transaction>
+      stakingHistory: any
+      visibleAddresses: Array<any>
+      poolRecommendation: {
+        isInRecommendedPoolSet: boolean
+        recommendedPoolHash: string
+        status: string
+        shouldShowSaturatedBanner: boolean
+      }
+      isUsed: boolean
+      accountIndex: number
+    }
+  }
   sourceAccountIndex: number
   selectedAccountIndex: number
   targetAccountIndex: number
@@ -180,7 +186,6 @@ const initialState: State = {
   ),
   displayInfoModal: !(window.localStorage.getItem(localStorageVars.INFO_MODAL) === 'true'),
   errorBannerContent: '',
-  visibleAddresses: [],
   // todo - object (sub-state) from send-ada form
   sendAddress: {fieldValue: ''},
   sendAmount: {fieldValue: 0, coins: 0},
@@ -209,8 +214,6 @@ const initialState: State = {
   rawTransactionOpen: false,
   rawTransaction: '',
   shouldShowMnemonicInfoAlert: false,
-  transactionHistory: [],
-  stakingHistory: [],
   sendResponse: {},
   checkedDonationType: '',
   shouldShowCustomDonationInput: false,
@@ -234,35 +237,9 @@ const initialState: State = {
     },
   },
   gettingPoolInfo: false,
-  shelleyBalances: {
-    nonStakingBalance: 0,
-    stakingBalance: 0,
-    rewardsAccountBalance: 0,
-  },
-  shelleyAccountInfo: {
-    accountPubkeyHex: '',
-    shelleyXpub: '',
-    byronXpub: '',
-    currentEpoch: 0,
-    delegation: {},
-    hasStakingKey: false,
-    rewards: 0,
-    rewardDetails: {
-      upcoming: null,
-      nearest: null,
-      currentDelegation: null,
-    },
-    value: 0,
-  },
   txConfirmType: '',
   txSuccessTab: '',
   keepConfirmationDialogOpen: false,
-  poolRecommendation: {
-    isInRecommendedPoolSet: true,
-    recommendedPoolHash: '',
-    status: '',
-    shouldShowSaturatedBanner: false,
-  },
   isBigDelegator: false,
   accounts: {},
   sourceAccountIndex: 0,
@@ -277,5 +254,8 @@ const initialState: State = {
 }
 export type SetStateFn = (newState: Partial<State>) => void
 export type GetStateFn = () => State
+
+export const sourceAccountState = (state: State) => state.accounts[state.sourceAccountIndex]
+export const selectedAccountState = (state: State) => state.accounts[state.selectedAccountIndex]
 
 export {initialState}

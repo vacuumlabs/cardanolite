@@ -8,7 +8,7 @@ import TransactionErrorModal from '../../pages/sendAda/transactionErrorModal'
 import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import ConfirmTransactionDialog from '../../pages/sendAda/confirmTransactionDialog'
-import {Lovelace, State} from '../../../state'
+import {sourceAccountState, Lovelace, State} from '../../../state'
 import {ADALITE_CONFIG} from '../../../config'
 import Accordion from '../../common/accordion'
 
@@ -260,8 +260,8 @@ export default connect(
     txSuccessTab: state.txSuccessTab,
     gettingPoolInfo: state.gettingPoolInfo,
     isShelleyCompatible: state.isShelleyCompatible,
-    poolRecommendation: state.poolRecommendation,
-    pool: state.shelleyAccountInfo.delegation,
+    poolRecommendation: sourceAccountState(state).poolRecommendation,
+    pool: sourceAccountState(state).shelleyAccountInfo.delegation,
     isBigDelegator: state.isBigDelegator,
   }),
   actions
