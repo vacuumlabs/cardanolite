@@ -237,7 +237,7 @@ class SendAdaPage extends Component<Props> {
             />
           )}
         </div>
-        {shouldShowTransactionErrorModal && (
+        {shouldShowTransactionErrorModal && ( // TODO: move to dashboardPage
           <TransactionErrorModal
             onRequestClose={closeTransactionErrorModal}
             errorMessage={getTranslation(

@@ -278,7 +278,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const logout = () => {
-    window.history.pushState({}, '/', '/')
     wallet = null
     setState(
       {
@@ -289,6 +288,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       // @ts-ignore (we don't have types for forced state overwrite)
       true
     ) // force overwriting the state
+    window.history.pushState({}, '/', '/')
   }
 
   /* MNEMONIC */
@@ -576,7 +576,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const prepareTxPlan = async (args) => {
     const state = getState()
-    const plan: any = await wallet.accounts[state.sourceAccountIndex].getTxPlan(args) // FIXME: this cant be any
+    const plan: any = await wallet.accounts[state.sourceAccountIndex].getTxPlan(args)
+    // FIXME: this cant be any
     if (plan.error) {
       stopLoadingAction(state, {})
       resetDelegationWithoutHash(state)
