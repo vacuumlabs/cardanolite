@@ -143,12 +143,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       })
 
       const {validStakepools} = await wallet.getValidStakepools()
+      const {accountsInfo} = await wallet.getAccountsInfo(validStakepools)
       const {
-        accountsInfo,
         totalRewardsBalance,
         totalWalletBalance,
         shouldShowSaturatedBanner,
-      } = await wallet.getAccountsInfo(validStakepools)
+      } = wallet.getWalletInfo(accountsInfo)
 
       const conversionRatesPromise = getConversionRates(state)
       const usingHwWallet = wallet.isHwWallet()
@@ -211,21 +211,14 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   const reloadWalletInfo = async (state: State) => {
     loadingAction(state, 'Reloading wallet info...')
     try {
-      const {
-        accountsInfo,
-        totalRewardsBalance,
-        totalWalletBalance,
-        shouldShowSaturatedBanner,
-      } = await wallet.getAccountsInfo(state.validStakepools)
+      const {accountsInfo} = await wallet.getAccountsInfo(state.validStakepools)
       const conversionRates = getConversionRates(state)
 
       // timeout setting loading state, so that loading shows even if everything was cached
       setTimeout(() => setState({loading: false}), 500)
       setState({
         accountsInfo,
-        totalWalletBalance,
-        totalRewardsBalance,
-        shouldShowSaturatedBanner,
+        ...wallet.getWalletInfo(accountsInfo),
       })
       await fetchConversionRates(conversionRates)
     } catch (e) {
@@ -1026,27 +1019,34 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       sourceAccountIndex: state.selectedAccountIndex,
     })
   }
-
-  const loadAccount = async (state: State, accountIndex: number) => {
-    loadingAction(state, 'Loading account')
-    await wallet.discoverNewAccount()
-    const accountInfo = await wallet.accounts[accountIndex].getAccountInfo(state.validStakepools)
-    setState({
-      accountsInfo: [...state.accountsInfo, accountInfo],
-    })
-    stopLoadingAction(state, {})
-  }
-
-  const setSelectedAccount = async (state: State, accountIndex: number) => {
-    if (!wallet.accounts[accountIndex]) {
-      await loadAccount(state, accountIndex)
-    }
+  const setSelectedAccount = (state: State, accountIndex: number) => {
     setState({
       selectedAccountIndex: accountIndex,
       targetAccountIndex: accountIndex,
       sourceAccountIndex: accountIndex,
       txSuccessTab: '',
     })
+  }
+
+  const exploreNewAccount = async (state: State) => {
+    try {
+      loadingAction(state, 'Loading account')
+      const newAccount = await wallet.exploreNewAccount()
+      const accountInfo = await newAccount.getAccountInfo(state.validStakepools)
+      const accountsInfo = [...state.accountsInfo, accountInfo]
+      setState({
+        accountsInfo,
+        ...wallet.getWalletInfo(accountsInfo),
+      })
+      setSelectedAccount(state, newAccount.accountIndex)
+    } catch (e) {
+      setErrorState('walletLoadingError', e)
+      setState({
+        shouldShowWalletLoadingErrorModal: true,
+      })
+    } finally {
+      stopLoadingAction(state, {})
+    }
   }
 
   const setTargetAccount = async (state: State, accountIndex: number) => {
@@ -1320,12 +1320,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
-  const setLastAccountExplored = () => {
-    setState({
-      isLastAccountExplored: true,
-    })
-  }
-
   return {
     loadingAction,
     stopLoadingAction,
@@ -1383,7 +1377,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     setSelectedAccount,
     setTargetAccount,
     setSourceAccount,
+    exploreNewAccount,
     switchSourceAndTargetAccounts,
-    setLastAccountExplored,
   }
 }

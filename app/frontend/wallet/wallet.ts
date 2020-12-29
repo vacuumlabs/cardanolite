@@ -1,3 +1,4 @@
+import NamedError from '../helpers/NamedError'
 import {Account} from './account'
 import BlockchainExplorer from './blockchain-explorer'
 
@@ -27,6 +28,14 @@ const Wallet = ({config, cryptoProvider}) => {
       shouldExplore = isAccountUsed && config.shouldExportPubKeyBulk && accounts.length < 100
       accountIndex += 1
     }
+  }
+
+  async function exploreNewAccount() {
+    const isLastAccountUsed = await accounts[accounts.length - 1].isAccountUsed()
+    if (!isLastAccountUsed) {
+      throw NamedError('AccountExlorationError')
+    }
+    return discoverNewAccount()
   }
 
   function isHwWallet() {
@@ -66,11 +75,7 @@ const Wallet = ({config, cryptoProvider}) => {
     return null
   }
 
-  async function getAccountsInfo(validStakepools) {
-    await discoverAccounts()
-    const accountsInfo = await Promise.all(
-      accounts.map((account) => account.getAccountInfo(validStakepools))
-    )
+  const getWalletInfo = (accountsInfo) => {
     const totalWalletBalance = accountsInfo.reduce(
       (a, {shelleyBalances}) =>
         shelleyBalances.stakingBalance + shelleyBalances.nonStakingBalance + a,
@@ -84,10 +89,19 @@ const Wallet = ({config, cryptoProvider}) => {
       ({poolRecommendation}) => poolRecommendation.shouldShowSaturatedBanner
     )
     return {
-      accountsInfo,
       totalWalletBalance,
       totalRewardsBalance,
       shouldShowSaturatedBanner,
+    }
+  }
+
+  async function getAccountsInfo(validStakepools) {
+    await discoverAccounts()
+    const accountsInfo = await Promise.all(
+      accounts.map((account) => account.getAccountInfo(validStakepools))
+    )
+    return {
+      accountsInfo,
     }
   }
 
@@ -103,10 +117,10 @@ const Wallet = ({config, cryptoProvider}) => {
     fetchTxInfo,
     checkCryptoProviderVersion,
     accounts,
-    discoverNewAccount,
-    discoverAccounts,
     getAccountsInfo,
+    getWalletInfo,
     getValidStakepools,
+    exploreNewAccount,
   }
 }
 

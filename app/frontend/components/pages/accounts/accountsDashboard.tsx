@@ -1,7 +1,6 @@
 import {Fragment, h} from 'preact'
 import {connect} from '../../../helpers/connect'
 import actions from '../../../actions'
-import range from '../../../../frontend/wallet/helpers/range'
 import printAda from '../../../helpers/printAda'
 import {Lovelace, State} from '../../../state'
 import {AdaIcon} from '../../common/svg'
@@ -13,33 +12,43 @@ import {errorHasHelp} from '../../../../frontend/helpers/errorsWithHelp'
 import TransactionErrorModal from '../sendAda/transactionErrorModal'
 import {getTranslation} from '../../../../frontend/translations'
 
+type TileProps = {
+  accountIndex: number
+  ticker: string | null
+  availableBalance: Lovelace | null
+  rewardsBalance: Lovelace | null
+  setSelectedAccount: any
+  exploreNewAccount: any
+  selectedAccountIndex: number
+  showDelegationModal: any
+  showSendTransactionModal: any
+  shouldShowAccountInfo?: boolean
+}
+
 const AccountTile = ({
   accountIndex,
-  account,
+  ticker,
+  availableBalance,
+  rewardsBalance,
   setSelectedAccount,
+  exploreNewAccount,
   selectedAccountIndex,
   showDelegationModal,
   showSendTransactionModal,
-  setLastAccountExplored,
-  isLastAccountExplored,
-}) => {
+  shouldShowAccountInfo,
+}: TileProps) => {
   const isSelected = selectedAccountIndex === accountIndex
 
-  const shouldShowAccountInfo =
-    account && (account.isUsed || isLastAccountExplored || accountIndex === 0)
+  const Balance = ({value}: {value: Lovelace}) =>
+    value !== null ? (
+      <Fragment>
+        {printAda(value, 3)}
+        <AdaIcon />
+      </Fragment>
+    ) : (
+      <Fragment>-</Fragment>
+    )
 
-  const Balance = ({value}: {value: Lovelace}) => (
-    <Fragment>
-      {printAda(value, 3)}
-      <AdaIcon />
-    </Fragment>
-  )
-  const PoolTicker = () => {
-    if (shouldShowAccountInfo) {
-      return account.shelleyAccountInfo.delegation.ticker || '-'
-    }
-    return '-'
-  }
   const TransferButton = () => (
     <button
       className="button primary nowrap account-button"
@@ -49,6 +58,7 @@ const AccountTile = ({
       Transfer
     </button>
   )
+
   const DelegateButton = () => (
     <button
       className="button primary nowrap account-button"
@@ -60,11 +70,28 @@ const AccountTile = ({
     </button>
   )
 
-  const buttonLabel = () => {
-    if (isSelected) return 'Active'
-    if (!shouldShowAccountInfo) return 'Explore'
-    return 'Activate'
-  }
+  const ActivationButton = () => (
+    <button
+      className="button primary nowrap"
+      disabled={isSelected}
+      onClick={() => {
+        setSelectedAccount(accountIndex)
+      }}
+    >
+      {isSelected ? 'Active' : 'Activate'}
+    </button>
+  )
+
+  const ExplorationButton = () => (
+    <button
+      className="button primary nowrap"
+      onClick={() => {
+        exploreNewAccount()
+      }}
+    >
+      Explore
+    </button>
+  )
 
   return (
     <div key={accountIndex} className={`card account ${isSelected ? 'selected' : ''}`}>
@@ -73,29 +100,12 @@ const AccountTile = ({
       </div>
       <div className="card-column account-button-wrapper">
         <h2 className="card-title small-margin account-header desktop">Account #{accountIndex}</h2>
-        <button
-          className="button primary nowrap"
-          disabled={isSelected}
-          onClick={() => {
-            if (!shouldShowAccountInfo) setLastAccountExplored()
-            setSelectedAccount(accountIndex)
-          }}
-        >
-          {buttonLabel()}
-        </button>
+        {shouldShowAccountInfo ? <ActivationButton /> : <ExplorationButton />}
       </div>
       <div className="card-column account-item-info-wrapper">
         <h2 className="card-title small-margin">Available balance</h2>
         <div className="balance-amount small item">
-          {shouldShowAccountInfo ? (
-            <Balance
-              value={
-                account.shelleyBalances.stakingBalance + account.shelleyBalances.nonStakingBalance
-              }
-            />
-          ) : (
-            '-'
-          )}
+          <Balance value={availableBalance} />
         </div>
         <div className="mobile">
           {shouldShowAccountInfo && (
@@ -108,18 +118,12 @@ const AccountTile = ({
       <div className="card-column account-item-info-wrapper tablet-offset">
         <h2 className="card-title small-margin">Rewards balance</h2>
         <div className="balance-amount small item">
-          {shouldShowAccountInfo ? (
-            <Balance value={account.shelleyBalances.rewardsAccountBalance} />
-          ) : (
-            '-'
-          )}
+          <Balance value={rewardsBalance} />
         </div>
       </div>
       <div className="card-column account-item-info-wrapper">
         <h2 className="card-title small-margin">Delegation</h2>
-        <div className="delegation-account item">
-          <PoolTicker />
-        </div>
+        <div className="delegation-account item">{ticker || '-'}</div>
         <div className="mobile">
           {shouldShowAccountInfo && (
             <div className="account-action-buttons">
@@ -140,9 +144,10 @@ const AccountTile = ({
   )
 }
 
-type Props = {
+type DashboardProps = {
   accountsInfo: Array<any>
   setSelectedAccount: any
+  exploreNewAccount: any
   reloadWalletInfo: any
   showSendTransactionModal: boolean
   showDelegationModal: boolean
@@ -152,8 +157,6 @@ type Props = {
   totalWalletBalance: number
   totalRewardsBalance: number
   shouldShowConfirmTransactionDialog: boolean
-  setLastAccountExplored: any
-  isLastAccountExplored: boolean
   shouldShowTransactionErrorModal: boolean
   transactionSubmissionError: any
   closeTransactionErrorModal: any
@@ -162,6 +165,7 @@ type Props = {
 const AccountsDashboard = ({
   accountsInfo,
   setSelectedAccount,
+  exploreNewAccount,
   reloadWalletInfo,
   showSendTransactionModal,
   showDelegationModal,
@@ -171,12 +175,10 @@ const AccountsDashboard = ({
   totalWalletBalance,
   totalRewardsBalance,
   shouldShowConfirmTransactionDialog,
-  setLastAccountExplored,
-  isLastAccountExplored,
   shouldShowTransactionErrorModal,
   transactionSubmissionError,
   closeTransactionErrorModal,
-}: Props) => {
+}: DashboardProps) => {
   const InfoAlert = () => (
     <Fragment>
       <div className="dashboard-column account sidebar-item info">
@@ -206,8 +208,6 @@ const AccountsDashboard = ({
       </div>
     </Fragment>
   )
-
-  const usedAccountsCount = accountsInfo.filter(({isUsed}) => isUsed).length
 
   return (
     <Fragment>
@@ -243,19 +243,37 @@ const AccountsDashboard = ({
         <div className="accounts-wrapper">
           <div className="dashboard-column account list">
             <div>
-              {range(0, usedAccountsCount + 1).map((accountIndex) => (
+              {accountsInfo.map((accountInfo) => (
                 <AccountTile
-                  key={accountIndex}
-                  accountIndex={accountIndex}
-                  account={accountsInfo[accountIndex]}
-                  setSelectedAccount={setSelectedAccount}
+                  key={accountInfo.accountIndex}
+                  accountIndex={accountInfo.accountIndex}
                   selectedAccountIndex={selectedAccountIndex}
+                  ticker={accountInfo.shelleyAccountInfo.delegation.ticker}
+                  availableBalance={
+                    accountInfo.shelleyBalances.stakingBalance +
+                    accountInfo.shelleyBalances.nonStakingBalance
+                  } // TODO: this should be in state}
+                  rewardsBalance={accountInfo.shelleyBalances.rewardsAccountBalance}
+                  setSelectedAccount={setSelectedAccount}
+                  exploreNewAccount={() => null}
                   showSendTransactionModal={showSendTransactionModal}
                   showDelegationModal={showDelegationModal}
-                  setLastAccountExplored={setLastAccountExplored}
-                  isLastAccountExplored={isLastAccountExplored}
+                  shouldShowAccountInfo
                 />
               ))}
+              {accountsInfo[accountsInfo.length - 1].isUsed && (
+                <AccountTile
+                  accountIndex={accountsInfo.length}
+                  selectedAccountIndex={selectedAccountIndex}
+                  ticker={null}
+                  availableBalance={null}
+                  rewardsBalance={null}
+                  setSelectedAccount={() => null}
+                  exploreNewAccount={exploreNewAccount}
+                  showSendTransactionModal={showSendTransactionModal}
+                  showDelegationModal={showSendTransactionModal}
+                />
+              )}
             </div>
           </div>
           <div className="desktop">
@@ -290,7 +308,6 @@ export default connect(
     shouldShowConfirmTransactionDialog: state.shouldShowConfirmTransactionDialog,
     shouldShowTransactionErrorModal: state.shouldShowTransactionErrorModal,
     transactionSubmissionError: state.transactionSubmissionError,
-    isLastAccountExplored: state.isLastAccountExplored,
   }),
   actions
 )(AccountsDashboard)
