@@ -1015,13 +1015,13 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const resetAccountIndexes = (state: State) => {
     setState({
-      targetAccountIndex: state.selectedAccountIndex,
-      sourceAccountIndex: state.selectedAccountIndex,
+      targetAccountIndex: state.activeAccountIndex,
+      sourceAccountIndex: state.activeAccountIndex,
     })
   }
-  const setSelectedAccount = (state: State, accountIndex: number) => {
+  const setActiveAccount = (state: State, accountIndex: number) => {
     setState({
-      selectedAccountIndex: accountIndex,
+      activeAccountIndex: accountIndex,
       targetAccountIndex: accountIndex,
       sourceAccountIndex: accountIndex,
       txSuccessTab: '',
@@ -1038,7 +1038,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         accountsInfo,
         ...wallet.getWalletInfo(accountsInfo),
       })
-      setSelectedAccount(state, newAccount.accountIndex)
+      setActiveAccount(state, newAccount.accountIndex)
     } catch (e) {
       setErrorState('walletLoadingError', e)
       setState({
@@ -1374,7 +1374,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     closeSendTransactionModal,
     showDelegationModal,
     closeDelegationModal,
-    setSelectedAccount,
+    setActiveAccount,
     setTargetAccount,
     setSourceAccount,
     exploreNewAccount,

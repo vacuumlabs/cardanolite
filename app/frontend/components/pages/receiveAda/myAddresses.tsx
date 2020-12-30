@@ -1,10 +1,10 @@
-import {State, selectedAccountState} from '../../../../frontend/state'
+import {State, activeAccountState} from '../../../../frontend/state'
 import {h} from 'preact'
 import {useSelector} from '../../../helpers/connect'
 import AddressItem from './addressItem'
 
 const MyAddresses = () => {
-  const addresses = useSelector((state: State) => selectedAccountState(state).visibleAddresses)
+  const addresses = useSelector((state: State) => activeAccountState(state).visibleAddresses)
 
   return (
     <div className="addresses card">

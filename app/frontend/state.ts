@@ -152,7 +152,7 @@ export interface State {
     accountIndex: number
   }>
   sourceAccountIndex: number
-  selectedAccountIndex: number
+  activeAccountIndex: number
   targetAccountIndex: number
   totalWalletBalance: number
   totalRewardsBalance: number
@@ -277,7 +277,7 @@ const initialState: State = {
     },
   ],
   sourceAccountIndex: 0,
-  selectedAccountIndex: 0,
+  activeAccountIndex: 0,
   targetAccountIndex: 0,
   totalWalletBalance: 0,
   totalRewardsBalance: 0,
@@ -290,6 +290,6 @@ export type SetStateFn = (newState: Partial<State>) => void
 export type GetStateFn = () => State
 
 export const sourceAccountState = (state: State) => state.accountsInfo[state.sourceAccountIndex]
-export const selectedAccountState = (state: State) => state.accountsInfo[state.selectedAccountIndex]
+export const activeAccountState = (state: State) => state.accountsInfo[state.activeAccountIndex]
 
 export {initialState}

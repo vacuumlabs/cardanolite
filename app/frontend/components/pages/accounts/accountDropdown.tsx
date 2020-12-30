@@ -40,7 +40,7 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accountsInfo}) => {
 export default connect(
   (state: State) => ({
     accountsInfo: state.accountsInfo,
-    selectedAccountIndex: state.selectedAccountIndex,
+    activeAccountIndex: state.activeAccountIndex,
   }),
   actions
 )(AccountDropdown)

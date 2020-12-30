@@ -1,6 +1,6 @@
 import {h, Component} from 'preact'
 import printAda from '../../../helpers/printAda'
-import {selectedAccountState, Lovelace, State} from '../../../state'
+import {activeAccountState, Lovelace, State} from '../../../state'
 import {ADALITE_CONFIG} from '../../../config'
 import actions from '../../../actions'
 import {connect} from '../../../libs/unistore/preact'
@@ -220,8 +220,8 @@ class TransactionHistory extends Component<Props> {
 
 export default connect(
   (state: State) => ({
-    transactionHistory: selectedAccountState(state).transactionHistory,
-    stakingHistory: selectedAccountState(state).stakingHistory,
+    transactionHistory: activeAccountState(state).transactionHistory,
+    stakingHistory: activeAccountState(state).stakingHistory,
   }),
   actions
 )(TransactionHistory)

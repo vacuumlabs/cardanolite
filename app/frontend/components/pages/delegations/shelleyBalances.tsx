@@ -5,7 +5,7 @@ import actions from '../../../actions'
 import {connect} from '../../../libs/unistore/preact'
 import tooltip from '../../common/tooltip'
 import toLocalDate from '../../../../frontend/helpers/toLocalDate'
-import {selectedAccountState, State} from '../../../state'
+import {activeAccountState, State} from '../../../state'
 
 const shelleyBalances = ({
   stakingBalance,
@@ -132,14 +132,14 @@ const shelleyBalances = ({
 
 export default connect(
   (state: State) => ({
-    stakingBalance: selectedAccountState(state).shelleyBalances.stakingBalance,
-    nonStakingBalance: selectedAccountState(state).shelleyBalances.nonStakingBalance,
-    rewardsAccountBalance: selectedAccountState(state).shelleyBalances.rewardsAccountBalance,
-    balance: selectedAccountState(state).balance,
+    stakingBalance: activeAccountState(state).shelleyBalances.stakingBalance,
+    nonStakingBalance: activeAccountState(state).shelleyBalances.nonStakingBalance,
+    rewardsAccountBalance: activeAccountState(state).shelleyBalances.rewardsAccountBalance,
+    balance: activeAccountState(state).balance,
     calculatingDelegationFee: state.calculatingDelegationFee,
     hwWalletName: state.hwWalletName,
     isShelleyCompatible: state.isShelleyCompatible,
-    nearestReward: selectedAccountState(state).shelleyAccountInfo.rewardDetails.nearest,
+    nearestReward: activeAccountState(state).shelleyAccountInfo.rewardDetails.nearest,
   }),
   actions
 )(shelleyBalances)

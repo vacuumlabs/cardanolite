@@ -17,9 +17,9 @@ type TileProps = {
   ticker: string | null
   availableBalance: Lovelace | null
   rewardsBalance: Lovelace | null
-  setSelectedAccount: any
+  setActiveAccount: any
   exploreNewAccount: any
-  selectedAccountIndex: number
+  activeAccountIndex: number
   showDelegationModal: any
   showSendTransactionModal: any
   shouldShowAccountInfo?: boolean
@@ -30,14 +30,14 @@ const AccountTile = ({
   ticker,
   availableBalance,
   rewardsBalance,
-  setSelectedAccount,
+  setActiveAccount,
   exploreNewAccount,
-  selectedAccountIndex,
+  activeAccountIndex,
   showDelegationModal,
   showSendTransactionModal,
   shouldShowAccountInfo,
 }: TileProps) => {
-  const isSelected = selectedAccountIndex === accountIndex
+  const isActive = activeAccountIndex === accountIndex
 
   const Balance = ({value}: {value: Lovelace}) =>
     value !== null ? (
@@ -52,8 +52,8 @@ const AccountTile = ({
   const TransferButton = () => (
     <button
       className="button primary nowrap account-button"
-      onClick={() => showSendTransactionModal(selectedAccountIndex, accountIndex)}
-      disabled={isSelected}
+      onClick={() => showSendTransactionModal(activeAccountIndex, accountIndex)}
+      disabled={isActive}
     >
       Transfer
     </button>
@@ -73,12 +73,12 @@ const AccountTile = ({
   const ActivationButton = () => (
     <button
       className="button primary nowrap"
-      disabled={isSelected}
+      disabled={isActive}
       onClick={() => {
-        setSelectedAccount(accountIndex)
+        setActiveAccount(accountIndex)
       }}
     >
-      {isSelected ? 'Active' : 'Activate'}
+      {isActive ? 'Active' : 'Activate'}
     </button>
   )
 
@@ -94,7 +94,7 @@ const AccountTile = ({
   )
 
   return (
-    <div key={accountIndex} className={`card account ${isSelected ? 'selected' : ''}`}>
+    <div key={accountIndex} className={`card account ${isActive ? 'selected' : ''}`}>
       <div className="header-wrapper mobile">
         <h2 className="card-title small-margin">Account #{accountIndex}</h2>
       </div>
@@ -146,14 +146,14 @@ const AccountTile = ({
 
 type DashboardProps = {
   accountsInfo: Array<any>
-  setSelectedAccount: any
+  setActiveAccount: any
   exploreNewAccount: any
   reloadWalletInfo: any
   showSendTransactionModal: boolean
   showDelegationModal: boolean
   shouldShowSendTransactionModal: boolean
   shouldShowDelegationModal: boolean
-  selectedAccountIndex: number
+  activeAccountIndex: number
   totalWalletBalance: number
   totalRewardsBalance: number
   shouldShowConfirmTransactionDialog: boolean
@@ -164,14 +164,14 @@ type DashboardProps = {
 
 const AccountsDashboard = ({
   accountsInfo,
-  setSelectedAccount,
+  setActiveAccount,
   exploreNewAccount,
   reloadWalletInfo,
   showSendTransactionModal,
   showDelegationModal,
   shouldShowSendTransactionModal,
   shouldShowDelegationModal,
-  selectedAccountIndex,
+  activeAccountIndex,
   totalWalletBalance,
   totalRewardsBalance,
   shouldShowConfirmTransactionDialog,
@@ -247,14 +247,14 @@ const AccountsDashboard = ({
                 <AccountTile
                   key={accountInfo.accountIndex}
                   accountIndex={accountInfo.accountIndex}
-                  selectedAccountIndex={selectedAccountIndex}
+                  activeAccountIndex={activeAccountIndex}
                   ticker={accountInfo.shelleyAccountInfo.delegation.ticker}
                   availableBalance={
                     accountInfo.shelleyBalances.stakingBalance +
                     accountInfo.shelleyBalances.nonStakingBalance
                   } // TODO: this should be in state}
                   rewardsBalance={accountInfo.shelleyBalances.rewardsAccountBalance}
-                  setSelectedAccount={setSelectedAccount}
+                  setActiveAccount={setActiveAccount}
                   exploreNewAccount={() => null}
                   showSendTransactionModal={showSendTransactionModal}
                   showDelegationModal={showDelegationModal}
@@ -264,11 +264,11 @@ const AccountsDashboard = ({
               {accountsInfo[accountsInfo.length - 1].isUsed && (
                 <AccountTile
                   accountIndex={accountsInfo.length}
-                  selectedAccountIndex={selectedAccountIndex}
+                  activeAccountIndex={activeAccountIndex}
                   ticker={null}
                   availableBalance={null}
                   rewardsBalance={null}
-                  setSelectedAccount={() => null}
+                  setActiveAccount={() => null}
                   exploreNewAccount={exploreNewAccount}
                   showSendTransactionModal={showSendTransactionModal}
                   showDelegationModal={showSendTransactionModal}
@@ -302,7 +302,7 @@ export default connect(
     accountsInfo: state.accountsInfo,
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
-    selectedAccountIndex: state.selectedAccountIndex,
+    activeAccountIndex: state.activeAccountIndex,
     totalRewardsBalance: state.totalRewardsBalance,
     totalWalletBalance: state.totalWalletBalance,
     shouldShowConfirmTransactionDialog: state.shouldShowConfirmTransactionDialog,
