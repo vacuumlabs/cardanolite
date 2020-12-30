@@ -151,6 +151,7 @@ export interface State {
     isUsed: boolean
     accountIndex: number
   }>
+  accountIndexOffset: number
   sourceAccountIndex: number
   activeAccountIndex: number
   targetAccountIndex: number
@@ -276,6 +277,7 @@ const initialState: State = {
       accountIndex: 0,
     },
   ],
+  accountIndexOffset: 0,
   sourceAccountIndex: 0,
   activeAccountIndex: 0,
   targetAccountIndex: 0,

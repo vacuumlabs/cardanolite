@@ -153,6 +153,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const conversionRatesPromise = getConversionRates(state)
       const usingHwWallet = wallet.isHwWallet()
       const hwWalletName = usingHwWallet ? wallet.getWalletName() : undefined
+      const accountIndexOffset = hwWalletName === 'Trezor' ? 1 : 0
       if (usingHwWallet) loadingAction(state, `Waiting for ${hwWalletName}...`)
       const demoRootSecret = (await mnemonicToWalletSecretDef(
         ADALITE_CONFIG.ADALITE_DEMO_WALLET_MNEMONIC
@@ -169,6 +170,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         totalWalletBalance,
         totalRewardsBalance,
         shouldShowSaturatedBanner,
+        accountIndexOffset,
         walletIsLoaded: true,
         loading: false,
         mnemonicAuthForm: {

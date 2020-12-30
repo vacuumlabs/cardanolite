@@ -19,6 +19,7 @@ import PremiumBanner from './premiumBanner'
 import SaturationErrorBanner from './saturationErrorBanner'
 import Keys from '../advanced/keys'
 import AccountsDashboard from '../accounts/accountsDashboard'
+import {State} from '../../../state'
 
 interface Props {
   selectedMainTab: any
@@ -92,6 +93,7 @@ class DashboardPage extends Component<Props> {
     shouldShowPremiumBanner,
     shouldShowSaturatedBanner,
     activeAccountIndex,
+    accountIndexOffset,
   }) {
     // TODO: this approach doesnt allow multi-word tabs
     const mainTabs = ['Accounts', 'Sending', 'Staking', 'Advanced']
@@ -123,7 +125,9 @@ class DashboardPage extends Component<Props> {
                 name={name}
                 selectedTab={selectedMainTab}
                 selectTab={this.selectMainTab}
-                displayName={name === 'Accounts' && `Account #${activeAccountIndex}`}
+                displayName={
+                  name === 'Accounts' && `Account #${activeAccountIndex + accountIndexOffset}`
+                }
               />
             ))}
           </ul>
@@ -204,7 +208,7 @@ class DashboardMobileContent extends Component<Props, {selectedSubTab}> {
 }
 
 export default connect(
-  (state) => ({
+  (state: State) => ({
     shouldShowExportOption: state.shouldShowExportOption,
     selectedMainTab: state.selectedMainTab,
     displayInfoModal: state.displayInfoModal,
@@ -213,6 +217,7 @@ export default connect(
     shouldShowPremiumBanner: state.shouldShowPremiumBanner,
     shouldShowSaturatedBanner: state.shouldShowSaturatedBanner,
     activeAccountIndex: state.activeAccountIndex,
+    accountIndexOffset: state.accountIndexOffset,
   }),
   actions
 )(DashboardPage)
