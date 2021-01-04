@@ -8,13 +8,15 @@ const Wallet = ({config, cryptoProvider}) => {
 
   const accounts: Array<ReturnType<typeof Account>> = []
 
-  function discoverNewAccount() {
+  async function discoverNewAccount() {
     const newAccount = Account({
       config,
       cryptoProvider,
       blockchainExplorer,
       accountIndex: accounts.length,
     })
+    // get addresses to ensure user exported pubkey
+    await newAccount.isAccountUsed()
     accounts.push(newAccount)
     return newAccount
   }
@@ -23,7 +25,7 @@ const Wallet = ({config, cryptoProvider}) => {
     let shouldExplore = true
     let accountIndex = 0
     while (shouldExplore) {
-      const newAccount = accounts[accountIndex] || discoverNewAccount()
+      const newAccount = accounts[accountIndex] || (await discoverNewAccount())
       const isAccountUsed = await newAccount.isAccountUsed()
 
       shouldExplore =
@@ -35,7 +37,7 @@ const Wallet = ({config, cryptoProvider}) => {
   async function exploreNewAccount() {
     const isLastAccountUsed = await accounts[accounts.length - 1].isAccountUsed()
     if (!isLastAccountUsed) {
-      throw NamedError('AccountExplorationError')
+      throw NamedError('AccountDiscoveryError')
     }
     return discoverNewAccount()
   }
