@@ -487,14 +487,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   const resetAmountFields = (state) => {
     setState({
-      sendAmount: {fieldValue: '', coins: 0},
       donationAmount: {fieldValue: '', coins: 0},
       transactionFee: 0, // TODO(merc): call resetDonation instead?
       maxDonationAmount: Infinity,
       checkedDonationType: '',
       shouldShowCustomDonationInput: false,
     })
-    setErrorState('sendAmountValidationError', null)
     resetPercentageDonation()
   }
 
@@ -1059,10 +1057,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   }
 
   const setTargetAccount = async (state: State, accountIndex: number) => {
-    const targetAddress = await wallet.getAccount(accountIndex).getChangeAddress()
     setState({
       targetAccountIndex: accountIndex,
     })
+    const targetAddress = await wallet.getAccount(accountIndex).getChangeAddress()
     updateAddress(state, null, targetAddress)
   }
 
@@ -1102,6 +1100,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       sendAmount: {fieldValue: '', coins: 0},
       transactionFee: 0,
       shouldShowSendTransactionModal: false,
+      sendAddressValidationError: null,
+      sendAmountValidationError: null,
     })
   }
 

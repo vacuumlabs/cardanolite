@@ -17,19 +17,24 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accountsInfo, accountInd
 
   return (
     <div className="account-dropdown">
-      <button className="account-dropdown-button" onClick={() => toggleAccountDropdown()}>
-        Account {accountIndex + accountIndexOffset}
+      <button
+        className="account-dropdown-button"
+        onBlur={() => hideAccountDropdown(true)}
+        onClick={() => toggleAccountDropdown()}
+      >
+        Account #{accountIndex + accountIndexOffset}
       </button>
       <div className={`account-dropdown-content ${shouldHideAccountDropdown ? 'hide' : 'show'}`}>
         {range(0, accountsInfo.length).map((i) => (
           <a
             key={i}
+            onMouseDown={(e) => e.preventDefault()}
             onClick={() => {
-              hideAccountDropdown(true)
               setAccountFunc(i)
+              hideAccountDropdown(true)
             }}
           >
-            Account {i + accountIndexOffset}
+            Account #{i + accountIndexOffset}
           </a>
         ))}
       </div>
