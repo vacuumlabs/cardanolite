@@ -1,46 +1,10 @@
-import NamedError from '../helpers/NamedError'
-import {Account} from './account'
 import BlockchainExplorer from './blockchain-explorer'
-import {MAX_ACCOUNT_COUNT} from './constants'
+import {AccountManager} from './account-manager'
 
 const Wallet = ({config, cryptoProvider}) => {
   const blockchainExplorer = BlockchainExplorer(config)
 
-  const accounts: Array<ReturnType<typeof Account>> = []
-
-  async function discoverNewAccount() {
-    const newAccount = Account({
-      config,
-      cryptoProvider,
-      blockchainExplorer,
-      accountIndex: accounts.length,
-    })
-    // get addresses to ensure user exported pubkey
-    await newAccount.isAccountUsed()
-    accounts.push(newAccount)
-    return newAccount
-  }
-
-  async function discoverAccounts() {
-    let shouldExplore = true
-    let accountIndex = 0
-    while (shouldExplore) {
-      const newAccount = accounts[accountIndex] || (await discoverNewAccount())
-      const isAccountUsed = await newAccount.isAccountUsed()
-
-      shouldExplore =
-        isAccountUsed && config.shouldExportPubKeyBulk && accounts.length < MAX_ACCOUNT_COUNT
-      accountIndex += 1
-    }
-  }
-
-  async function exploreNewAccount() {
-    const isLastAccountUsed = await accounts[accounts.length - 1].isAccountUsed()
-    if (!isLastAccountUsed) {
-      throw NamedError('AccountDiscoveryError')
-    }
-    return discoverNewAccount()
-  }
+  const accountManager = AccountManager({config, cryptoProvider, blockchainExplorer})
 
   function isHwWallet() {
     return cryptoProvider.isHwWallet()
@@ -100,7 +64,7 @@ const Wallet = ({config, cryptoProvider}) => {
   }
 
   async function getAccountsInfo(validStakepools) {
-    await discoverAccounts()
+    const accounts = await accountManager.discoverAccounts()
     const accountsInfo = await Promise.all(
       accounts.map((account) => account.getAccountInfo(validStakepools))
     )
@@ -120,11 +84,11 @@ const Wallet = ({config, cryptoProvider}) => {
     getWalletSecretDef,
     fetchTxInfo,
     checkCryptoProviderVersion,
-    accounts,
     getAccountsInfo,
     getWalletInfo,
     getValidStakepools,
-    exploreNewAccount,
+    getAccount: accountManager.getAccount,
+    exploreNewAccount: accountManager.exploreNewAccount,
   }
 }
 
