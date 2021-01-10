@@ -29,7 +29,7 @@ import sanitizeMnemonic from './helpers/sanitizeMnemonic'
 import {initialState} from './store'
 import {toCoins, toAda, roundWholeAdas} from './helpers/adaConverters'
 import captureBySentry from './helpers/captureBySentry'
-import {State, Ada, Lovelace, GetStateFn, SetStateFn, sourceAccountState} from './state'
+import {State, Ada, Lovelace, GetStateFn, SetStateFn, getSourceAccountInfo} from './state'
 import ShelleyCryptoProviderFactory from './wallet/shelley/shelley-crypto-provider-factory'
 import {ShelleyWallet} from './wallet/shelley-wallet'
 import {parseUnsignedTx} from './helpers/cliParser/parser'
@@ -558,7 +558,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       sendAmountValidator(
         state.sendAmount.fieldValue,
         state.sendAmount.coins,
-        sourceAccountState(state).balance
+        getSourceAccountInfo(state).balance
       )
     )
     setErrorState(
@@ -566,7 +566,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       donationAmountValidator(
         state.donationAmount.fieldValue,
         state.donationAmount.coins,
-        sourceAccountState(state).balance
+        getSourceAccountInfo(state).balance
       )
     )
   }
@@ -629,7 +629,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     }
     const validationError = txPlanValidator(
       coins,
-      sourceAccountState(state).balance, // TODO: get new balance
+      getSourceAccountInfo(state).balance, // TODO: get new balance
       plan,
       donationAmount
     )
@@ -844,7 +844,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       .getMaxNonStakingAmount(address)
     const coins = maxAmount && maxAmount.sendAmount
     const plan = await prepareTxPlan({address, coins, txType: 'convert'})
-    const validationError = txPlanValidator(coins, sourceAccountState(state).balance, plan)
+    const validationError = txPlanValidator(coins, getSourceAccountInfo(state).balance, plan)
     if (validationError) {
       setErrorState('transactionSubmissionError', validationError, {
         shouldShowTransactionErrorModal: true,
@@ -860,10 +860,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   const withdrawRewards = async (state) => {
     loadingAction(state, 'Preparing transaction...')
     // TODO: get reward and normal balance from be not from state
-    const rewards = sourceAccountState(state).shelleyBalances.rewardsAccountBalance
+    const rewards = getSourceAccountInfo(state).shelleyBalances.rewardsAccountBalance
     const plan = await prepareTxPlan({rewards, txType: 'withdraw'})
     const withdrawalValidationError =
-      withdrawalPlanValidator(rewards, sourceAccountState(state).balance, plan) ||
+      withdrawalPlanValidator(rewards, getSourceAccountInfo(state).balance, plan) ||
       wallet.checkCryptoProviderVersion('WITHDRAWAL')
     if (withdrawalValidationError) {
       setErrorState('transactionSubmissionError', withdrawalValidationError, {
@@ -945,13 +945,13 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     const state = getState()
     setPoolInfo(state)
     const poolHash = state.shelleyDelegation.selectedPool.poolHash
-    const stakingKeyRegistered = sourceAccountState(state).shelleyAccountInfo.hasStakingKey
+    const stakingKeyRegistered = getSourceAccountInfo(state).shelleyAccountInfo.hasStakingKey
     const plan = await prepareTxPlan({poolHash, stakingKeyRegistered, txType: 'delegate'})
     const newState = getState()
     if (hasPoolIdentifiersChanged(newState)) {
       return
     }
-    const validationError = delegationPlanValidator(sourceAccountState(state).balance, plan)
+    const validationError = delegationPlanValidator(getSourceAccountInfo(state).balance, plan)
     if (validationError) {
       setErrorState('delegationValidationError', validationError, {
         calculatingDelegationFee: false,
@@ -1033,7 +1033,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     updateStakePoolIdentifier(
       newState,
       null,
-      sourceAccountState(newState).poolRecommendation.recommendedPoolHash
+      getSourceAccountInfo(newState).poolRecommendation.recommendedPoolHash
     )
   }
 

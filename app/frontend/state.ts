@@ -271,7 +271,7 @@ const initialState: State = {
 export type SetStateFn = (newState: Partial<State>) => void
 export type GetStateFn = () => State
 
-export const sourceAccountState = (state: State) => state.accountsInfo[state.sourceAccountIndex]
-export const activeAccountState = (state: State) => state.accountsInfo[state.activeAccountIndex]
+export const getSourceAccountInfo = (state: State) => state.accountsInfo[state.sourceAccountIndex]
+export const getActiveAccountInfo = (state: State) => state.accountsInfo[state.activeAccountIndex]
 
 export {initialState}
