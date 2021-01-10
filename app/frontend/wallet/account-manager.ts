@@ -1,6 +1,6 @@
 import NamedError from '../helpers/NamedError'
 import {Account} from './account'
-import {MAX_ACCOUNT_COUNT} from './constants'
+import {CryptoProviderFeatures, MAX_ACCOUNT_COUNT} from './constants'
 
 const AccountManager = ({config, cryptoProvider, blockchainExplorer}) => {
   const accounts: Array<ReturnType<typeof Account>> = []
@@ -35,11 +35,14 @@ const AccountManager = ({config, cryptoProvider, blockchainExplorer}) => {
   async function discoverAccounts() {
     // remove rejected promises from pubkey cache
     cryptoProvider.cleanXpubCache()
+    const isBulkExportSupported = cryptoProvider.isFeatureSupported(
+      CryptoProviderFeatures.BULK_EXPORT
+    )
     async function _discoverNewAccount(accountIndex: number) {
       const newAccount = accounts[accountIndex] || discoverNewAccount()
       const isAccountUsed = await newAccount.isAccountUsed()
       if (accountIndex === accounts.length) await addNewAccount(newAccount)
-      const shouldExplore = isAccountUsed && config.shouldExportPubKeyBulk
+      const shouldExplore = isAccountUsed && config.shouldExportPubKeyBulk && isBulkExportSupported
 
       return shouldExplore && (await _discoverNewAccount(accountIndex + 1))
     }
