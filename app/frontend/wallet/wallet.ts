@@ -19,7 +19,7 @@ const Wallet = ({config, cryptoProvider}) => {
   async function discoverAccounts() {
     let shouldExplore = true
     let accountIndex = 0
-    while (shouldExplore) {
+    while (shouldExplore && !accounts[accountIndex]) {
       const newAccount = Account({
         config,
         cryptoProvider,

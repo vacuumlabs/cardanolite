@@ -120,13 +120,16 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   /* LOADING WALLET */
 
-  const loadWallet = async (state, {cryptoProviderType, walletSecretDef, forceWebUsb}) => {
+  const loadWallet = async (
+    state,
+    {cryptoProviderType, walletSecretDef, forceWebUsb, bulkExportPubKeys}
+  ) => {
     // loadingAction(state, `Waiting for ${state.hwWalletName}...`)
     loadingAction(state, 'Loading wallet data...', {
       walletLoadingError: undefined,
     })
     const isShelleyCompatible = !(walletSecretDef && walletSecretDef.derivationScheme.type === 'v1')
-    const shouldExportPubKeyBulk = true // isShelleyCompatible && true
+    const shouldExportPubKeyBulk = bulkExportPubKeys
     const config = {...ADALITE_CONFIG, isShelleyCompatible, shouldExportPubKeyBulk}
     try {
       cryptoProvider = await ShelleyCryptoProviderFactory.getCryptoProvider(cryptoProviderType, {
@@ -199,20 +202,19 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     return true
   }
 
+  //TODO reloadAccountInfo function
+
   const reloadWalletInfo = async (state) => {
     loadingAction(state, 'Reloading wallet info...')
     try {
-      const walletInfo = await account.getWalletInfo()
+      const accountsInfo = await wallet.getAccountsInfo()
       const conversionRates = getConversionRates(state)
 
       // timeout setting loading state, so that loading shows even if everything was cached
       setTimeout(() => setState({loading: false}), 500)
       setState({
-        accounts: {
-          ...state.accounts,
-          [account.accountIndex]: walletInfo,
-        },
-        ...walletInfo,
+        accounts: accountsInfo,
+        ...accountsInfo[account.accountIndex],
       })
       await fetchConversionRates(conversionRates)
     } catch (e) {
@@ -1157,6 +1159,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     })
   }
 
+  /* MULTIPLE ACCOUNTS */
+
   const loadNewAccount = async (state: State, accountIndex: number) => {
     await wallet.loadNewAccount(accountIndex)
     const walletInfo = await wallet.accounts[accountIndex].getWalletInfo()
@@ -1184,6 +1188,35 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     resetSendFormFields(newState)
     selectAdaliteStakepool(newState)
     resetTransactionSummary(newState)
+  }
+
+  const shouldShowSendTransactionModal = (state, address, title) => {
+    setState({
+      sendTransactionTitle: title,
+      sendAddress: {fieldValue: address},
+      shouldShowSendTransactionModal: true,
+    })
+  }
+
+  const closeSendTransactionModal = (state) => {
+    setState({
+      sendAddress: {fieldValue: ''},
+      sendAmount: {fieldValue: '', coins: 0},
+      shouldShowSendTransactionModal: false,
+    })
+  }
+
+  const shouldShowDelegationModal = (state, title) => {
+    setState({
+      delegationTitle: title,
+      shouldShowDelegationModal: true,
+    })
+  }
+
+  const closeDelegationModal = (state) => {
+    setState({
+      shouldShowDelegationModal: false,
+    })
   }
 
   return {
@@ -1237,5 +1270,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     openInfoModal,
     closeInfoModal,
     closePremiumBanner,
+    shouldShowSendTransactionModal,
+    closeSendTransactionModal,
+    shouldShowDelegationModal,
+    closeDelegationModal,
   }
 }

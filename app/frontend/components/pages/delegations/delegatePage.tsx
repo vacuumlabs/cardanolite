@@ -101,6 +101,8 @@ interface Props {
   poolRecommendation: any
   pool: any
   isBigDelegator: boolean
+  withAccordion: boolean
+  title: string
 }
 
 class Delegate extends Component<Props> {
@@ -130,6 +132,8 @@ class Delegate extends Component<Props> {
     poolRecommendation,
     pool,
     isBigDelegator,
+    withAccordion,
+    title,
   }) {
     const delegationHandler = async () => {
       await confirmTransaction('delegate')
@@ -137,86 +141,101 @@ class Delegate extends Component<Props> {
     const validationError =
       delegationValidationError || stakePool.validationError || stakePool.poolHash === ''
 
+    const DelegationHeader = () => <h2 className="card-title no-margin">{title}</h2>
+    const DelegationContent = () => (
+      <Fragment>
+        <div className="stake-pool">
+          <ul className="stake-pool-list">
+            <li className="stake-pool-item">
+              {isBigDelegator && <BigDelegatorOffer />}
+              <input
+                type="text"
+                className="input stake-pool-id"
+                name={'pool'}
+                placeholder="Stake Pool ID"
+                value={stakePool.poolHash}
+                onInput={updateStakePoolIdentifier}
+                autoComplete="off"
+              />
+              <StakePoolInfo pool={stakePool} gettingPoolInfo={gettingPoolInfo} />
+              <div />
+            </li>
+          </ul>
+        </div>
+
+        <div className="add-stake-pool-wrapper" />
+        <div className="delegation-info-row">
+          <label className="fee-label">
+            Fee<AdaIcon />
+          </label>
+          <div className="delegation-fee">{printAda(delegationFee)}</div>
+        </div>
+        <div className="validation-row">
+          <button
+            className="button primary"
+            disabled={
+              !isShelleyCompatible ||
+              validationError ||
+              calculatingDelegationFee ||
+              stakePool.poolHash === ''
+            }
+            onClick={delegationHandler}
+            {...tooltip(
+              'You are using Shelley incompatible wallet. To delegate your ADA, follow the instructions to convert you wallet.',
+              !isShelleyCompatible
+            )}
+          >
+            Delegate
+          </button>
+          {[
+            calculatingDelegationFee ? (
+              <CalculatingFee />
+            ) : (
+              <DelegationValidation
+                delegationValidationError={delegationValidationError}
+                txSuccessTab={txSuccessTab}
+              />
+            ),
+          ]}
+        </div>
+        {shouldShowTransactionErrorModal && (
+          <TransactionErrorModal
+            onRequestClose={closeTransactionErrorModal}
+            errorMessage={getTranslation(
+              transactionSubmissionError.code,
+              transactionSubmissionError.params
+            )}
+            showHelp={errorHasHelp(transactionSubmissionError.code)}
+          />
+        )}
+        {shouldShowConfirmTransactionDialog && <ConfirmTransactionDialog isDelegation />}
+      </Fragment>
+    )
+
     return (
       <div className="delegate card">
-        <Accordion
-          initialVisibility={
-            poolRecommendation.shouldShowSaturatedBanner || !Object.keys(pool).length
-          }
-          header={<h2 className="card-title no-margin">Delegate Stake</h2>}
-          body={
-            <Fragment>
-              <div className="stake-pool">
-                <ul className="stake-pool-list">
-                  <li className="stake-pool-item">
-                    {isBigDelegator && <BigDelegatorOffer />}
-                    <input
-                      type="text"
-                      className="input stake-pool-id"
-                      name={'pool'}
-                      placeholder="Stake Pool ID"
-                      value={stakePool.poolHash}
-                      onInput={updateStakePoolIdentifier}
-                      autoComplete="off"
-                    />
-                    <StakePoolInfo pool={stakePool} gettingPoolInfo={gettingPoolInfo} />
-                    <div />
-                  </li>
-                </ul>
-              </div>
-
-              <div className="add-stake-pool-wrapper" />
-              <div className="delegation-info-row">
-                <label className="fee-label">
-                  Fee<AdaIcon />
-                </label>
-                <div className="delegation-fee">{printAda(delegationFee)}</div>
-              </div>
-              <div className="validation-row">
-                <button
-                  className="button primary"
-                  disabled={
-                    !isShelleyCompatible ||
-                    validationError ||
-                    calculatingDelegationFee ||
-                    stakePool.poolHash === ''
-                  }
-                  onClick={delegationHandler}
-                  {...tooltip(
-                    'You are using Shelley incompatible wallet. To delegate your ADA, follow the instructions to convert you wallet.',
-                    !isShelleyCompatible
-                  )}
-                >
-                  Delegate
-                </button>
-                {[
-                  calculatingDelegationFee ? (
-                    <CalculatingFee />
-                  ) : (
-                    <DelegationValidation
-                      delegationValidationError={delegationValidationError}
-                      txSuccessTab={txSuccessTab}
-                    />
-                  ),
-                ]}
-              </div>
-              {shouldShowTransactionErrorModal && (
-                <TransactionErrorModal
-                  onRequestClose={closeTransactionErrorModal}
-                  errorMessage={getTranslation(
-                    transactionSubmissionError.code,
-                    transactionSubmissionError.params
-                  )}
-                  showHelp={errorHasHelp(transactionSubmissionError.code)}
-                />
-              )}
-              {shouldShowConfirmTransactionDialog && <ConfirmTransactionDialog isDelegation />}
-            </Fragment>
-          }
-        />
+        {withAccordion ? (
+          <Accordion
+            initialVisibility={
+              poolRecommendation.shouldShowSaturatedBanner || !Object.keys(pool).length
+            }
+            header={<DelegationHeader />}
+            body={<DelegationContent />}
+          />
+        ) : (
+          <Fragment>
+            <DelegationHeader />
+            <DelegationContent />
+          </Fragment>
+        )}
       </div>
     )
   }
+}
+
+Delegate.defaultProps = {
+  withAccordion: true,
+  title: 'Delegate Stake',
 }
 
 export default connect(

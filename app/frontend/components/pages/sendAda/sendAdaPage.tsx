@@ -1,5 +1,5 @@
-import {h, Component} from 'preact'
-import {connect} from '../../../helpers/connect'
+import {h, Component, Fragment} from 'preact'
+import {connect} from '../../../libs/unistore/preact'
 import actions from '../../../actions'
 
 import {getTranslation} from '../../../translations'
@@ -61,6 +61,9 @@ interface Props {
   sendTransactionSummary: any
   transactionFee: any
   balance: any
+  showDonationFields: boolean
+  isModal: boolean
+  title: string
 }
 
 class SendAdaPage extends Component<Props> {
@@ -93,6 +96,9 @@ class SendAdaPage extends Component<Props> {
     transactionFee,
     txSuccessTab,
     balance,
+    showDonationFields,
+    isModal,
+    title,
   }) {
     const sendFormValidationError =
       sendAddressValidationError || sendAmountValidationError || donationAmountValidationError
@@ -108,7 +114,7 @@ class SendAdaPage extends Component<Props> {
 
     return (
       <div className="send card">
-        <h2 className="card-title">Send ADA</h2>
+        <h2 className={`card-title ${isModal ? 'show' : ''}`}>{title}</h2>
         <input
           type="text"
           id="send-address"
@@ -119,6 +125,7 @@ class SendAdaPage extends Component<Props> {
           onInput={updateAddress}
           autoComplete="off"
           onKeyDown={(e) => e.key === 'Enter' && this.amountField.focus()}
+          disabled={isModal}
         />
         <div className="send-values">
           <label className="ada-label amount" htmlFor="send-amount">
@@ -151,23 +158,29 @@ class SendAdaPage extends Component<Props> {
               Max
             </button>
           </div>
-          <label className="ada-label amount donation" htmlFor="donation-amount">
-            Donate<a
-              {...tooltip(
-                'Your donation is very much appreciated and will be used for further development of AdaLite',
-                true
+          {showDonationFields && (
+            <Fragment>
+              <label className="ada-label amount donation" htmlFor="donation-amount">
+                Donate<a
+                  {...tooltip(
+                    'Your donation is very much appreciated and will be used for further development of AdaLite',
+                    true
+                  )}
+                >
+                  <span className="show-info">{''}</span>
+                </a>
+              </label>
+              {!isDonationSufficient && (
+                <div className="send-donate-msg">Insufficient balance for a donation.</div>
               )}
-            >
-              <span className="show-info">{''}</span>
-            </a>
-          </label>
-          {!isDonationSufficient && (
-            <div className="send-donate-msg">Insufficient balance for a donation.</div>
+              {!shouldShowCustomDonationInput &&
+                isDonationSufficient && <DonationButtons isSendAddressValid={isSendAddressValid} />}
+              {shouldShowCustomDonationInput &&
+                isDonationSufficient && (
+                <CustomDonationInput isSendAddressValid={isSendAddressValid} />
+              )}
+            </Fragment>
           )}
-          {!shouldShowCustomDonationInput &&
-            isDonationSufficient && <DonationButtons isSendAddressValid={isSendAddressValid} />}
-          {shouldShowCustomDonationInput &&
-            isDonationSufficient && <CustomDonationInput isSendAddressValid={isSendAddressValid} />}
           <div className="ada-label">Fee</div>
           <div className="send-fee">{printAda(transactionFee)}</div>
         </div>
@@ -215,6 +228,12 @@ class SendAdaPage extends Component<Props> {
       </div>
     )
   }
+}
+
+SendAdaPage.defaultProps = {
+  showDonationFields: true,
+  isModal: false,
+  title: 'Send ADA',
 }
 
 export default connect(

@@ -272,6 +272,10 @@ const Account = ({
     return poolInfo
   }
 
+  function isAccountUsed(): Promise<boolean> {
+    return myAddresses.areAddressesUsed()
+  }
+
   async function getWalletInfo() {
     const {validStakepools} = await getValidStakepools()
     const {stakingBalance, nonStakingBalance, balance} = await getBalance()
@@ -283,6 +287,8 @@ const Account = ({
       shelleyAccountInfo.delegation,
       stakingBalance
     )
+    const isUsed = await isAccountUsed()
+
     return {
       validStakepools,
       balance,
@@ -297,6 +303,7 @@ const Account = ({
       stakingHistory,
       visibleAddresses,
       poolRecommendation,
+      isUsed,
     }
   }
 
@@ -421,10 +428,6 @@ const Account = ({
       shouldShowSaturatedBanner:
         !delegatesToRecommended && poolRecommendation.status === 'GivenPoolSaturated',
     }
-  }
-
-  function isAccountUsed(): Promise<boolean> {
-    return myAddresses.areAddressesUsed()
   }
 
   return {
