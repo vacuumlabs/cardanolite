@@ -17,8 +17,17 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
       const deriveHardened =
         absDerivationPath.length === 0 || indexIsHardened(absDerivationPath.slice(-1)[0])
 
+      /*
+      * we create pubKeyBulk only if the derivation path is from shelley era
+      * since there should be only one byron account exported in the fist shelley pubKey bulk
+      */
+
       if (deriveHardened) {
-        const pubKeys = await deriveXpubHardenedFn(absDerivationPath)
+        const derivationPathsBulk =
+          shouldExportPubKeyBulk && isShelleyPath(absDerivationPath)
+            ? createPathBulk(absDerivationPath)
+            : [absDerivationPath]
+        const pubKeys = await deriveXpubsHardenedFn(derivationPathsBulk)
         Object.assign(derivedXpubs, pubKeys)
       } else {
         derivedXpubs[memoKey] = deriveXpubNonhardenedFn(absDerivationPath)
@@ -57,20 +66,20 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     return paths
   }
 
-  async function deriveXpubHardenedFn(derivationPath: BIP32Path): Promise<any> {
-    const paths =
-      shouldExportPubKeyBulk && isShelleyPath(derivationPath)
-        ? createPathBulk(derivationPath)
-        : [derivationPath]
-    const xPubBulk = await deriveXpubsFn(paths)
+  async function deriveXpubsHardenedFn(derivationPaths: BIP32Path[]): Promise<any> {
+    const xPubBulk = await deriveXpubsFn(derivationPaths)
     const _derivedXpubs = {}
     xPubBulk.forEach((xpub: Buffer, i: number) => {
-      const memoKey = JSON.stringify(paths[i])
+      const memoKey = JSON.stringify(derivationPaths[i])
       _derivedXpubs[memoKey] = Promise.resolve(xpub)
     })
     return _derivedXpubs
   }
 
+  /*
+  * in case a promise is rejected we need to remove this promise from
+  * the cache otherwise user would never be able to export the pubKey again
+  */
   function cleanXpubCache() {
     const _derivedXpubs = {}
     Object.entries(derivedXpubs).map(([memoKey, xpubPromise]: [string, Promise<Buffer>]) => {
