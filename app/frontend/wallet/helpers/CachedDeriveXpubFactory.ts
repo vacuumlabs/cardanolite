@@ -1,12 +1,13 @@
 import indexIsHardened from './indexIsHardened'
 import {HARDENED_THRESHOLD, MAX_BULK_EXPORT_AMOUNT} from './../constants'
 import {derivePublic as deriveChildXpub} from 'cardano-crypto.js'
+import {isShelleyPath} from '../../wallet/shelley/helpers/addresses'
 
 const BYRON_V2_PATH = [HARDENED_THRESHOLD + 44, HARDENED_THRESHOLD + 1815, HARDENED_THRESHOLD]
 
 type BIP32Path = number[]
 
-function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriveXpubFn) {
+function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriveXpubsFn) {
   let derivedXpubs = {}
 
   async function deriveXpub(absDerivationPath: BIP32Path) {
@@ -15,12 +16,6 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
     if (!derivedXpubs[memoKey]) {
       const deriveHardened =
         absDerivationPath.length === 0 || indexIsHardened(absDerivationPath.slice(-1)[0])
-
-      /*
-      * TODO - reset cache if the promise fails, for now it does not matter
-      * since a failure (e.g. rejection by user) there leads to
-      * the creation of a fresh wallet and crypto provider instance
-      */
 
       if (deriveHardened) {
         const pubKeys = await deriveXpubHardenedFn(absDerivationPath)
@@ -63,8 +58,11 @@ function CachedDeriveXpubFactory(derivationScheme, shouldExportPubKeyBulk, deriv
   }
 
   async function deriveXpubHardenedFn(derivationPath: BIP32Path): Promise<any> {
-    const paths = shouldExportPubKeyBulk ? createPathBulk(derivationPath) : [derivationPath]
-    const xPubBulk = await deriveXpubFn(paths)
+    const paths =
+      shouldExportPubKeyBulk && isShelleyPath(derivationPath)
+        ? createPathBulk(derivationPath)
+        : [derivationPath]
+    const xPubBulk = await deriveXpubsFn(paths)
     const _derivedXpubs = {}
     xPubBulk.forEach((xpub: Buffer, i: number) => {
       const memoKey = JSON.stringify(paths[i])
