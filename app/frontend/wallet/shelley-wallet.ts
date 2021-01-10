@@ -35,9 +35,9 @@ const ShelleyWallet = ({config, cryptoProvider}) => {
     return await blockchainExplorer.fetchTxInfo(txHash)
   }
 
-  function checkCryptoProviderVersion(type: string) {
+  function checkCryptoProviderVersion(featureName: string) {
     try {
-      cryptoProvider.checkVersion(type)
+      cryptoProvider.ensureFeatureIsSupported(featureName)
     } catch (e) {
       return {code: e.name, message: e.message}
     }
@@ -46,9 +46,7 @@ const ShelleyWallet = ({config, cryptoProvider}) => {
 
   async function getAccountsInfo(validStakepools): Promise<Array<AccountInfo>> {
     const accounts = await accountManager.discoverAccounts()
-    return Promise.all(
-      accounts.map((account) => account.getAccountInfo(validStakepools))
-    )
+    return Promise.all(accounts.map((account) => account.getAccountInfo(validStakepools)))
   }
 
   function getValidStakepools(): Promise<any> {
