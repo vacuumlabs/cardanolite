@@ -31,13 +31,14 @@ import {toCoins, toAda, roundWholeAdas} from './helpers/adaConverters'
 import captureBySentry from './helpers/captureBySentry'
 import {State, Ada, Lovelace, GetStateFn, SetStateFn, sourceAccountState} from './state'
 import ShelleyCryptoProviderFactory from './wallet/shelley/shelley-crypto-provider-factory'
-import {Wallet} from './wallet/wallet'
+import {ShelleyWallet} from './wallet/shelley-wallet'
 import {parseUnsignedTx} from './helpers/cliParser/parser'
 import {TxPlan, unsignedPoolTxToTxPlan} from './wallet/shelley/shelley-transaction-planner'
 import getDonationAddress from './helpers/getDonationAddress'
 import {localStorageVars} from './localStorage'
+import {AccountInfo} from './types'
 
-let wallet: ReturnType<typeof Wallet>
+let wallet: ReturnType<typeof ShelleyWallet>
 
 const debounceEvent = (callback, time) => {
   let interval
@@ -118,6 +119,26 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     }
   }
 
+  const getWalletInfo = (accountsInfo: Array<AccountInfo>) => {
+    const totalWalletBalance = accountsInfo.reduce(
+      (a, {shelleyBalances}) =>
+        shelleyBalances.stakingBalance + shelleyBalances.nonStakingBalance + a,
+      0
+    )
+    const totalRewardsBalance = accountsInfo.reduce(
+      (a, {shelleyBalances}) => shelleyBalances.rewardsAccountBalance + a,
+      0
+    )
+    const shouldShowSaturatedBanner = accountsInfo.some(
+      ({poolRecommendation}) => poolRecommendation.shouldShowSaturatedBanner
+    )
+    return {
+      totalWalletBalance,
+      totalRewardsBalance,
+      shouldShowSaturatedBanner,
+    }
+  }
+
   /* LOADING WALLET */
 
   const loadWallet = async (
@@ -140,18 +161,16 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         }
       )
 
-      wallet = await Wallet({
+      wallet = await ShelleyWallet({
         config,
         cryptoProvider,
       })
 
-      const {validStakepools} = await wallet.getValidStakepools()
-      const {accountsInfo} = await wallet.getAccountsInfo(validStakepools)
-      const {
-        totalRewardsBalance,
-        totalWalletBalance,
-        shouldShowSaturatedBanner,
-      } = wallet.getWalletInfo(accountsInfo)
+      const validStakepools = await wallet.getValidStakepools()
+      const accountsInfo = await wallet.getAccountsInfo(validStakepools)
+      const {totalRewardsBalance, totalWalletBalance, shouldShowSaturatedBanner} = getWalletInfo(
+        accountsInfo
+      )
 
       const conversionRatesPromise = getConversionRates(state)
       const usingHwWallet = wallet.isHwWallet()
@@ -216,14 +235,14 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   const reloadWalletInfo = async (state: State) => {
     loadingAction(state, 'Reloading wallet info...')
     try {
-      const {accountsInfo} = await wallet.getAccountsInfo(state.validStakepools)
+      const accountsInfo = await wallet.getAccountsInfo(state.validStakepools)
       const conversionRates = getConversionRates(state)
 
       // timeout setting loading state, so that loading shows even if everything was cached
       setTimeout(() => setState({loading: false}), 500)
       setState({
         accountsInfo,
-        ...wallet.getWalletInfo(accountsInfo),
+        ...getWalletInfo(accountsInfo),
       })
       await fetchConversionRates(conversionRates)
     } catch (e) {
@@ -1043,7 +1062,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const accountsInfo = [...state.accountsInfo, accountInfo]
       setState({
         accountsInfo,
-        ...wallet.getWalletInfo(accountsInfo),
+        ...getWalletInfo(accountsInfo),
       })
       setActiveAccount(state, newAccount.accountIndex)
     } catch (e) {
