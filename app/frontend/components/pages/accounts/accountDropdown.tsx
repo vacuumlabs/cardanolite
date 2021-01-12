@@ -6,7 +6,12 @@ import {useState, useCallback} from 'preact/hooks'
 import range from '../../../wallet/helpers/range'
 import {State} from '../../../state'
 
-const AccountDropdown = ({accountIndex, setAccountFunc, accountsInfo, accountIndexOffset}) => {
+const AccountDropdown = ({
+  accountIndex,
+  setAccountFunc,
+  accountsInfo,
+  shouldNumberAccountsFromOne,
+}) => {
   const [shouldHideAccountDropdown, hideAccountDropdown] = useState(true)
   const toggleAccountDropdown = useCallback(
     () => {
@@ -22,7 +27,7 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accountsInfo, accountInd
         onBlur={() => hideAccountDropdown(true)}
         onClick={() => toggleAccountDropdown()}
       >
-        Account #{accountIndex + accountIndexOffset}
+        {shouldNumberAccountsFromOne ? `Account #${accountIndex + 1}` : `Account ${accountIndex}`}
       </button>
       <div className={`account-dropdown-content ${shouldHideAccountDropdown ? 'hide' : 'show'}`}>
         {range(0, accountsInfo.length).map((i) => (
@@ -34,7 +39,7 @@ const AccountDropdown = ({accountIndex, setAccountFunc, accountsInfo, accountInd
               hideAccountDropdown(true)
             }}
           >
-            Account #{i + accountIndexOffset}
+            {shouldNumberAccountsFromOne ? `Account #${i + 1}` : `Account ${i}`}
           </a>
         ))}
       </div>
@@ -46,7 +51,7 @@ export default connect(
   (state: State) => ({
     accountsInfo: state.accountsInfo,
     activeAccountIndex: state.activeAccountIndex,
-    accountIndexOffset: state.accountIndexOffset,
+    shouldNumberAccountsFromOne: state.shouldNumberAccountsFromOne,
   }),
   actions
 )(AccountDropdown)

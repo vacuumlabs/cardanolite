@@ -17,7 +17,7 @@ type TileProps = {
   activeAccountIndex: number
   showDelegationModal: any
   showSendTransactionModal: any
-  accountIndexOffset: number
+  shouldNumberAccountsFromOne: boolean
   shouldShowAccountInfo?: boolean
 }
 
@@ -32,11 +32,13 @@ const AccountTile = ({
   activeAccountIndex,
   showDelegationModal,
   showSendTransactionModal,
-  accountIndexOffset,
+  shouldNumberAccountsFromOne,
   shouldShowAccountInfo,
 }: TileProps) => {
   const isActive = activeAccountIndex === accountIndex
-  const displayedAccountIndex = accountIndex + accountIndexOffset
+  const accountLabel = shouldNumberAccountsFromOne
+    ? `Account #${accountIndex + 1}`
+    : `Account ${accountIndex}`
 
   const Balance = ({value}: {value: Lovelace}) =>
     value !== null ? (
@@ -95,12 +97,10 @@ const AccountTile = ({
   return (
     <div key={accountIndex} className={`card account ${isActive ? 'selected' : ''}`}>
       <div className="header-wrapper mobile">
-        <h2 className="card-title small-margin">Account #{displayedAccountIndex}</h2>
+        <h2 className="card-title small-margin">{accountLabel}</h2>
       </div>
       <div className="card-column account-button-wrapper">
-        <h2 className="card-title small-margin account-header desktop">
-          Account #{displayedAccountIndex}
-        </h2>
+        <h2 className="card-title small-margin account-header desktop">{accountLabel}</h2>
         {shouldShowAccountInfo ? <ActivationButton /> : <ExplorationButton />}
       </div>
       <div className="card-column account-item-info-wrapper">
@@ -162,7 +162,7 @@ export default connect(
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
     activeAccountIndex: state.activeAccountIndex,
-    accountIndexOffset: state.accountIndexOffset,
+    shouldNumberAccountsFromOne: state.shouldNumberAccountsFromOne,
   }),
   actions
 )(AccountTile)

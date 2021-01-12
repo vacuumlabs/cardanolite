@@ -156,7 +156,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       const conversionRatesPromise = getConversionRates(state)
       const usingHwWallet = wallet.isHwWallet()
       const hwWalletName = usingHwWallet ? wallet.getWalletName() : undefined
-      const accountIndexOffset = hwWalletName === 'Trezor' ? 1 : 0
+      const shouldNumberAccountsFromOne = hwWalletName === 'Trezor'
       if (usingHwWallet) loadingAction(state, `Waiting for ${hwWalletName}...`)
       const demoRootSecret = (await mnemonicToWalletSecretDef(
         ADALITE_CONFIG.ADALITE_DEMO_WALLET_MNEMONIC
@@ -173,7 +173,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         totalWalletBalance,
         totalRewardsBalance,
         shouldShowSaturatedBanner,
-        accountIndexOffset,
+        shouldNumberAccountsFromOne,
         walletIsLoaded: true,
         loading: false,
         mnemonicAuthForm: {
@@ -1120,7 +1120,10 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   const showDelegationModal = (state: State, sourceAccountIndex: number) => {
     setState({
       sourceAccountIndex,
-      delegationTitle: `Delegate Account #${sourceAccountIndex} Stake`,
+      // TODO: move this title logic to the actual component
+      delegationTitle: state.shouldNumberAccountsFromOne
+        ? `Delegate Account #${sourceAccountIndex + 1} Stake`
+        : `Delegate Account ${sourceAccountIndex} Stake`,
       shouldShowDelegationModal: true,
       txSuccessTab: '',
     })

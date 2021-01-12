@@ -131,7 +131,6 @@ const AccountsDashboard = ({
 
 export default connect(
   (state: State) => ({
-    isDemoWallet: state.isDemoWallet,
     accountsInfo: state.accountsInfo,
     shouldShowSendTransactionModal: state.shouldShowSendTransactionModal,
     shouldShowDelegationModal: state.shouldShowDelegationModal,
@@ -139,7 +138,6 @@ export default connect(
     totalRewardsBalance: state.totalRewardsBalance,
     totalWalletBalance: state.totalWalletBalance,
     shouldShowConfirmTransactionDialog: state.shouldShowConfirmTransactionDialog,
-    accountIndexOffset: state.accountIndexOffset,
   }),
   actions
 )(AccountsDashboard)
