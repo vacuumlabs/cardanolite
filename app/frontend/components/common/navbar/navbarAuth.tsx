@@ -7,6 +7,7 @@ const APP_VERSION = ADALITE_CONFIG.ADALITE_APP_VERSION
 interface Router {
   pathname: string
   hash: string
+  queryArgs: any
 }
 interface Props {
   router: Router

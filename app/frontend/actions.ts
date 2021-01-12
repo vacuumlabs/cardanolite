@@ -208,6 +208,9 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         shouldShowNonShelleyCompatibleDialog: !isShelleyCompatible,
         shouldShowGenerateMnemonicDialog: false,
         shouldShowAddressVerification: usingHwWallet,
+        externalDelegation: {
+          poolHash: state.router.queryArgs.poolHash,
+        },
         // send form
         sendAmount: {fieldValue: '', coins: 0},
         sendAddress: {fieldValue: ''},
@@ -1038,6 +1041,19 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     )
   }
 
+  const selectExternalStakepool = (state: State) => {
+    const newState = getState()
+    updateStakePoolIdentifier(newState, null, state.externalDelegation.poolHash)
+  }
+
+  const resetExternalDelegation = (state: State) => {
+    setState({
+      externalDelegation: {
+        poolHash: null,
+      },
+    })
+  }
+
   /* MULTIPLE ACCOUNTS */
 
   const resetAccountIndexes = (state: State) => {
@@ -1535,6 +1551,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     updateStakePoolIdentifier,
     selectMainTab,
     selectAdaliteStakepool,
+    selectExternalStakepool,
+    resetExternalDelegation,
     convertNonStakingUtxos,
     loadErrorBannerContent,
     withdrawRewards,

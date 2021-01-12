@@ -2,6 +2,7 @@ import {h, render} from 'preact'
 import {Provider as UnistoreStoreProvider} from './libs/unistore/preact'
 import {StoreProvider as HooksStoreProvider} from './libs/preact-hooks-unistore'
 import App from './components/app'
+import parseQueryArgs from './helpers/parseQueryArgs'
 
 import {createStore} from './store'
 import {ADALITE_CONFIG} from './config'
@@ -35,6 +36,7 @@ window.history.onpushstate = () =>
     router: {
       pathname: window.location.pathname,
       hash: window.location.hash,
+      queryArgs: parseQueryArgs(window.location.search),
     },
   })
 
@@ -43,6 +45,7 @@ window.onpopstate = (event) =>
     router: {
       pathname: event.target.location.pathname,
       hash: event.target.location.hash,
+      queryArgs: parseQueryArgs(event.target.location.search),
     },
   })
 
@@ -51,6 +54,7 @@ window.onhashchange = () =>
     router: {
       pathname: window.location.pathname,
       hash: window.location.hash,
+      queryArgs: parseQueryArgs(window.location.search),
     },
   })
 

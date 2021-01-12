@@ -3222,6 +3222,18 @@ input:checked + .slider:before {
   font-weight: bold;
 }
 
+/* EXTERNAL DELEGATION */
+.external-delegation-content {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+.external-delegation-auth-wrapper {
+  width: 850px;
+  max-width: 90vw;
+}
+
 /* ADVANCED */
 .advanced-label {
   font-weight: bold;
@@ -4086,6 +4098,12 @@ label.button.primary.disabled {
   .card.account {
     padding: 20px 28px;
   }
+
+  /* EXTERNAL DELEGATION */
+  .external-delegation-auth-wrapper {
+    width: unset;
+    max-width: unset;
+  }
 }
 
 /* MOBILE MEDIA QUERIES */
@@ -4756,6 +4774,13 @@ label.button.primary.disabled {
 
   .transaction-fee {
     order: 4;
+  }
+
+  /* EXTERNAL DELEGATION */
+
+  .external-delegation-auth-wrapper {
+    width: unset;
+    max-width: unset;
   }
 
   /* TOOLTIP */
@@ -5455,6 +5480,13 @@ label.button.primary.disabled {
 
   .detail-row .detail-input {
     margin-bottom: 24px;
+  }
+
+  /* EXTERNAL DELEGATION */
+
+  .external-delegation-auth-wrapper {
+    width: unset;
+    max-width: unset;
   }
 
   /* STAKING HISTORY */

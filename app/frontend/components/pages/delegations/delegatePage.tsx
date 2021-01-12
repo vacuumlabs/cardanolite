@@ -90,6 +90,7 @@ interface Props {
   isShelleyCompatible: any
   confirmTransaction: any
   selectAdaliteStakepool: any
+  selectExternalStakepool: any
   shouldShowConfirmTransactionDialog: any
   txSuccessTab: any
   gettingPoolInfo: boolean
@@ -98,6 +99,8 @@ interface Props {
   isBigDelegator: boolean
   withAccordion: boolean
   title: string
+  externalDelegation: any
+  resetExternalDelegation: any
 }
 
 class Delegate extends Component<Props, {dropShadow: boolean}> {
@@ -109,7 +112,8 @@ class Delegate extends Component<Props, {dropShadow: boolean}> {
   }
 
   componentDidMount() {
-    if (ADALITE_CONFIG.ADALITE_STAKE_POOL_ID !== '') this.props.selectAdaliteStakepool()
+    if (this.props.externalDelegation.poolHash) this.props.selectExternalStakepool()
+    else if (ADALITE_CONFIG.ADALITE_STAKE_POOL_ID !== '') this.props.selectAdaliteStakepool()
   }
 
   render({
@@ -128,12 +132,19 @@ class Delegate extends Component<Props, {dropShadow: boolean}> {
     isBigDelegator,
     withAccordion,
     title,
+    externalDelegation,
+    resetExternalDelegation,
   }) {
     const delegationHandler = async () => {
       await confirmTransaction('delegate')
     }
     const validationError =
       delegationValidationError || stakePool.validationError || stakePool.poolHash === ''
+    const delegateButtonDisabled =
+      !isShelleyCompatible ||
+      validationError ||
+      calculatingDelegationFee ||
+      stakePool.poolHash === ''
 
     const delegationHeader = <h2 className="card-title no-margin">{title}</h2>
     const delegationContent = (
@@ -175,12 +186,7 @@ class Delegate extends Component<Props, {dropShadow: boolean}> {
         <div className="validation-row">
           <button
             className="button primary"
-            disabled={
-              !isShelleyCompatible ||
-              validationError ||
-              calculatingDelegationFee ||
-              stakePool.poolHash === ''
-            }
+            disabled={delegateButtonDisabled}
             onClick={delegationHandler}
             {...tooltip(
               'You are using Shelley incompatible wallet. To delegate your ADA, follow the instructions to convert your wallet.',
@@ -204,12 +210,19 @@ class Delegate extends Component<Props, {dropShadow: boolean}> {
       </Fragment>
     )
 
+    if (externalDelegation.poolHash && !delegateButtonDisabled) {
+      delegationHandler()
+      resetExternalDelegation()
+    }
+
     return (
       <div className="delegate card">
         {withAccordion ? (
           <Accordion
             initialVisibility={
-              poolRecommendation.shouldShowSaturatedBanner || !Object.keys(pool).length
+              poolRecommendation.shouldShowSaturatedBanner ||
+              !Object.keys(pool).length ||
+              externalDelegation.poolHash
             }
             header={delegationHeader}
             body={delegationContent}
@@ -243,6 +256,7 @@ export default connect(
     poolRecommendation: getSourceAccountInfo(state).poolRecommendation,
     pool: getSourceAccountInfo(state).shelleyAccountInfo.delegation,
     isBigDelegator: state.isBigDelegator,
+    externalDelegation: state.externalDelegation,
   }),
   actions
 )(Delegate)

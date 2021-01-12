@@ -1,4 +1,5 @@
 import {ADALITE_CONFIG} from './config'
+import parseQueryArgs from './helpers/parseQueryArgs'
 import {localStorageVars} from './localStorage'
 import {AccountInfo} from './types'
 
@@ -33,6 +34,7 @@ export interface State {
   router: {
     pathname: string
     hash: string
+    queryArgs: any
   }
   mnemonicAuthForm: {
     mnemonicInputValue: string
@@ -109,6 +111,9 @@ export interface State {
     selectedPool?: any
     delegationFee?: any
   }
+  externalDelegation: {
+    poolHash: string
+  }
   selectedMainTab: string
   currentDelegation?: {
     stakePool?: any
@@ -171,6 +176,7 @@ const initialState: State = {
   router: {
     pathname: window.location.pathname,
     hash: window.location.hash,
+    queryArgs: parseQueryArgs(window.location.search),
   },
   mnemonicAuthForm: {
     mnemonicInputValue: '',
@@ -206,6 +212,9 @@ const initialState: State = {
     selectedPool: {
       poolHash: '',
     },
+  },
+  externalDelegation: {
+    poolHash: null,
   },
   gettingPoolInfo: false,
   txConfirmType: '',
