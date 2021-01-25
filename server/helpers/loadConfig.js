@@ -63,6 +63,8 @@ const checkMap = check.map(process.env, {
   ADALITE_ENABLE_TREZOR: isBoolString,
   ADALITE_ENABLE_LEDGER: isBoolString,
   ADALITE_ENFORCE_STAKEPOOL: isBoolString,
+  COINSWITCH_URL: check.nonEmptyString,
+  COINSWITCH_API_KEY: check.nonEmptyString,
 })
 
 const {
@@ -96,6 +98,8 @@ const {
   ADALITE_NETWORK,
   ADALITE_ENABLE_TREZOR,
   ADALITE_ENABLE_LEDGER,
+  COINSWITCH_URL,
+  COINSWITCH_API_KEY,
 } = process.env
 
 const ADALITE_BACKEND_TOKEN = process.env.ADALITE_BACKEND_TOKEN || undefined
@@ -165,6 +169,8 @@ const backendConfig = {
     ? ADALITE_IP_BLACKLIST.replace(/ /g, '').split(',')
     : [],
   ADALITE_CARDANO_VERSION,
+  COINSWITCH_URL,
+  COINSWITCH_API_KEY,
 }
 
 module.exports = {

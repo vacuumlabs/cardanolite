@@ -1,6 +1,6 @@
 import {ADALITE_CONFIG} from './config'
 import {localStorageVars} from './localStorage'
-import {AccountInfo} from './types'
+import {AccountInfo, CoinSwitchCoin} from './types'
 
 type AuthMethodEnum = '' | 'hw-wallet' | 'mnemonic' // TODO
 export type Ada = number & {__typeAda: any}
@@ -133,6 +133,41 @@ export interface State {
   sendTransactionTitle: string
   delegationTitle: string
   poolRegTxError?: any
+  exchange: {
+    coins: CoinSwitchCoin[]
+    deposit: {
+      coin: CoinSwitchCoin
+      amount: number
+    }
+    destination: {
+      coin: CoinSwitchCoin
+      amount: number
+      pairs: string[]
+      address: string
+    }
+    rate: {
+      rate: number
+      minerFee: number
+      limitMinDepositCoin: number
+      limitMaxDepositCoin: number
+      limitMinDestinationCoin: number
+      limitMaxDestinationCoin: number
+    }
+    loading: {
+      initialized: boolean
+      initializing: boolean
+      loadingPair: boolean
+    }
+    errors: {
+      updateCoinsError: boolean
+      updatePairsError: boolean
+      updateRateError: boolean
+      limitMinDepositCoinError: boolean
+      limitMaxDepositCoinError: boolean
+      limitMinDestinationCoinError: boolean
+      limitMaxDestinationCoinError: boolean
+    }
+  }
 }
 
 const initialState: State = {
@@ -266,6 +301,47 @@ const initialState: State = {
     ttl: 0,
     signature: null,
     plan: null,
+  },
+  exchange: {
+    coins: null,
+    deposit: {
+      coin: {
+        name: 'Bitcoin',
+        symbol: 'btc',
+      },
+      amount: 100,
+    },
+    destination: {
+      coin: {
+        name: 'Cardano',
+        symbol: 'ada',
+      },
+      amount: null,
+      pairs: null,
+      address: '',
+    },
+    rate: {
+      rate: null,
+      minerFee: null,
+      limitMinDepositCoin: null,
+      limitMaxDepositCoin: null,
+      limitMinDestinationCoin: null,
+      limitMaxDestinationCoin: null,
+    },
+    loading: {
+      initialized: false,
+      initializing: false,
+      loadingPair: false,
+    },
+    errors: {
+      updateCoinsError: false,
+      updatePairsError: false,
+      updateRateError: false,
+      limitMinDepositCoinError: false,
+      limitMaxDepositCoinError: false,
+      limitMinDestinationCoinError: false,
+      limitMaxDestinationCoinError: false,
+    },
   },
 }
 export type SetStateFn = (newState: Partial<State>) => void

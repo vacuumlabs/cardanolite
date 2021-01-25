@@ -37,3 +37,8 @@ export type AccountInfo = {
   isUsed: boolean
   accountIndex: number
 }
+
+export type CoinSwitchCoin = {
+  name: string
+  symbol: string
+}

@@ -37,9 +37,11 @@ import {parseUnsignedTx} from './helpers/cliParser/parser'
 import {TxPlan, unsignedPoolTxToTxPlan} from './wallet/shelley/shelley-transaction-planner'
 import getDonationAddress from './helpers/getDonationAddress'
 import {localStorageVars} from './localStorage'
-import {AccountInfo} from './types'
+import {AccountInfo, CoinSwitchCoin} from './types'
+import CoinSwitchAPI from './exchange/coin-switch-api'
 
 let wallet: ReturnType<typeof ShelleyWallet>
+const coinSwitchAPI = CoinSwitchAPI()
 
 const debounceEvent = (callback, time) => {
   let interval
@@ -1491,6 +1493,303 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     resetPoolCertificateTxVars(state)
   }
 
+  /* EXCHANGE */
+
+  const updateCoinSwitchCoins = async (state: State) => {
+    console.log('updateCoinSwitchCoins from actions.ts')
+    const body = await coinSwitchAPI.getCoins()
+    if (body) {
+      const coins = body.sort((a, b) => a.name.localeCompare(b.name))
+      setState({
+        exchange: {
+          ...state.exchange,
+          coins,
+          errors: {
+            ...state.exchange.errors,
+            updateCoinsError: false,
+          },
+        },
+      })
+    } else {
+      setState({
+        exchange: {
+          ...state.exchange,
+          errors: {
+            ...state.exchange.errors,
+            updateCoinsError: true,
+          },
+        },
+      })
+    }
+  }
+
+  const resetCoinSwitchPairs = (state: State) => {
+    setState({
+      exchange: {
+        ...state.exchange,
+        destination: {
+          ...state.exchange.destination,
+          pairs: null,
+        },
+      },
+    })
+  }
+
+  const updateCoinSwitchPairs = async (state: State) => {
+    await resetCoinSwitchPairs(state)
+    const newState = getState()
+    const body = await coinSwitchAPI.getPairs(newState.exchange.deposit.coin.symbol)
+    if (body) {
+      const pairs = body.sort((a, b) => a.localeCompare(b))
+      setState({
+        exchange: {
+          ...newState.exchange,
+          destination: {
+            ...newState.exchange.destination,
+            pairs,
+          },
+          errors: {
+            ...newState.exchange.errors,
+            updatePairsError: false,
+          },
+        },
+      })
+      console.log('updated pairs:')
+      console.log(getState().exchange.destination.pairs)
+    } else {
+      console.log('updatePairsError')
+      setState({
+        exchange: {
+          ...newState.exchange,
+          errors: {
+            ...newState.exchange.errors,
+            updatePairsError: true,
+          },
+        },
+      })
+    }
+  }
+
+  const updateCoinSwitchRate = async (state: State) => {
+    const body = await coinSwitchAPI.getRate(
+      state.exchange.deposit.coin.symbol,
+      state.exchange.destination.coin.symbol
+    )
+    if (body) {
+      setState({
+        exchange: {
+          ...state.exchange,
+          rate: body,
+          errors: {
+            ...state.exchange.errors,
+            updateRateError: false,
+          },
+        },
+      })
+    } else {
+      setState({
+        exchange: {
+          ...state.exchange,
+          errors: {
+            ...state.exchange.errors,
+            updateRateError: true,
+          },
+        },
+      })
+    }
+  }
+
+  const initializeExchange = async (state: State, forceLoad = false) => {
+    const {initialized, initializing} = state.exchange.loading
+    if (forceLoad || (!initialized && !initializing)) {
+      setState({
+        exchange: {
+          ...state.exchange,
+          loading: {
+            ...state.exchange.loading,
+            initializing: true,
+          },
+        },
+      })
+      await updateCoinSwitchCoins(getState())
+      await updateCoinSwitchPairs(getState())
+      await updateCoinSwitchRate(getState())
+      const newState = getState()
+      setState({
+        exchange: {
+          ...newState.exchange,
+          loading: {
+            ...newState.exchange.loading,
+            initialized: true,
+          },
+        },
+      })
+    }
+  }
+
+  const setCoinSwitchDepositAmount = (state: State, depositAmount: number) => {
+    console.log('depositAmount')
+    console.log(depositAmount)
+    console.log(typeof depositAmount)
+    console.log(state.exchange.rate)
+    const {
+      rate,
+      minerFee,
+      limitMinDepositCoin,
+      limitMaxDepositCoin,
+      limitMinDestinationCoin,
+      limitMaxDestinationCoin,
+    } = state.exchange.rate
+    console.log(
+      `comapring depositAmount ${depositAmount} < limitMinDepositCoin ${limitMinDepositCoin}`
+    )
+    if (depositAmount < limitMinDepositCoin) {
+      setState({
+        exchange: {
+          ...state.exchange,
+          errors: {
+            ...state.exchange.errors,
+            limitMinDepositCoinError: true,
+            limitMaxDepositCoinError: false,
+          },
+        },
+      })
+      console.log(getState().exchange)
+      return
+    } else if (depositAmount > limitMaxDepositCoin) {
+      setState({
+        exchange: {
+          ...state.exchange,
+          errors: {
+            ...state.exchange.errors,
+            limitMaxDepositCoinError: true,
+            limitMinDepositCoinError: false,
+          },
+        },
+      })
+      console.log(getState().exchange)
+      return
+    }
+
+    const destinationAmount = depositAmount * rate - minerFee
+    console.log(
+      `comparing destinationAmount ${destinationAmount} < limitMinDestinationCoin ${limitMinDestinationCoin}`
+    )
+    if (destinationAmount < limitMinDestinationCoin) {
+      setState({
+        exchange: {
+          ...state.exchange,
+          errors: {
+            ...state.exchange.errors,
+            limitMinDestinationCoinError: true,
+            limitMaxDestinationCoinError: false,
+          },
+        },
+      })
+      console.log(getState().exchange)
+      return
+    } else if (destinationAmount > limitMaxDestinationCoin) {
+      setState({
+        exchange: {
+          ...state.exchange,
+          errors: {
+            ...state.exchange.errors,
+            limitMaxDestinationCoinError: true,
+            limitMinDestinationCoinError: false,
+          },
+        },
+      })
+      console.log(getState().exchange)
+      return
+    }
+
+    setState({
+      exchange: {
+        ...state.exchange,
+        deposit: {
+          ...state.exchange.deposit,
+          amount: depositAmount,
+        },
+        destination: {
+          ...state.exchange.destination,
+          amount: destinationAmount,
+        },
+        errors: {
+          ...state.exchange.errors,
+          limitMinDepositCoinError: false,
+          limitMaxDepositCoinError: false,
+          limitMinDestinationCoinError: false,
+          limitMaxDestinationCoinError: false,
+        },
+      },
+    })
+    console.log(getState().exchange)
+  }
+
+  const recalculateCoinSwitchDepositAmount = async (state: State) => {
+    setState({
+      exchange: {
+        ...state.exchange,
+        loading: {
+          ...state.exchange.loading,
+          loadingPair: true,
+        },
+      },
+    })
+    await updateCoinSwitchPairs(getState())
+    await updateCoinSwitchRate(getState())
+    const updatedRatesState = getState()
+    setCoinSwitchDepositAmount(updatedRatesState, updatedRatesState.exchange.deposit.amount)
+    const updatedDepositState = getState()
+    setState({
+      exchange: {
+        ...updatedDepositState.exchange,
+        loading: {
+          ...updatedDepositState.exchange.loading,
+          loadingPair: false,
+        },
+      },
+    })
+  }
+
+  const setCoinSwitchDepositCoin = async (state: State, coin: CoinSwitchCoin) => {
+    setState({
+      exchange: {
+        ...state.exchange,
+        deposit: {
+          ...state.exchange.deposit,
+          coin,
+        },
+      },
+    })
+    await recalculateCoinSwitchDepositAmount(getState())
+  }
+
+  const setCoinSwitchDestinationCoin = async (state: State, coin: CoinSwitchCoin) => {
+    setState({
+      exchange: {
+        ...state.exchange,
+        destination: {
+          ...state.exchange.destination,
+          coin,
+        },
+      },
+    })
+    await recalculateCoinSwitchDepositAmount(getState())
+  }
+
+  const updateCoinSwitchDestinationAddress = (state: State, address: string) => {
+    setState({
+      exchange: {
+        ...state.exchange,
+        destination: {
+          ...state.exchange.destination,
+          address,
+        },
+      },
+    })
+  }
+
   return {
     loadingAction,
     stopLoadingAction,
@@ -1555,5 +1854,15 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     openPoolCertificateTxModal,
     closePoolCertificateTxModal,
     signPoolCertificateTx,
+    initializeExchange,
+    updateCoinSwitchCoins,
+    updateCoinSwitchPairs,
+    updateCoinSwitchRate,
+    resetCoinSwitchPairs,
+    setCoinSwitchDepositAmount,
+    recalculateCoinSwitchDepositAmount,
+    setCoinSwitchDepositCoin,
+    setCoinSwitchDestinationCoin,
+    updateCoinSwitchDestinationAddress,
   }
 }

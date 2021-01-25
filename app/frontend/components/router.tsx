@@ -7,6 +7,7 @@ import SendPage from './pages/sendAda/sendAdaPage'
 import LoginPage from './pages/login/loginPage'
 import ExportWalletPage from './pages/exportWallet/exportWalletPage'
 import StakingPage from './pages/staking/stakingPage'
+import Exchange from './pages/exchange/exchange'
 
 const TopLevelRouter = connect((state) => ({
   pathname: state.router.pathname,
@@ -15,6 +16,9 @@ const TopLevelRouter = connect((state) => ({
 }))(({pathname, walletIsLoaded, shouldShowDemoWalletWarningDialog}) => {
   // unlock not wrapped in main
   const currentTab = pathname.split('/')[1]
+  if (currentTab === 'exchange') {
+    return <Exchange />
+  }
   if ((!walletIsLoaded || shouldShowDemoWalletWarningDialog) && currentTab !== 'staking') {
     window.history.pushState({}, '/', '/')
     return <LoginPage />

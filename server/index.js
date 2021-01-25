@@ -74,6 +74,7 @@ if (backendConfig.ADALITE_ENABLE_SERVER_MOCKING_MODE === 'true') {
 } else {
   require('./transactionSubmitter')(app)
   require('./emailSubmitter')(app)
+  require('./coinSwitchSubmitter')(app)
 }
 require('./poolInfoGetter')(app)
 

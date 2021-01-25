@@ -4053,6 +4053,133 @@ label.button.primary.disabled {
   cursor: pointer;
 }
 
+/* EXCHANGE */
+
+.page-wrapper.exchange {
+  justify-content: center;
+  align-content: center;
+}
+
+.card.exchange {
+  width: 700px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card.exchange .content {
+  display: flex;
+}
+
+.card.exchange .content .deposit {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding-right: 16px;
+}
+
+.card.exchange .content .destination {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding-left: 16px;
+}
+
+.card.exchange .content .send-coin-text {
+  color: var(--color-grey)
+}
+
+.card.exchange .content .send-address-text {
+  margin: 16px 0px 8px 0px;
+}
+
+.exchange .input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.exchange .input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.exchange .button {
+  margin-top: 16px;
+  align-self: center;
+}
+
+.searchable-select-wrapper {
+  margin: 8px 0px;
+}
+
+.searchable-select {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.25s ease-out;
+}
+
+.searchable-select:hover {
+  background-color: #f0f0f0;
+}
+
+.searchable-select-dropdown {
+  position: absolute;
+  width: 278px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  background-color: var(--color-brand);
+  color: white;
+  overflow-y: scroll;
+  cursor: pointer;
+  transition: max-height 0.25s ease-out;
+}
+
+.searchable-select-dropdown.hide {
+  /* display: none; */
+  max-height: 0px;
+}
+
+.searchable-select-input {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  padding-left: 12px;
+  font-size: 16px;
+  line-height: 16px;
+  padding-top: 13px;
+  padding-bottom: 13px;
+  background-color: var(--color-brand);
+  color: white;
+  border: none;
+  z-index: 1;
+}
+
+.searchable-select-input:focus {
+  outline: none;
+}
+
+.seachable-select-item {
+  padding-left: 12px;
+  line-height: 16px;
+  font-size: 16px;
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+
+.seachable-select-item:hover {
+  background-color: white;
+  color: var(--color-brand);
+}
+
+.seachable-select-item.hide {
+  display: none;
+}
+
 @media screen and (min-width: 1024px) and (max-width: 1112px) {
   .button.secondary.refresh {
     text-indent: -9999em;
