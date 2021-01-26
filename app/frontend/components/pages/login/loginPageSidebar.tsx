@@ -1,5 +1,5 @@
-import {h, Component} from 'preact'
-import {connect} from '../../../helpers/connect'
+import {h} from 'preact'
+import {useSelector} from '../../../helpers/connect'
 
 import Alert from '../../common/alert'
 
@@ -164,23 +164,16 @@ const FileContent = () => (
   </div>
 )
 
-interface Props {
-  authMethod: '' | 'mnemonic' | 'hw-walet' | 'file'
+const LoginPageSidebar = () => {
+  const {authMethod} = useSelector((state) => ({authMethod: state.authMethod}))
+  return (
+    <aside className="sidebar">
+      {authMethod === '' && <InitialContent />}
+      {authMethod === 'mnemonic' && <MnemonicContent />}
+      {authMethod === 'hw-wallet' && <WalletContent />}
+      {authMethod === 'file' && <FileContent />}
+    </aside>
+  )
 }
 
-class LoginPageSidebar extends Component<Props> {
-  render({authMethod}) {
-    return (
-      <aside className="sidebar">
-        {authMethod === '' && <InitialContent />}
-        {authMethod === 'mnemonic' && <MnemonicContent />}
-        {authMethod === 'hw-wallet' && <WalletContent />}
-        {authMethod === 'file' && <FileContent />}
-      </aside>
-    )
-  }
-}
-
-export default connect((state) => ({
-  authMethod: state.authMethod,
-}))(LoginPageSidebar)
+export default LoginPageSidebar
