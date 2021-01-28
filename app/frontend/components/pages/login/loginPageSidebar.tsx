@@ -1,5 +1,6 @@
 import {h} from 'preact'
 import {useSelector} from '../../../helpers/connect'
+import {State} from '../../../state'
 
 import Alert from '../../common/alert'
 
@@ -165,7 +166,7 @@ const FileContent = () => (
 )
 
 const LoginPageSidebar = () => {
-  const {authMethod} = useSelector((state) => ({authMethod: state.authMethod}))
+  const {authMethod} = useSelector((state: State) => ({authMethod: state.authMethod}))
   return (
     <aside className="sidebar">
       {authMethod === '' && <InitialContent />}

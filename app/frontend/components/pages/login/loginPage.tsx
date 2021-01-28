@@ -17,7 +17,7 @@ import Tag from '../../common/tag'
 import WalletLoadingErrorModal from './walletLoadingErrorModal'
 import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
-import {AuthMethodEnum} from '../../../state'
+import {AuthMethodEnum, State} from '../../../state'
 
 // TODO: extract from dashboardPage after rebase
 const useViewport = () => {
@@ -208,7 +208,7 @@ const LoginPage = () => {
     shouldShowStakingBanner,
     autoLogin,
     errorBannerContent,
-  } = useSelector((state) => ({
+  } = useSelector((state: State) => ({
     authMethod: state.authMethod,
     shouldShowDemoWalletWarningDialog: state.shouldShowDemoWalletWarningDialog,
     logoutNotificationOpen: state.logoutNotificationOpen,
