@@ -56,10 +56,10 @@ export type _XPubKey = {
 }
 
 export enum AuthMethodEnum {
-  Initial,
-  Mnemonic = 'mnemonic',
-  HwWallet = 'hw-wallet',
-  KeyFile = 'file',
+  INITIAL,
+  MNEMONIC = 'mnemonic',
+  HW_WALLET = 'hw-wallet',
+  KEY_FILE = 'file',
 }
 export type Ada = number & {__typeAda: any}
 export type Lovelace = number & {__typeLovelace: any}

@@ -50,9 +50,9 @@ const useViewport = (): ScreenSize => {
 
 // TODO: extract to app/frontend/constants.ts after rebase
 const AUTH_METHOD_NAMES = {
-  [AuthMethodEnum.Mnemonic]: 'Mnemonic',
-  [AuthMethodEnum.HwWallet]: 'Hardware Wallet',
-  [AuthMethodEnum.KeyFile]: 'Key file',
+  [AuthMethodEnum.MNEMONIC]: 'Mnemonic',
+  [AuthMethodEnum.HW_WALLET]: 'Hardware Wallet',
+  [AuthMethodEnum.KEY_FILE]: 'Key file',
 }
 const getAuthMethodName = (authMethod: AuthMethodEnum): string => AUTH_METHOD_NAMES[authMethod]
 
@@ -65,7 +65,7 @@ const CurrentDropdownItem = ({
 }) => (
   <div
     className={`dropdown-item current ${authMethod} ${
-      authMethod === AuthMethodEnum.HwWallet ? 'recommended' : ''
+      authMethod === AuthMethodEnum.HW_WALLET ? 'recommended' : ''
     }`}
     onClick={toggleDropdown}
   >
@@ -150,16 +150,16 @@ const AuthCardInitial = () => (
     <h2 className="authentication-title">How do you want to access your Cardano Wallet?</h2>
     <div className="auth-options">
       <AuthOption
-        tabName={AuthMethodEnum.Mnemonic}
+        tabName={AuthMethodEnum.MNEMONIC}
         texts={['12, 15, 24 or 27 word passphrase']}
         tag={'fastest'}
       />
       <AuthOption
-        tabName={AuthMethodEnum.HwWallet}
+        tabName={AuthMethodEnum.HW_WALLET}
         texts={['Trezor T', 'Ledger Nano S/X', 'Android device & Ledger']}
         tag={'recommended'}
       />
-      <AuthOption tabName={AuthMethodEnum.KeyFile} texts={['Encrypted .JSON file']} tag={''} />
+      <AuthOption tabName={AuthMethodEnum.KEY_FILE} texts={['Encrypted .JSON file']} tag={''} />
     </div>
   </div>
 )
@@ -181,32 +181,32 @@ const AuthCard = ({
         <ul className="dropdown-items">
           <DropdownItem
             authMethod={authMethod}
-            tabName={AuthMethodEnum.Mnemonic}
+            tabName={AuthMethodEnum.MNEMONIC}
             toggleDropdown={toggleDropdown}
           />
           <DropdownItem
-            tabName={AuthMethodEnum.HwWallet}
+            tabName={AuthMethodEnum.HW_WALLET}
             toggleDropdown={toggleDropdown}
             authMethod={authMethod}
             recommended
           />
           <DropdownItem
             authMethod={authMethod}
-            tabName={AuthMethodEnum.KeyFile}
+            tabName={AuthMethodEnum.KEY_FILE}
             toggleDropdown={toggleDropdown}
           />
         </ul>
       </div>
     ) : (
       <ul className="auth-tabs">
-        <AuthTab tabName={AuthMethodEnum.Mnemonic} authMethod={authMethod} />
-        <AuthTab tabName={AuthMethodEnum.HwWallet} authMethod={authMethod} recommended />
-        <AuthTab tabName={AuthMethodEnum.KeyFile} authMethod={authMethod} />
+        <AuthTab tabName={AuthMethodEnum.MNEMONIC} authMethod={authMethod} />
+        <AuthTab tabName={AuthMethodEnum.HW_WALLET} authMethod={authMethod} recommended />
+        <AuthTab tabName={AuthMethodEnum.KEY_FILE} authMethod={authMethod} />
       </ul>
     )}
-    {authMethod === AuthMethodEnum.Mnemonic && <MnemonicAuth />}
-    {authMethod === AuthMethodEnum.HwWallet && <HardwareAuth />}
-    {authMethod === AuthMethodEnum.KeyFile && <KeyFileAuth />}
+    {authMethod === AuthMethodEnum.MNEMONIC && <MnemonicAuth />}
+    {authMethod === AuthMethodEnum.HW_WALLET && <HardwareAuth />}
+    {authMethod === AuthMethodEnum.KEY_FILE && <KeyFileAuth />}
   </div>
 )
 
@@ -244,8 +244,8 @@ const LoginPage = () => {
   } = useActions(actions)
 
   useEffect(() => {
-    if (autoLogin && authMethod !== AuthMethodEnum.Mnemonic) {
-      setAuthMethod(AuthMethodEnum.Mnemonic)
+    if (autoLogin && authMethod !== AuthMethodEnum.MNEMONIC) {
+      setAuthMethod(AuthMethodEnum.MNEMONIC)
     }
     loadErrorBannerContent()
   }, []) // eslint-disable-line
@@ -256,7 +256,7 @@ const LoginPage = () => {
       {errorBannerContent && <ErrorBanner message={errorBannerContent} />}
       <div className="page-inner">
         <main className="page-main">
-          {authMethod === AuthMethodEnum.Initial ? (
+          {authMethod === AuthMethodEnum.INITIAL ? (
             <AuthCardInitial />
           ) : (
             <AuthCard

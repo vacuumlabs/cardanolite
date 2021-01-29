@@ -169,10 +169,10 @@ const LoginPageSidebar = () => {
   const {authMethod} = useSelector((state: State) => ({authMethod: state.authMethod}))
   return (
     <aside className="sidebar">
-      {authMethod === AuthMethodEnum.Initial && <InitialContent />}
-      {authMethod === AuthMethodEnum.Mnemonic && <MnemonicContent />}
-      {authMethod === AuthMethodEnum.HwWallet && <WalletContent />}
-      {authMethod === AuthMethodEnum.KeyFile && <FileContent />}
+      {authMethod === AuthMethodEnum.INITIAL && <InitialContent />}
+      {authMethod === AuthMethodEnum.MNEMONIC && <MnemonicContent />}
+      {authMethod === AuthMethodEnum.HW_WALLET && <WalletContent />}
+      {authMethod === AuthMethodEnum.KEY_FILE && <FileContent />}
     </aside>
   )
 }

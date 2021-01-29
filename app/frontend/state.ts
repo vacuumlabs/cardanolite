@@ -178,8 +178,8 @@ const initialState: State = {
   isShelleyCompatible: true,
   shouldShowNonShelleyCompatibleDialog: false,
   authMethod: ['#trezor', '#hw-wallet'].includes(window.location.hash)
-    ? AuthMethodEnum.HwWallet
-    : AuthMethodEnum.Initial,
+    ? AuthMethodEnum.HW_WALLET
+    : AuthMethodEnum.INITIAL,
   shouldShowDemoWalletWarningDialog: false,
   logoutNotificationOpen: false,
   rawTransactionOpen: false,
