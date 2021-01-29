@@ -175,7 +175,7 @@ const AuthCard = ({
   toggleDropdown: () => void
 }) => (
   <div className="authentication card">
-    {screenSize ? (
+    {screenSize <= ScreenSize.MOBILE ? (
       <div className={`dropdown auth ${isDropdownOpen ? 'open' : ''}`}>
         <CurrentDropdownItem authMethod={authMethod} toggleDropdown={toggleDropdown} />
         <ul className="dropdown-items">
