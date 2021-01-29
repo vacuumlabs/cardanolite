@@ -20,12 +20,24 @@ import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import {AuthMethodEnum, State} from '../../../state'
 
 // TODO: extract from dashboardPage after rebase
-const useViewport = () => {
-  const [isViewportSmall, setIsViewportSmall] = useState(false)
+enum ScreenSize {
+  MOBILE,
+  TABLET,
+  DESKTOP,
+}
+const useViewport = (): ScreenSize => {
+  const [screenSize, setScreenSize] = useState<ScreenSize>(undefined)
 
   const handleScreenResize = () => {
-    setIsViewportSmall(window.innerWidth < 1024)
+    if (window.innerWidth <= 767) {
+      setScreenSize(ScreenSize.MOBILE)
+    } else if (window.innerWidth <= 1024) {
+      setScreenSize(ScreenSize.TABLET)
+    } else {
+      setScreenSize(ScreenSize.DESKTOP)
+    }
   }
+
   useEffect(() => {
     handleScreenResize()
     window.addEventListener('resize', handleScreenResize)
@@ -33,7 +45,7 @@ const useViewport = () => {
     return () => window.removeEventListener('resize', handleScreenResize)
   }, [])
 
-  return isViewportSmall
+  return screenSize
 }
 
 // TODO: extract to app/frontend/constants.ts after rebase
@@ -153,17 +165,17 @@ const AuthCardInitial = () => (
 )
 const AuthCard = ({
   authMethod,
-  isViewportSmall,
+  screenSize,
   isDropdownOpen,
   toggleDropdown,
 }: {
   authMethod: AuthMethodEnum
-  isViewportSmall: boolean
+  screenSize: ScreenSize
   isDropdownOpen: boolean
   toggleDropdown: () => void
 }) => (
   <div className="authentication card">
-    {isViewportSmall ? (
+    {screenSize ? (
       <div className={`dropdown auth ${isDropdownOpen ? 'open' : ''}`}>
         <CurrentDropdownItem authMethod={authMethod} toggleDropdown={toggleDropdown} />
         <ul className="dropdown-items">
@@ -199,7 +211,7 @@ const AuthCard = ({
 )
 
 const LoginPage = () => {
-  const isViewportSmall = useViewport()
+  const screenSize = useViewport()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
   const {
@@ -249,7 +261,7 @@ const LoginPage = () => {
           ) : (
             <AuthCard
               authMethod={authMethod}
-              isViewportSmall={isViewportSmall}
+              screenSize={screenSize}
               isDropdownOpen={isDropdownOpen}
               toggleDropdown={toggleDropdown}
             />
