@@ -37,7 +37,7 @@ import {parseUnsignedTx} from './helpers/cliParser/parser'
 import {TxPlan, unsignedPoolTxToTxPlan} from './wallet/shelley/shelley-transaction-planner'
 import getDonationAddress from './helpers/getDonationAddress'
 import {localStorageVars} from './localStorage'
-import {AccountInfo, Ada, Lovelace, CryptoProviderFeature} from './types'
+import {AccountInfo, Ada, Lovelace, CryptoProviderFeature, AuthMethodEnum} from './types'
 import {MainTabs} from './constants'
 
 let wallet: ReturnType<typeof ShelleyWallet>

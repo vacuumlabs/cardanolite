@@ -1,6 +1,7 @@
 import {h} from 'preact'
 import {useSelector} from '../../../helpers/connect'
-import {AuthMethodEnum, State} from '../../../state'
+import {State} from '../../../state'
+import {AuthMethodEnum} from '../../../types'
 
 import Alert from '../../common/alert'
 

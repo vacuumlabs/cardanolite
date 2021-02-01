@@ -17,7 +17,8 @@ import Tag from '../../common/tag'
 import WalletLoadingErrorModal from './walletLoadingErrorModal'
 import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
-import {AuthMethodEnum, State} from '../../../state'
+import {State} from '../../../state'
+import {AuthMethodEnum} from '../../../types'
 
 // TODO: extract from dashboardPage after rebase
 enum ScreenSize {
