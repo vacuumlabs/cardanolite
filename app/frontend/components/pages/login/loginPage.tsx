@@ -3,7 +3,6 @@ import {useState, useEffect} from 'preact/hooks'
 import {useSelector, useActions} from '../../../helpers/connect'
 import actions from '../../../actions'
 import isLeftClick from '../../../helpers/isLeftClick'
-
 import KeyFileAuth from './keyFileAuth'
 import MnemonicAuth from './mnemonicAuth'
 import HardwareAuth from './hardwareAuth'
@@ -18,44 +17,11 @@ import WalletLoadingErrorModal from './walletLoadingErrorModal'
 import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import {State} from '../../../state'
-import {AuthMethodEnum} from '../../../types'
+import {AuthMethodEnum, ScreenSize} from '../../../types'
+import {AuthMethodNames} from '../../../constants'
+import useViewport from '../../common/useViewport'
 
-// TODO: extract from dashboardPage after rebase
-enum ScreenSize {
-  MOBILE,
-  TABLET,
-  DESKTOP,
-}
-const useViewport = (): ScreenSize => {
-  const [screenSize, setScreenSize] = useState<ScreenSize>(undefined)
-
-  const handleScreenResize = () => {
-    if (window.innerWidth <= 767) {
-      setScreenSize(ScreenSize.MOBILE)
-    } else if (window.innerWidth <= 1024) {
-      setScreenSize(ScreenSize.TABLET)
-    } else {
-      setScreenSize(ScreenSize.DESKTOP)
-    }
-  }
-
-  useEffect(() => {
-    handleScreenResize()
-    window.addEventListener('resize', handleScreenResize)
-
-    return () => window.removeEventListener('resize', handleScreenResize)
-  }, [])
-
-  return screenSize
-}
-
-// TODO: extract to app/frontend/constants.ts after rebase
-const AUTH_METHOD_NAMES = {
-  [AuthMethodEnum.MNEMONIC]: 'Mnemonic',
-  [AuthMethodEnum.HW_WALLET]: 'Hardware Wallet',
-  [AuthMethodEnum.KEY_FILE]: 'Key file',
-}
-const getAuthMethodName = (authMethod: AuthMethodEnum): string => AUTH_METHOD_NAMES[authMethod]
+const getAuthMethodName = (authMethod: AuthMethodEnum): string => AuthMethodNames[authMethod]
 
 const CurrentDropdownItem = ({
   authMethod,

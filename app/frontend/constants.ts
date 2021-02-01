@@ -1,3 +1,5 @@
+import {AuthMethodEnum} from './types'
+
 export enum MainTabs {
   ACCOUNT = 'Accounts',
   SENDING = 'Sending',
@@ -17,4 +19,10 @@ export enum SubTabs {
   POOL_OWNER = 'Pool registration',
   BALANCE = 'Balance',
   SHELLEY_BALANCES = 'Shelley Balances',
+}
+
+export const AuthMethodNames = {
+  [AuthMethodEnum.MNEMONIC]: 'Mnemonic',
+  [AuthMethodEnum.HW_WALLET]: 'Hardware Wallet',
+  [AuthMethodEnum.KEY_FILE]: 'Key file',
 }

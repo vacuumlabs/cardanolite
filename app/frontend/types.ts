@@ -61,6 +61,13 @@ export enum AuthMethodEnum {
   HW_WALLET = 'hw-wallet',
   KEY_FILE = 'file',
 }
+
+export enum ScreenSize {
+  MOBILE,
+  TABLET,
+  DESKTOP,
+}
+
 export type Ada = number & {__typeAda: any}
 export type Lovelace = number & {__typeLovelace: any}
 
