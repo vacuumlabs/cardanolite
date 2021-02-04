@@ -29,6 +29,8 @@ const getAuthMethodName = (authMethod: AuthMethodType): string => {
       return 'Hardware Wallet'
     case AuthMethodType.KEY_FILE:
       return 'Key file'
+    case AuthMethodType.PRIVATE_KEY:
+      return 'Root private key'
     default:
       return assertUnreachable(authMethod)
   }

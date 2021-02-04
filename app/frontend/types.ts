@@ -59,6 +59,7 @@ export enum AuthMethodType {
   MNEMONIC = 'mnemonic',
   HW_WALLET = 'hw-wallet',
   KEY_FILE = 'file',
+  PRIVATE_KEY = 'private-key',
 }
 
 export enum ScreenType {
