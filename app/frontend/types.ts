@@ -114,3 +114,11 @@ export type AccountInfo = {
   isUsed: boolean
   accountIndex: number
 }
+
+// TODO: assign to every validator function
+type ValidationError = {
+  code: string
+  params?: any //TODO
+}
+
+export type ValidationResult = null | ValidationError
