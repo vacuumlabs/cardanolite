@@ -149,8 +149,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       shouldExportPubKeyBulk,
     }: {
       cryptoProviderType: CryptoProviderType
-      walletSecretDef: any
-      forceWebUsb: boolean
+      walletSecretDef?: any
+      forceWebUsb?: boolean
       shouldExportPubKeyBulk: boolean
     }
   ) => {
