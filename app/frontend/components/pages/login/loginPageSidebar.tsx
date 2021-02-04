@@ -1,14 +1,34 @@
 import {h} from 'preact'
-import {useSelector} from '../../../helpers/connect'
+import {useSelector, useActions} from '../../../helpers/connect'
+import isLeftClick from '../../../helpers/isLeftClick'
 import {State} from '../../../state'
 import {AuthMethodType} from '../../../types'
 import assertUnreachable from '../../../helpers/assertUnreachable'
 
 import Alert from '../../common/alert'
 
+const PrivateKeyInitialContent = () => {
+  const {setAuthMethod} = useActions(actions)
+  const setPrivateKeyAsAuth = () => setAuthMethod(AuthMethodEnum.PRIVATE_KEY)
+  return (
+    <div className="sidebar-item spacy">
+      <Alert alertType="info sidebar">
+        <p>
+          We offer an alternative way to access the wallet for those who do not have a mnemonic, but
+          they own the wallet's private key. Click{' '}
+          <a href="#" onMouseDown={(e) => isLeftClick(e, setPrivateKeyAsAuth)}>
+            here
+          </a>{' '}
+          to proceed.
+        </p>
+      </Alert>
+    </div>
+  )
+}
+
 const InitialContent = () => (
   <div className="sidebar-content">
-    <div className="sidebar-item spacy">
+    <div className="sidebar-item">
       <Alert alertType="info sidebar">
         <p>
           AdaLite supports three means of accessing your wallet. For enhanced security, we recommend
@@ -24,6 +44,7 @@ const InitialContent = () => (
         </a>
       </Alert>
     </div>
+    <PrivateKeyInitialContent />
   </div>
 )
 
@@ -167,6 +188,34 @@ const FileContent = () => (
   </div>
 )
 
+const PrivateKeyDetailContent = () => (
+  <div className="sidebar-content">
+    <div className="sidebar-item spacy">
+      <Alert alertType="info sidebar">
+        <strong>What is a root private key?</strong>
+        <p>
+          Root private keys are used for spending funds and deriving all other public and private
+          keys.
+        </p>
+      </Alert>
+    </div>
+    <Alert alertType="warning sidebar">
+      <p>
+        Be extremely careful with your private keys. Leaking a private key means access to coins. We
+        strongly advise you to move your funds to a{' '}
+        <a
+          className="sidebar-link"
+          href="https://github.com/vacuumlabs/adalite/wiki/AdaLite-FAQ#hardware-wallets"
+          rel="noopener"
+          target="blank"
+        >
+          hardware wallet.
+        </a>
+      </p>
+    </Alert>
+  </div>
+)
+
 const SidebarContentByAuthMethod = ({authMethod}: {authMethod: AuthMethodType}) => {
   switch (authMethod) {
     case null:
@@ -177,10 +226,13 @@ const SidebarContentByAuthMethod = ({authMethod}: {authMethod: AuthMethodType}) 
       return <WalletContent />
     case AuthMethodType.KEY_FILE:
       return <FileContent />
+    case AuthMethodType.PRIVATE_KEY:
+      return <PrivateKeyDetailContent />
     default:
       return assertUnreachable(authMethod)
   }
 }
+
 
 const LoginPageSidebar = () => {
   const {authMethod} = useSelector((state: State) => ({authMethod: state.authMethod}))

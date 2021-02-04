@@ -6,6 +6,7 @@ import isLeftClick from '../../../helpers/isLeftClick'
 import KeyFileAuth from './keyFileAuth'
 import MnemonicAuth from './mnemonicAuth'
 import HardwareAuth from './hardwareAuth'
+import PrivateKeyAuth from './privateKeyAuth'
 import DemoWalletWarningDialog from './demoWalletWarningDialog'
 import GenerateMnemonicDialog from './generateMnemonicDialog'
 import LogoutNotification from './logoutNotification'
@@ -202,6 +203,42 @@ const AuthCard = ({
   </div>
 )
 
+const PrivateKeyCard = () => (
+  <div className="authentication card">
+    <div className="auth-tabs">
+      <AuthTab tabName={AuthMethodEnum.PRIVATE_KEY} authMethod={AuthMethodEnum.PRIVATE_KEY} />
+    </div>
+    <PrivateKeyAuth />
+  </div>
+)
+
+const AppropriateAuthCard = ({
+  authMethod,
+  screenSize,
+  isDropdownOpen,
+  toggleDropdown,
+}: {
+  authMethod: AuthMethodEnum
+  screenSize: ScreenSize
+  isDropdownOpen: boolean
+  toggleDropdown: () => void
+}) => {
+  if (authMethod === AuthMethodEnum.PRIVATE_KEY) {
+    return <PrivateKeyCard />
+  } else if (authMethod === AuthMethodEnum.INITIAL) {
+    return <AuthCardInitial />
+  } else {
+    return (
+      <AuthCard
+        authMethod={authMethod}
+        screenSize={screenSize}
+        isDropdownOpen={isDropdownOpen}
+        toggleDropdown={toggleDropdown}
+      />
+    )
+  }
+}
+
 const LoginPage = () => {
   const screenType = useViewport()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
@@ -248,16 +285,12 @@ const LoginPage = () => {
       {errorBannerContent && <ErrorBanner message={errorBannerContent} />}
       <div className="page-inner">
         <main className="page-main">
-          {authMethod === null ? (
-            <AuthCardInitial />
-          ) : (
-            <AuthCard
-              authMethod={authMethod}
-              screenType={screenType}
-              isDropdownOpen={isDropdownOpen}
-              toggleDropdown={toggleDropdown}
-            />
-          )}
+          <AppropriateAuthCard
+            authMethod={authMethod}
+            screenSize={screenSize}
+            isDropdownOpen={isDropdownOpen}
+            toggleDropdown={toggleDropdown}
+          />
           <div className="page-demo">
             Try the{' '}
             <a href="#" onMouseDown={(e) => isLeftClick(e, loadDemoWallet)}>

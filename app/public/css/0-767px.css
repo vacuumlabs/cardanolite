@@ -577,8 +577,8 @@
     border-right: none;
   }
 
-  .auth-tabs {
-    display: none;
+  .auth-tab {
+    padding: 16px;
   }
 
   .authentication-content {

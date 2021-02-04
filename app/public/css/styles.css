@@ -1836,6 +1836,11 @@ li.main-tab input + label.selected:after {
   background-image: url('../assets/tab_icon_file_grey.svg');
 }
 
+/* TODO: PRIVATE KEY ICON */
+.auth-tab-text.private-key::before {
+  background-image: url('../assets/tab_icon_file_grey.svg');
+}
+
 .auth-tab.selected .auth-tab-text.mnemonic::before {
   background-image: url('../assets/tab_icon_mnemonic.svg');
 }
@@ -1845,6 +1850,11 @@ li.main-tab input + label.selected:after {
 }
 
 .auth-tab.selected .auth-tab-text.file::before {
+  background-image: url('../assets/tab_icon_file.svg');
+}
+
+/* TODO: PRIVATE KEY ICON */
+.auth-tab.selected .auth-tab-text.private-key::before {
   background-image: url('../assets/tab_icon_file.svg');
 }
 
@@ -3829,10 +3839,6 @@ label.button.primary.disabled {
 .dropdown {
   position: relative;
   background-color: white;
-}
-
-.dropdown.auth {
-  display: none;
 }
 
 .dropdown-items {
