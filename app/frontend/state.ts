@@ -1,7 +1,7 @@
 import {ADALITE_CONFIG} from './config'
 import {MainTabs} from './constants'
 import {localStorageVars} from './localStorage'
-import {AccountInfo, AuthMethodEnum, Lovelace} from './types'
+import {AccountInfo, AuthMethodType, Lovelace} from './types'
 export interface SendTransactionSummary {
   amount?: Lovelace
   donation?: Lovelace
@@ -40,7 +40,7 @@ export interface State {
   isShelleyCompatible: any
   shouldShowNonShelleyCompatibleDialog: any
 
-  authMethod: AuthMethodEnum
+  authMethod: AuthMethodType
   shouldShowDemoWalletWarningDialog: boolean
   logoutNotificationOpen: boolean
   rawTransactionOpen: boolean
@@ -178,8 +178,8 @@ const initialState: State = {
   isShelleyCompatible: true,
   shouldShowNonShelleyCompatibleDialog: false,
   authMethod: ['#trezor', '#hw-wallet'].includes(window.location.hash)
-    ? AuthMethodEnum.HW_WALLET
-    : AuthMethodEnum.INITIAL,
+    ? AuthMethodType.HW_WALLET
+    : null,
   shouldShowDemoWalletWarningDialog: false,
   logoutNotificationOpen: false,
   rawTransactionOpen: false,

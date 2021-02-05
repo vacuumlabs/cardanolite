@@ -55,8 +55,7 @@ export type _XPubKey = {
   xpubHex: HexString
 }
 
-export enum AuthMethodEnum {
-  INITIAL,
+export enum AuthMethodType {
   MNEMONIC = 'mnemonic',
   HW_WALLET = 'hw-wallet',
   KEY_FILE = 'file',

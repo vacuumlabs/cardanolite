@@ -1,4 +1,4 @@
-import {AuthMethodEnum} from './types'
+import {AuthMethodType} from './types'
 
 export enum MainTabs {
   ACCOUNT = 'Accounts',
@@ -22,7 +22,7 @@ export enum SubTabs {
 }
 
 export const AuthMethodNames = {
-  [AuthMethodEnum.MNEMONIC]: 'Mnemonic',
-  [AuthMethodEnum.HW_WALLET]: 'Hardware Wallet',
-  [AuthMethodEnum.KEY_FILE]: 'Key file',
+  [AuthMethodType.MNEMONIC]: 'Mnemonic',
+  [AuthMethodType.HW_WALLET]: 'Hardware Wallet',
+  [AuthMethodType.KEY_FILE]: 'Key file',
 }

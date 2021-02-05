@@ -17,22 +17,22 @@ import WalletLoadingErrorModal from './walletLoadingErrorModal'
 import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import {State} from '../../../state'
-import {AuthMethodEnum, ScreenSize} from '../../../types'
+import {AuthMethodType, ScreenSize} from '../../../types'
 import {AuthMethodNames} from '../../../constants'
 import useViewport from '../../common/useViewport'
 
-const getAuthMethodName = (authMethod: AuthMethodEnum): string => AuthMethodNames[authMethod]
+const getAuthMethodName = (authMethod: AuthMethodType): string => AuthMethodNames[authMethod]
 
 const CurrentDropdownItem = ({
   authMethod,
   toggleDropdown,
 }: {
-  authMethod: AuthMethodEnum
+  authMethod: AuthMethodType
   toggleDropdown: () => void
 }) => (
   <div
     className={`dropdown-item current ${authMethod} ${
-      authMethod === AuthMethodEnum.HW_WALLET ? 'recommended' : ''
+      authMethod === AuthMethodType.HW_WALLET ? 'recommended' : ''
     }`}
     onClick={toggleDropdown}
   >
@@ -46,9 +46,9 @@ const DropdownItem = ({
   tabName,
   recommended = false,
 }: {
-  authMethod: AuthMethodEnum
+  authMethod: AuthMethodType
   toggleDropdown: () => void
-  tabName: AuthMethodEnum
+  tabName: AuthMethodType
   recommended?: boolean
 }) => {
   const {setAuthMethod} = useActions(actions)
@@ -72,8 +72,8 @@ const AuthTab = ({
   tabName,
   recommended = false,
 }: {
-  authMethod: AuthMethodEnum
-  tabName: AuthMethodEnum
+  authMethod: AuthMethodType
+  tabName: AuthMethodType
   recommended?: boolean
 }) => {
   const {setAuthMethod} = useActions(actions)
@@ -94,7 +94,7 @@ const AuthOption = ({
   texts,
   tag,
 }: {
-  tabName: AuthMethodEnum
+  tabName: AuthMethodType
   texts: Array<string>
   tag: string
 }) => {
@@ -117,16 +117,16 @@ const AuthCardInitial = () => (
     <h2 className="authentication-title">How do you want to access your Cardano Wallet?</h2>
     <div className="auth-options">
       <AuthOption
-        tabName={AuthMethodEnum.MNEMONIC}
+        tabName={AuthMethodType.MNEMONIC}
         texts={['12, 15, 24 or 27 word passphrase']}
         tag={'fastest'}
       />
       <AuthOption
-        tabName={AuthMethodEnum.HW_WALLET}
+        tabName={AuthMethodType.HW_WALLET}
         texts={['Trezor T', 'Ledger Nano S/X', 'Android device & Ledger']}
         tag={'recommended'}
       />
-      <AuthOption tabName={AuthMethodEnum.KEY_FILE} texts={['Encrypted .JSON file']} tag={''} />
+      <AuthOption tabName={AuthMethodType.KEY_FILE} texts={['Encrypted .JSON file']} tag={''} />
     </div>
   </div>
 )
@@ -136,7 +136,7 @@ const AuthCard = ({
   isDropdownOpen,
   toggleDropdown,
 }: {
-  authMethod: AuthMethodEnum
+  authMethod: AuthMethodType
   screenSize: ScreenSize
   isDropdownOpen: boolean
   toggleDropdown: () => void
@@ -148,32 +148,32 @@ const AuthCard = ({
         <ul className="dropdown-items">
           <DropdownItem
             authMethod={authMethod}
-            tabName={AuthMethodEnum.MNEMONIC}
+            tabName={AuthMethodType.MNEMONIC}
             toggleDropdown={toggleDropdown}
           />
           <DropdownItem
-            tabName={AuthMethodEnum.HW_WALLET}
+            tabName={AuthMethodType.HW_WALLET}
             toggleDropdown={toggleDropdown}
             authMethod={authMethod}
             recommended
           />
           <DropdownItem
             authMethod={authMethod}
-            tabName={AuthMethodEnum.KEY_FILE}
+            tabName={AuthMethodType.KEY_FILE}
             toggleDropdown={toggleDropdown}
           />
         </ul>
       </div>
     ) : (
       <ul className="auth-tabs">
-        <AuthTab tabName={AuthMethodEnum.MNEMONIC} authMethod={authMethod} />
-        <AuthTab tabName={AuthMethodEnum.HW_WALLET} authMethod={authMethod} recommended />
-        <AuthTab tabName={AuthMethodEnum.KEY_FILE} authMethod={authMethod} />
+        <AuthTab tabName={AuthMethodType.MNEMONIC} authMethod={authMethod} />
+        <AuthTab tabName={AuthMethodType.HW_WALLET} authMethod={authMethod} recommended />
+        <AuthTab tabName={AuthMethodType.KEY_FILE} authMethod={authMethod} />
       </ul>
     )}
-    {authMethod === AuthMethodEnum.MNEMONIC && <MnemonicAuth />}
-    {authMethod === AuthMethodEnum.HW_WALLET && <HardwareAuth />}
-    {authMethod === AuthMethodEnum.KEY_FILE && <KeyFileAuth />}
+    {authMethod === AuthMethodType.MNEMONIC && <MnemonicAuth />}
+    {authMethod === AuthMethodType.HW_WALLET && <HardwareAuth />}
+    {authMethod === AuthMethodType.KEY_FILE && <KeyFileAuth />}
   </div>
 )
 
@@ -211,8 +211,8 @@ const LoginPage = () => {
   } = useActions(actions)
 
   useEffect(() => {
-    if (autoLogin && authMethod !== AuthMethodEnum.MNEMONIC) {
-      setAuthMethod(AuthMethodEnum.MNEMONIC)
+    if (autoLogin && authMethod !== AuthMethodType.MNEMONIC) {
+      setAuthMethod(AuthMethodType.MNEMONIC)
     }
     loadErrorBannerContent()
   }, []) // eslint-disable-line
@@ -223,7 +223,7 @@ const LoginPage = () => {
       {errorBannerContent && <ErrorBanner message={errorBannerContent} />}
       <div className="page-inner">
         <main className="page-main">
-          {authMethod === AuthMethodEnum.INITIAL ? (
+          {authMethod === null ? (
             <AuthCardInitial />
           ) : (
             <AuthCard
