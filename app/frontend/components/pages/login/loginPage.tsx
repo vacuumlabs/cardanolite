@@ -19,7 +19,7 @@ import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import {State} from '../../../state'
 import {AuthMethodType, ScreenType} from '../../../types'
 import {useViewport, isBiggerThanMobile} from '../../common/viewPort'
-import assertUnreachable from '../../../helpers/asssetUnreachable'
+import assertUnreachable from '../../../helpers/assertUnreachable'
 
 const getAuthMethodName = (authMethod: AuthMethodType): string => {
   switch (authMethod) {
@@ -142,6 +142,19 @@ const AuthCardInitial = () => (
   </div>
 )
 
+const SubCardByAuthMethod = ({authMethod}: {authMethod: AuthMethodType}) => {
+  switch (authMethod) {
+    case AuthMethodType.MNEMONIC:
+      return <MnemonicAuth />
+    case AuthMethodType.HW_WALLET:
+      return <HardwareAuth />
+    case AuthMethodType.KEY_FILE:
+      return <KeyFileAuth />
+    default:
+      return assertUnreachable(authMethod)
+  }
+}
+
 const AuthCard = ({
   authMethod,
   screenType,
@@ -183,9 +196,7 @@ const AuthCard = ({
         </ul>
       </div>
     )}
-    {authMethod === AuthMethodType.MNEMONIC && <MnemonicAuth />}
-    {authMethod === AuthMethodType.HW_WALLET && <HardwareAuth />}
-    {authMethod === AuthMethodType.KEY_FILE && <KeyFileAuth />}
+    <SubCardByAuthMethod authMethod={authMethod} />
   </div>
 )
 
