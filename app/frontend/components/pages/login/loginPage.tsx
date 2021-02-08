@@ -18,10 +18,21 @@ import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import {State} from '../../../state'
 import {AuthMethodType, ScreenType} from '../../../types'
-import {AuthMethodNames} from '../../../constants'
 import {useViewport, isBiggerThanMobile} from '../../common/viewPort'
+import assertUnreachable from '../../../helpers/asssetUnreachable'
 
-const getAuthMethodName = (authMethod: AuthMethodType): string => AuthMethodNames[authMethod]
+const getAuthMethodName = (authMethod: AuthMethodType): string => {
+  switch (authMethod) {
+    case AuthMethodType.MNEMONIC:
+      return 'Mnemonic'
+    case AuthMethodType.HW_WALLET:
+      return 'Hardware Wallet'
+    case AuthMethodType.KEY_FILE:
+      return 'Key file'
+    default:
+      return assertUnreachable(authMethod)
+  }
+}
 
 const CurrentDropdownItem = ({
   authMethod,
@@ -130,6 +141,7 @@ const AuthCardInitial = () => (
     </div>
   </div>
 )
+
 const AuthCard = ({
   authMethod,
   screenType,
