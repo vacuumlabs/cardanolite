@@ -23,16 +23,16 @@ import PoolOwner from '../advanced/poolOwner'
 import ErrorModals from './errorModals'
 import {useState} from 'preact/hooks'
 import {SubTabs, MainTabs} from '../../../constants'
-import useViewport from '../../common/useViewport'
-import {ScreenSize} from '../../../types'
+import {useViewport, isSmallerThanDesktop} from '../../common/viewPort'
+import {ScreenType} from '../../../types'
 
-const StakingPage = ({screenSize}: {screenSize: ScreenSize}) => {
+const StakingPage = ({screenType}: {screenType: ScreenType}) => {
   const subTabs = [SubTabs.DELEGATE_ADA, SubTabs.CURRENT_DELEGATION, SubTabs.STAKING_HISTORY]
   const defaultSubTab = SubTabs.DELEGATE_ADA
   const mainSubTab = SubTabs.SHELLEY_BALANCES
   return (
     <Fragment>
-      {screenSize < ScreenSize.DESKTOP ? (
+      {isSmallerThanDesktop(screenType) ? (
         <div className="dashboard mobile">
           <DashboardMobileContent
             subTabs={subTabs}
@@ -58,17 +58,17 @@ const StakingPage = ({screenSize}: {screenSize: ScreenSize}) => {
 
 const SendingPage = ({
   shouldShowExportOption,
-  screenSize,
+  screenType,
 }: {
   shouldShowExportOption: boolean
-  screenSize: ScreenSize
+  screenType: ScreenType
 }) => {
   const subTabs = [SubTabs.SEND_ADA, SubTabs.TRANSACTIONS, SubTabs.ADDRESSES]
   const defaultSubTab = SubTabs.TRANSACTIONS
   const mainSubTab = SubTabs.BALANCE
   return (
     <Fragment>
-      {screenSize < ScreenSize.DESKTOP ? (
+      {isSmallerThanDesktop(screenType) ? (
         <div className="dashboard mobile">
           <DashboardMobileContent
             subTabs={subTabs}
@@ -94,13 +94,13 @@ const SendingPage = ({
   )
 }
 
-const AdvancedPage = ({screenSize}: {screenSize: ScreenSize}) => {
+const AdvancedPage = ({screenType}: {screenType: ScreenType}) => {
   const subTabs = [SubTabs.POOL_OWNER]
   const defaultSubTab = SubTabs.POOL_OWNER
   const mainSubTab = SubTabs.KEYS
   return (
     <Fragment>
-      {screenSize < ScreenSize.DESKTOP ? (
+      {screenType < ScreenType.DESKTOP ? (
         <div className="dashboard mobile">
           <DashboardMobileContent
             subTabs={subTabs}
@@ -122,12 +122,12 @@ const AdvancedPage = ({screenSize}: {screenSize: ScreenSize}) => {
   )
 }
 
-const AccountsPage = ({screenSize}: {screenSize: ScreenSize}) => {
+const AccountsPage = ({screenType}: {screenType: ScreenType}) => {
   const subTabs = [SubTabs.ACCOUNTS]
   const defaultSubTab = SubTabs.ACCOUNTS
   return (
     <Fragment>
-      {screenSize < ScreenSize.DESKTOP ? (
+      {isSmallerThanDesktop(screenType) ? (
         <div className="dashboard mobile">
           <DashboardMobileContent subTabs={subTabs} defaultSubTab={defaultSubTab} />
         </div>
@@ -179,15 +179,15 @@ const DashboardPage = ({
   shouldNumberAccountsFromOne,
   shouldShowExportOption,
 }: Props) => {
-  const screenSize = useViewport()
+  const screenType = useViewport()
 
   const MainPages: {[key in MainTabs]: any} = {
-    [MainTabs.ACCOUNT]: <AccountsPage screenSize={screenSize} />,
-    [MainTabs.STAKING]: <StakingPage screenSize={screenSize} />,
+    [MainTabs.ACCOUNT]: <AccountsPage screenType={screenType} />,
+    [MainTabs.STAKING]: <StakingPage screenType={screenType} />,
     [MainTabs.SENDING]: (
-      <SendingPage screenSize={screenSize} shouldShowExportOption={shouldShowExportOption} />
+      <SendingPage screenType={screenType} shouldShowExportOption={shouldShowExportOption} />
     ),
-    [MainTabs.ADVANCED]: <AdvancedPage screenSize={screenSize} />,
+    [MainTabs.ADVANCED]: <AdvancedPage screenType={screenType} />,
   }
   return (
     <div className="page-wrapper">

@@ -17,9 +17,9 @@ import WalletLoadingErrorModal from './walletLoadingErrorModal'
 import {getTranslation} from '../../../translations'
 import {errorHasHelp} from '../../../helpers/errorsWithHelp'
 import {State} from '../../../state'
-import {AuthMethodType, ScreenSize} from '../../../types'
+import {AuthMethodType, ScreenType} from '../../../types'
 import {AuthMethodNames} from '../../../constants'
-import useViewport from '../../common/useViewport'
+import {useViewport, isBiggerThanMobile} from '../../common/viewPort'
 
 const getAuthMethodName = (authMethod: AuthMethodType): string => AuthMethodNames[authMethod]
 
@@ -132,17 +132,23 @@ const AuthCardInitial = () => (
 )
 const AuthCard = ({
   authMethod,
-  screenSize,
+  screenType,
   isDropdownOpen,
   toggleDropdown,
 }: {
   authMethod: AuthMethodType
-  screenSize: ScreenSize
+  screenType: ScreenType
   isDropdownOpen: boolean
   toggleDropdown: () => void
 }) => (
   <div className="authentication card">
-    {screenSize <= ScreenSize.MOBILE ? (
+    {isBiggerThanMobile(screenType) ? (
+      <ul className="auth-tabs">
+        <AuthTab tabName={AuthMethodType.MNEMONIC} authMethod={authMethod} />
+        <AuthTab tabName={AuthMethodType.HW_WALLET} authMethod={authMethod} recommended />
+        <AuthTab tabName={AuthMethodType.KEY_FILE} authMethod={authMethod} />
+      </ul>
+    ) : (
       <div className={`dropdown auth ${isDropdownOpen ? 'open' : ''}`}>
         <CurrentDropdownItem authMethod={authMethod} toggleDropdown={toggleDropdown} />
         <ul className="dropdown-items">
@@ -164,12 +170,6 @@ const AuthCard = ({
           />
         </ul>
       </div>
-    ) : (
-      <ul className="auth-tabs">
-        <AuthTab tabName={AuthMethodType.MNEMONIC} authMethod={authMethod} />
-        <AuthTab tabName={AuthMethodType.HW_WALLET} authMethod={authMethod} recommended />
-        <AuthTab tabName={AuthMethodType.KEY_FILE} authMethod={authMethod} />
-      </ul>
     )}
     {authMethod === AuthMethodType.MNEMONIC && <MnemonicAuth />}
     {authMethod === AuthMethodType.HW_WALLET && <HardwareAuth />}
@@ -178,7 +178,7 @@ const AuthCard = ({
 )
 
 const LoginPage = () => {
-  const screenSize = useViewport()
+  const screenType = useViewport()
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen)
   const {
@@ -228,7 +228,7 @@ const LoginPage = () => {
           ) : (
             <AuthCard
               authMethod={authMethod}
-              screenSize={screenSize}
+              screenType={screenType}
               isDropdownOpen={isDropdownOpen}
               toggleDropdown={toggleDropdown}
             />

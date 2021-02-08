@@ -61,7 +61,7 @@ export enum AuthMethodType {
   KEY_FILE = 'file',
 }
 
-export enum ScreenSize {
+export enum ScreenType {
   MOBILE,
   TABLET,
   DESKTOP,
