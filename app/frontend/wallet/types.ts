@@ -1,11 +1,12 @@
 export const enum NetworkId {
   MAINNET = 1,
-  HASKELL_TESTNET = 0,
+  TESTNET = 0,
 }
 
 export const enum ProtocolMagic {
   MAINNET = 764824073,
   HASKELL_TESTNET = 42,
+  MARY_TESTNET = 3,
 }
 
 export type Network = {
