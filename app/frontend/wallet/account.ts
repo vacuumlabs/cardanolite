@@ -148,7 +148,9 @@ const MyAddresses = ({
     }
   }
 
-  async function areAddressesUsed() {
+  async function areAddressesUsed(): Promise<boolean> {
+    // we check only the external addresses since internal should not be used before external
+    // https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki#address-gap-limit
     const baseExt = await baseExtAddrManager.discoverAddresses()
     return await blockchainExplorer.isSomeAddressUsed(baseExt)
   }
@@ -206,9 +208,11 @@ const Account = ({
     blockchainExplorer,
   })
 
-  async function ensureXpubIsExported() {
+  async function ensureXpubIsExported(): Promise<void> {
     // get first address to ensure that public key was exported
     await myAddresses.baseExtAddrManager._deriveAddress(0)
+    // in case the wallet is not shelley compatible we consider the
+    // the first account not used
   }
 
   async function calculateTtl() {
