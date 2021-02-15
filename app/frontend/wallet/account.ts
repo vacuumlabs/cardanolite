@@ -317,6 +317,7 @@ const Account = ({
   }
 
   function isAccountUsed(): Promise<boolean> {
+    //TODO: we should decouple shelley compatibility from usedness
     // in case the wallet is not shelley compatible we consider the
     // the first account not used
     return config.isShelleyCompatible && myAddresses.areAddressesUsed()

@@ -86,5 +86,6 @@ export const isByron = (address: HexString): boolean => {
 }
 
 export const addressToHex = (address: string): HexString =>
-  // TODO: this is pretty fragile, we should check for the validity of the address
+  // TODO: we should restrict the type of address to _Address and in that case
+  // we dont need to validate the address
   isShelleyFormat(address) ? bechAddressToHex(address) : base58AddressToHex(address)
