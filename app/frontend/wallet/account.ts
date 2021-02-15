@@ -211,8 +211,6 @@ const Account = ({
   async function ensureXpubIsExported(): Promise<void> {
     // get first address to ensure that public key was exported
     await myAddresses.baseExtAddrManager._deriveAddress(0)
-    // in case the wallet is not shelley compatible we consider the
-    // the first account not used
   }
 
   async function calculateTtl() {
@@ -319,6 +317,8 @@ const Account = ({
   }
 
   function isAccountUsed(): Promise<boolean> {
+    // in case the wallet is not shelley compatible we consider the
+    // the first account not used
     return config.isShelleyCompatible && myAddresses.areAddressesUsed()
   }
 
