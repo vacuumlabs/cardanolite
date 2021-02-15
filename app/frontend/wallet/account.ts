@@ -1,6 +1,6 @@
 import AddressManager from './address-manager'
 import PseudoRandom from './helpers/PseudoRandom'
-import {MAX_INT32} from './constants'
+import {DEFAULT_TTL_SLOTS, MAX_INT32} from './constants'
 import NamedError from '../helpers/NamedError'
 import {
   AddressToPathMapping,
@@ -217,10 +217,10 @@ const Account = ({
     // TODO: move to wallet
     try {
       const bestSlot = await blockchainExplorer.getBestSlot().then((res) => res.Right.bestSlot)
-      return bestSlot + cryptoProvider.network.ttlSlots
+      return bestSlot + DEFAULT_TTL_SLOTS
     } catch (e) {
       const timePassed = Math.floor((Date.now() - cryptoProvider.network.eraStartDateTime) / 1000)
-      return cryptoProvider.network.eraStartSlot + timePassed + cryptoProvider.network.ttlSlots
+      return cryptoProvider.network.eraStartSlot + timePassed + DEFAULT_TTL_SLOTS
     }
   }
 

@@ -15,7 +15,6 @@ export type Network = {
   protocolMagic: ProtocolMagic
   eraStartSlot: number
   eraStartDateTime: number
-  ttlSlots: number
   epochsToRewardDistribution: number
   minimalOutput: number
 }
