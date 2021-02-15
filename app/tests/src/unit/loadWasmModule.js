@@ -1,4 +1,4 @@
-import loadWasmModule from '../../frontend/helpers/wasmLoader'
+import loadWasmModule from '../../../frontend/helpers/wasmLoader'
 
 // Note(ppershing): we have to monkey-patch this because `fetch()` api does not support
 // file:///scheme

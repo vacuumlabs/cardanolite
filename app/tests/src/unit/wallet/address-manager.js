@@ -1,12 +1,12 @@
 import assert from 'assert'
 
-import derivationSchemes from '../../../frontend/wallet/helpers/derivation-schemes'
-import AddressManager from '../../../frontend/wallet/address-manager'
-import mnemonicToWalletSecretDef from '../../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
+import derivationSchemes from '../../../../frontend/wallet/helpers/derivation-schemes'
+import AddressManager from '../../../../frontend/wallet/address-manager'
+import mnemonicToWalletSecretDef from '../../../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
 import {addressManagerSettings} from '../common/address-manager-settings'
-import BlockchainExplorer from '../../../frontend/wallet/blockchain-explorer'
-import ShelleyJsCryptoProvider from '../../../frontend/wallet/shelley/shelley-js-crypto-provider'
-import {ShelleyBaseAddressProvider} from '../../../frontend/wallet/shelley/shelley-address-provider'
+import BlockchainExplorer from '../../../../frontend/wallet/blockchain-explorer'
+import ShelleyJsCryptoProvider from '../../../../frontend/wallet/shelley/shelley-js-crypto-provider'
+import {ShelleyBaseAddressProvider} from '../../../../frontend/wallet/shelley/shelley-address-provider'
 
 const mockConfig = {
   ADALITE_BLOCKCHAIN_EXPLORER_URL: 'https://explorer.adalite.io',

@@ -1,11 +1,11 @@
 import assert from 'assert'
 import cbor from 'borc'
 
-import {HARDENED_THRESHOLD} from '../../frontend/wallet/constants'
-import derivationSchemes from '../../frontend/wallet/helpers/derivation-schemes'
-import CardanoWalletSecretCryptoProvider from '../../frontend/wallet/byron/cardano-wallet-secret-crypto-provider'
-import {TxInputFromUtxo, TxOutput, TxAux} from '../../frontend/wallet/byron/byron-transaction'
-import mnemonicToWalletSecretDef from '../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
+import {HARDENED_THRESHOLD} from '../../../frontend/wallet/constants'
+import derivationSchemes from '../../../frontend/wallet/helpers/derivation-schemes'
+import CardanoWalletSecretCryptoProvider from '../../../frontend/wallet/byron/cardano-wallet-secret-crypto-provider'
+import {TxInputFromUtxo, TxOutput, TxAux} from '../../../frontend/wallet/byron/byron-transaction'
+import mnemonicToWalletSecretDef from '../../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
 import {cryptoProviderSettings} from './common/crypto-provider-settings'
 
 const cryptoProviders = []

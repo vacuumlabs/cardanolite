@@ -1,4 +1,4 @@
-import {NETWORKS} from '../../../frontend/wallet/constants'
+import {NETWORKS} from '../../../../frontend/wallet/constants'
 
 const cryptoProviderSettings = [
   {

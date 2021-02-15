@@ -1,5 +1,5 @@
 module.exports = {
-  entry: `${__dirname}/tests/src/index.js`,
+  entry: `${__dirname}/tests/src/unit/index.js`,
   output: {
     path: `${__dirname}/tests`,
     filename: 'dist/index.bundle.js',

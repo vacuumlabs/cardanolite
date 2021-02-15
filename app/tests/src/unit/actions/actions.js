@@ -1,7 +1,7 @@
 import assert from 'assert'
 import loadWasmModule from '../loadWasmModule'
-import {initialState} from '../../../frontend/state'
-import {default as actions} from '../../../frontend/actions'
+import {initialState} from '../../../../frontend/state'
+import {default as actions} from '../../../../frontend/actions'
 
 window.wasm = null
 before(loadWasmModule)

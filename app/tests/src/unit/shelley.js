@@ -1,13 +1,13 @@
 /* eslint-disable max-len */
 import assert from 'assert'
 
-import ShelleyJsCryptoProvider from '../../frontend/wallet/shelley/shelley-js-crypto-provider'
+import ShelleyJsCryptoProvider from '../../../frontend/wallet/shelley/shelley-js-crypto-provider'
 
-import {ShelleyBaseAddressProvider} from '../../frontend/wallet/shelley/shelley-address-provider'
-import {buildTransaction} from '../../frontend/wallet/shelley/helpers/chainlib-wrapper'
-import mnemonicToWalletSecretDef from '../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
+import {ShelleyBaseAddressProvider} from '../../../frontend/wallet/shelley/shelley-address-provider'
+import {buildTransaction} from '../../../frontend/wallet/shelley/helpers/chainlib-wrapper'
+import mnemonicToWalletSecretDef from '../../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
 import loadWasmModule from './loadWasmModule'
-import {NetworkId} from '../../frontend/wallet/types'
+import {NetworkId} from '../../../frontend/wallet/types'
 
 const getCryptoProvider = async (mnemonic, networkId) => {
   const walletSecretDef = await mnemonicToWalletSecretDef(mnemonic)

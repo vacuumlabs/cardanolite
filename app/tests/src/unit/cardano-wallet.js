@@ -1,14 +1,14 @@
 import assert from 'assert'
 import cbor from 'borc'
 
-import {CardanoWallet} from '../../frontend/wallet/cardano-wallet'
-import CryptoProviderFactory from '../../frontend/wallet/byron/crypto-provider-factory'
-import {txFeeFunction} from '../../frontend/wallet/byron/byron-tx-planner'
+import {CardanoWallet} from '../../../frontend/wallet/cardano-wallet'
+import CryptoProviderFactory from '../../../frontend/wallet/byron/crypto-provider-factory'
+import {txFeeFunction} from '../../../frontend/wallet/byron/byron-tx-planner'
 
 import mockNetwork from './common/mock'
-import mnemonicToWalletSecretDef from '../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
-import {NETWORKS} from '../../frontend/wallet/constants'
-import {CryptoProviderType} from '../../frontend/wallet/types'
+import mnemonicToWalletSecretDef from '../../../frontend/wallet/helpers/mnemonicToWalletSecretDef'
+import {NETWORKS} from '../../../frontend/wallet/constants'
+import {CryptoProviderType} from '../../../frontend/wallet/types'
 
 const testSeed = 39
 

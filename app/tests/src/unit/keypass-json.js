@@ -3,8 +3,8 @@ import {
   importWalletSecretDef,
   exportWalletSecretDef,
   isWalletExportEncrypted,
-} from '../../frontend/wallet/keypass-json'
-import derivationSchemes from '../../frontend/wallet/helpers/derivation-schemes'
+} from '../../../frontend/wallet/keypass-json'
+import derivationSchemes from '../../../frontend/wallet/helpers/derivation-schemes'
 
 const walletSecretObj1 = {
   wallet: {

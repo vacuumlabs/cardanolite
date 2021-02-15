@@ -20,7 +20,10 @@
     "build": "webpack --progress --config webpack.build.config.js",
     "dev": "webpack --watch --config webpack.build.config.js",
     "test": "webpack --config webpack.test.config.js ",
-    "test-chrome-headless": "yarn test && node node_modules/.bin/mocha-headless-chrome -f tests/index.html -a disable-web-security -a user-data-dir=tests/.chrome -a disable-site-isolation-trials",
+    "test-chrome-headless": "node node_modules/.bin/mocha-headless-chrome -f tests/index.html -v -t 1000000 -a disable-web-security -a user-data-dir=tests/.chrome -a disable-site-isolation-trials",
+    "test-unit": "yarn test && yarn test-chrome-headless",
+    "test-integration-ledger": "webpack --config webpack.test.config.js --entry ./tests/src/integration/ledger/index.js && yarn test-chrome-headless",
+    "test-integration-trezor": "webpack --config webpack.test.config.js --entry ./tests/src/integration/trezor/index.js && yarn test-chrome-headless",
     "postinstall": "node ./helpers/removeChainLibsWasmImport"
   },
   "dependencies": {

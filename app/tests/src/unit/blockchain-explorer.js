@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import BlockchainExplorer from '../../frontend/wallet/blockchain-explorer'
+import BlockchainExplorer from '../../../frontend/wallet/blockchain-explorer'
 import mockNetwork from './common/mock'
 
 const mockConfig = {
