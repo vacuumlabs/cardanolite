@@ -23,7 +23,7 @@ import getDonationAddress from '../../helpers/getDonationAddress'
 import {base58, bech32} from 'cardano-crypto.js'
 import {isShelleyFormat, isV1Address} from './helpers/addresses'
 import {transformPoolParamsTypes} from './helpers/poolCertificateUtils'
-import {UTxO, _Certificate, _Input, _Output, _Withdrawal} from '../types'
+import {OutputType, UTxO, _Certificate, _Input, _Output, _Withdrawal} from '../types'
 
 type TxPlanDraft = {
   outputs: _Output[]
@@ -78,6 +78,7 @@ export function estimateTxSize(
   * fee also in cases we dont know the amount of coins in advance
   */
   const txOutputs: _Output[] = outputs.map((output) => ({
+    type: OutputType.NO_CHANGE,
     address: output.address,
     coins: Number.MAX_SAFE_INTEGER as Lovelace,
   }))
@@ -199,6 +200,7 @@ export function computeTxPlan(
   }
 
   const change = {
+    ...possibleChange,
     address: possibleChange.address,
     coins: (totalInput - totalOutput - feeWithChange + totalRewards) as Lovelace,
   }
@@ -235,9 +237,10 @@ const prepareTxPlanDraft = (txPlanArgs: TxPlanArgs): TxPlanDraft => {
     txPlanArgs: SendAdaTxPlanArgs | ConvertLegacyAdaTxPlanArgs
   ): TxPlanDraft => {
     const outputs: _Output[] = []
-    outputs.push({address: txPlanArgs.address, coins: txPlanArgs.coins})
+    outputs.push({type: OutputType.NO_CHANGE, address: txPlanArgs.address, coins: txPlanArgs.coins})
     if (txPlanArgs.txType === TxType.SEND_ADA && txPlanArgs.donationAmount > 0) {
       outputs.push({
+        type: OutputType.NO_CHANGE,
         address: getDonationAddress(),
         coins: txPlanArgs.donationAmount,
       })
@@ -303,7 +306,7 @@ export const selectMinimalTxPlan = (
 ): TxPlanResult => {
   const inputs: _Input[] = []
   const {outputs, certificates, withdrawals} = prepareTxPlanDraft(txPlanArgs)
-  const change: _Output = {address: changeAddress, coins: 0 as Lovelace}
+  const change: _Output = {type: OutputType.NO_CHANGE, address: changeAddress, coins: 0 as Lovelace}
 
   // TODO: refactor this when implementing multi assets
   for (const utxo of utxos) {
