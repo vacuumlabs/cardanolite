@@ -4,19 +4,24 @@ import {encode, Tagged} from 'borc'
 import {blake2b, base58, bech32} from 'cardano-crypto.js'
 import {isShelleyFormat} from './helpers/addresses'
 import {ipv4AddressToBuf, ipv6AddressToBuf} from './helpers/poolCertificateUtils'
-import {_Certificate, _Input, _Output, _Withdrawal} from '../types'
+import {_ByronWitness, _Certificate, _Input, _Output, _ShelleyWitness, _Withdrawal} from '../types'
 import {
   TxBodyKey,
   TxCertificate,
+  TxCertificateKey,
   TxInput,
   TxOutput,
+  TxStakeCredential,
+  TxStakeCredentialType,
   TxWithdrawals,
+  TxWitnessByron,
+  TxWitnesses,
+  TxWitnessKey,
+  TxWitnessShelley,
   _TxAux,
   _TxSigned,
-  _TxWitnessByron,
-  _TxWitnessShelley,
 } from './types'
-import {Lovelace} from '../../types'
+import {CertificateType, HexString} from '../../types'
 
 function ShelleyTxAux(
   inputs: _Input[],
@@ -42,7 +47,9 @@ function ShelleyTxAux(
     if (certificates.length) {
       txBody.set(TxBodyKey.CERTIFICATES, ShelleyTxCertificates(certificates))
     }
-    if (withdrawals.length) txBody.set(TxBodyKey.WITHDRAWALS, ShelleyTxWithdrawals(withdrawals))
+    if (withdrawals.length) {
+      txBody.set(TxBodyKey.WITHDRAWALS, ShelleyTxWithdrawals(withdrawals))
+    }
     return encoder.pushAny(txBody)
   }
 
@@ -79,14 +86,22 @@ function ShelleyTxOutputs(outputs: _Output[]): TxOutput[] {
 
 function ShelleyTxCertificates(certificates: _Certificate[]): TxCertificate[] {
   const txCertificates: TxCertificate[] = certificates.map((certificate) => {
-    const accountAddressHash: Buffer = bech32.decode(certificate.stakingAddress).data
-    const hash = certificate.poolHash && Buffer.from(certificate.poolHash, 'hex')
-    const account = [0, accountAddressHash]
-    const encodedCertsTypes = {
-      0: [certificate.type, account],
-      1: [certificate.type, account],
-      2: [certificate.type, account, hash],
-      // 3: ShelleyPoolRegistrationCertificate(certificate),
+    // TODO: helper for getting stakingKeyHash from address
+    const stakingKeyHash: Buffer = bech32.decode(certificate.stakingAddress).data.slice(1)
+    const poolHash = certificate.poolHash && Buffer.from(certificate.poolHash, 'hex')
+    const stakeCredential: TxStakeCredential = [TxStakeCredentialType.ADDR_KEYHASH, stakingKeyHash]
+
+    const encodedCertsTypes: {[key in CertificateType]: TxCertificate} = {
+      [CertificateType.STAKING_KEY_REGISTRATION]: [
+        TxCertificateKey.STAKING_KEY_REGISTRATION,
+        stakeCredential,
+      ],
+      [CertificateType.STAKING_KEY_DEREGISTRATION]: [
+        TxCertificateKey.STAKING_KEY_DEREGISTRATION,
+        stakeCredential,
+      ],
+      [CertificateType.DELEGATION]: [TxCertificateKey.DELEGATION, stakeCredential, poolHash],
+      [CertificateType.STAKEPOOL_REGISTRATION]: null, //ShelleyPoolRegistrationCertificate(certificate),
     }
     return encodedCertsTypes[certificate.type]
   })
@@ -94,7 +109,7 @@ function ShelleyTxCertificates(certificates: _Certificate[]): TxCertificate[] {
 }
 
 function ShelleyTxWithdrawals(withdrawals: _Withdrawal[]): TxWithdrawals {
-  const txWithdrawals: TxWithdrawals = new Map<Buffer, Lovelace>()
+  const txWithdrawals: TxWithdrawals = new Map()
   withdrawals.forEach((withdrawal) => {
     const stakingAddress: Buffer = bech32.decode(withdrawal.stakingAddress).data
     txWithdrawals.set(stakingAddress, withdrawal.rewards)
@@ -102,115 +117,115 @@ function ShelleyTxWithdrawals(withdrawals: _Withdrawal[]): TxWithdrawals {
   return txWithdrawals
 }
 
-function ShelleyTxWitnessShelley(publicKey: Buffer, signature: Buffer): _TxWitnessShelley {
-  function encodeCBOR(encoder) {
-    return encoder.pushAny([publicKey, signature])
-  }
-
-  return {
+function TxWitnessesShelley(shelleyWitnesses: _ShelleyWitness[]): TxWitnessShelley[] {
+  const txWitnessesShelley: TxWitnessShelley[] = shelleyWitnesses.map(({publicKey, signature}) => [
     publicKey,
     signature,
-    encodeCBOR,
-  }
+  ])
+  return txWitnessesShelley
 }
 
-function ShelleyTxWitnessByron(
-  publicKey: Buffer,
-  signature: Buffer,
-  chaincode: Buffer,
-  address_attributes: any
-): _TxWitnessByron {
-  function encodeCBOR(encoder) {
-    return encoder.pushAny([publicKey, signature, chaincode, address_attributes])
-  }
+function TxWitnessesByron(byronWitnesses: _ByronWitness[]): TxWitnessByron[] {
+  const txWitnessesByron: TxWitnessByron[] = byronWitnesses.map(
+    ({publicKey, signature, chainCode, addressAttributes}) => [
+      publicKey,
+      signature,
+      chainCode,
+      addressAttributes,
+    ]
+  )
+  return txWitnessesByron
+}
 
-  return {
-    publicKey,
-    signature,
-    chaincode,
-    address_attributes,
-    encodeCBOR,
+function ShelleyTxWitnesses(
+  byronWitnesses: _ByronWitness[],
+  shelleyWitnesses: _ShelleyWitness[]
+): TxWitnesses {
+  const txWitnesses: TxWitnesses = new Map()
+  if (byronWitnesses.length > 0) {
+    txWitnesses.set(TxWitnessKey.BYRON, TxWitnessesByron(byronWitnesses))
   }
+  if (shelleyWitnesses.length > 0) {
+    txWitnesses.set(TxWitnessKey.SHELLEY, TxWitnessesShelley(shelleyWitnesses))
+  }
+  return txWitnesses
 }
 
 function ShelleySignedTransactionStructured(
   txAux: _TxAux,
-  witnesses: any,
-  meta: Buffer | null
+  txWitnesses: TxWitnesses,
+  txMeta: Buffer | null
 ): _TxSigned {
-  function getId() {
+  function getId(): HexString {
     return txAux.getId()
   }
 
   function encodeCBOR(encoder) {
-    return encoder.pushAny([txAux, witnesses, meta])
+    return encoder.pushAny([txAux, txWitnesses, txMeta])
   }
 
   return {
     getId,
-    witnesses,
-    txAux,
     encodeCBOR,
   }
 }
 
-function ShelleyPoolRegistrationCertificate(certificate: _Certificate) {
-  const {type, poolRegistrationParams: poolParams} = certificate
-  const txPoolRegistrationCertificate = certificate.poolRegistrationParams
-    ? [
-      type,
-      Buffer.from(poolParams.poolKeyHashHex, 'hex'),
-      Buffer.from(poolParams.vrfKeyHashHex, 'hex'),
-      parseInt(poolParams.pledgeStr, 10),
-      parseInt(poolParams.costStr, 10),
-      new Tagged(
-        30,
-        [
-          parseInt(poolParams.margin.numeratorStr, 10),
-          parseInt(poolParams.margin.denominatorStr, 10),
-        ],
-        null
-      ),
-      Buffer.from(poolParams.rewardAccountHex, 'hex'),
-      poolParams.poolOwners.map((ownerObj) => {
-        if (ownerObj.stakingKeyHashHex) {
-          return Buffer.from(ownerObj.stakingKeyHashHex, 'hex')
-        }
-        // else is a path owner and has pubKeyHex
-        return Buffer.from(ownerObj.pubKeyHex, 'hex')
-      }),
-      poolParams.relays.map((relay) => {
-        switch (relay.type) {
-          case 0:
-            return [
-              relay.type,
-              relay.params.portNumber,
-              relay.params.ipv4 ? ipv4AddressToBuf(relay.params.ipv4) : null,
-              relay.params.ipv6 ? ipv6AddressToBuf(relay.params.ipv6) : null,
-            ]
-          case 1:
-            return [relay.type, relay.params.portNumber, relay.params.dnsName]
-          case 2:
-            return [relay.type, relay.params.dnsName]
-          default:
-            return []
-        }
-      }),
-      poolParams.metadata
-        ? [
-          poolParams.metadata.metadataUrl,
-          Buffer.from(poolParams.metadata.metadataHashHex, 'hex'),
-        ]
-        : null,
-    ]
-    : []
-  return txPoolRegistrationCertificate
-}
+// function ShelleyPoolRegistrationCertificate(certificate: _Certificate) {
+//   const {type, poolRegistrationParams: poolParams} = certificate
+//   const txPoolRegistrationCertificate = certificate.poolRegistrationParams
+//     ? [
+//       type,
+//       Buffer.from(poolParams.poolKeyHashHex, 'hex'),
+//       Buffer.from(poolParams.vrfKeyHashHex, 'hex'),
+//       parseInt(poolParams.pledgeStr, 10),
+//       parseInt(poolParams.costStr, 10),
+//       new Tagged(
+//         30,
+//         [
+//           parseInt(poolParams.margin.numeratorStr, 10),
+//           parseInt(poolParams.margin.denominatorStr, 10),
+//         ],
+//         null
+//       ),
+//       Buffer.from(poolParams.rewardAccountHex, 'hex'),
+//       poolParams.poolOwners.map((ownerObj) => {
+//         if (ownerObj.stakingKeyHashHex) {
+//           return Buffer.from(ownerObj.stakingKeyHashHex, 'hex')
+//         }
+//         // else is a path owner and has pubKeyHex
+//         return Buffer.from(ownerObj.pubKeyHex, 'hex')
+//       }),
+//       poolParams.relays.map((relay) => {
+//         switch (relay.type) {
+//           case 0:
+//             return [
+//               relay.type,
+//               relay.params.portNumber,
+//               relay.params.ipv4 ? ipv4AddressToBuf(relay.params.ipv4) : null,
+//               relay.params.ipv6 ? ipv6AddressToBuf(relay.params.ipv6) : null,
+//             ]
+//           case 1:
+//             return [relay.type, relay.params.portNumber, relay.params.dnsName]
+//           case 2:
+//             return [relay.type, relay.params.dnsName]
+//           default:
+//             return []
+//         }
+//       }),
+//       poolParams.metadata
+//         ? [
+//           poolParams.metadata.metadataUrl,
+//           Buffer.from(poolParams.metadata.metadataHashHex, 'hex'),
+//         ]
+//         : null,
+//     ]
+//     : []
+//   return txPoolRegistrationCertificate
+// }
 
 export {
   ShelleyTxAux,
-  ShelleyTxWitnessByron,
-  ShelleyTxWitnessShelley,
+  ShelleyTxWitnesses,
   ShelleySignedTransactionStructured,
   ShelleyTxInputs,
   ShelleyTxOutputs,

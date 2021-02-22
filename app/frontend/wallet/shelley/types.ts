@@ -14,26 +14,14 @@ export type _TxAux = {
   encodeCBOR: encodeCBORFn
 }
 
-export type _TxWitnessShelley = {
-  publicKey: Buffer
-  signature: Buffer
-  encodeCBOR: encodeCBORFn
-}
-
-export type _TxWitnessByron = {
-  publicKey: Buffer
-  signature: Buffer
-  chaincode: Buffer
-  // eslint-disable-next-line camelcase
-  address_attributes: any
-  encodeCBOR: any
-}
-
 export type _TxSigned = {
   getId: () => HexString
-  witnesses: any[]
-  txAux: any
   encodeCBOR: encodeCBORFn
+}
+
+export type _SignedTx = {
+  txBody: HexString
+  txHash: HexString
 }
 
 // TX
@@ -74,15 +62,15 @@ export type TxWithdrawals = Map<Buffer, Lovelace>
 
 export type TxStakingKeyRegistrationCert = [
   TxCertificateKey.STAKING_KEY_REGISTRATION,
-  [number, Buffer]
+  TxStakeCredential
 ]
 
 export type TxStakingKeyDeregistrationCert = [
   TxCertificateKey.STAKING_KEY_DEREGISTRATION,
-  [number, Buffer]
+  TxStakeCredential
 ]
 
-export type TxDelegationCert = [TxCertificateKey.DELEGATION, [number, Buffer], Buffer]
+export type TxDelegationCert = [TxCertificateKey.DELEGATION, TxStakeCredential, Buffer]
 
 // prettier-ignore
 export type TxSingleHostIPRelay = [
@@ -119,3 +107,24 @@ export type TxCertificate =
   | TxStakepoolRegistrationCert
   | TxStakingKeyDeregistrationCert
   | TxStakingKeyRegistrationCert
+
+export type TxWitnessByron = [Buffer, Buffer, Buffer, Buffer]
+
+export type TxWitnessShelley = [Buffer, Buffer]
+
+export type _SignedTxDecoded = [
+  Map<TxBodyKey, any>,
+  Map<TxWitnessKey, Array<TxWitnessByron | TxWitnessShelley>>,
+  Buffer | null
+]
+
+export type _UnsignedTxDecoded = [Map<TxBodyKey, any>, Buffer | null]
+
+export type TxWitnesses = Map<TxWitnessKey, Array<TxWitnessByron | TxWitnessShelley>>
+
+export enum TxStakeCredentialType {
+  ADDR_KEYHASH = 0,
+  // SCRIPTHASH = 1,
+}
+
+export type TxStakeCredential = [TxStakeCredentialType, Buffer]

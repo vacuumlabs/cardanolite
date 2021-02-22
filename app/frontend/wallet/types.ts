@@ -59,3 +59,15 @@ export type _Withdrawal = {
   stakingAddress: _Address
   rewards: Lovelace
 }
+
+export type _ShelleyWitness = {
+  publicKey: Buffer
+  signature: Buffer
+}
+
+export type _ByronWitness = {
+  publicKey: Buffer
+  signature: Buffer
+  chainCode: Buffer
+  addressAttributes: any // TODO:
+}

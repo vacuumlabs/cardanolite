@@ -4,11 +4,7 @@ import Ledger, {AddressTypeNibbles} from '@cardano-foundation/ledgerjs-hw-app-ca
 import {encode} from 'borc'
 import CachedDeriveXpubFactory from '../helpers/CachedDeriveXpubFactory'
 import debugLog from '../../helpers/debugLog'
-import {
-  ShelleyTxWitnessShelley,
-  ShelleyTxWitnessByron,
-  ShelleySignedTransactionStructured,
-} from './shelley-transaction'
+import {ShelleySignedTransactionStructured} from './shelley-transaction'
 import * as platform from 'platform'
 import {hasRequiredVersion} from './helpers/version-check'
 import {PoolParams} from './helpers/poolCertificateUtils'

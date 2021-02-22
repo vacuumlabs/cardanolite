@@ -3,8 +3,10 @@ import PseudoRandom from './helpers/PseudoRandom'
 import {DEFAULT_TTL_SLOTS, MAX_INT32} from './constants'
 import NamedError from '../helpers/NamedError'
 import {
+  AddressToPathMapper,
   AddressToPathMapping,
   AddressWithMeta,
+  BIP32Path,
   CryptoProvider,
   Lovelace,
   StakingHistoryObject,
@@ -125,7 +127,7 @@ const MyAddresses = ({
     return (address) => mapping[address]
   }
 
-  function fixedPathMapper() {
+  function fixedPathMapper(): AddressToPathMapper {
     const mappingLegacy = {
       ...legacyIntManager.getAddressToAbsPathMapping(),
       ...legacyExtManager.getAddressToAbsPathMapping(),
@@ -140,7 +142,7 @@ const MyAddresses = ({
     for (const key in mappingShelley) {
       fixedShelley[bechAddressToHex(key)] = mappingShelley[key]
     }
-    return (address) => {
+    return (address: _Address) => {
       return mappingLegacy[address] || fixedShelley[address] || mappingShelley[address]
     }
   }
@@ -239,7 +241,7 @@ const Account = ({
 
   async function signTxAux(txAux: _TxAux) {
     const signedTx = await cryptoProvider
-      .signTx(txAux, [], myAddresses.fixedPathMapper())
+      .signTx(txAux, myAddresses.fixedPathMapper())
       .catch((e) => {
         throw NamedError('TransactionRejectedWhileSigning', {message: e.message})
       })
