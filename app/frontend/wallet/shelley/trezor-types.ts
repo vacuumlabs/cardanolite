@@ -96,3 +96,56 @@ export const enum TrezorCryptoProviderFeature {
   MULTI_ASSET,
   ALLEGRA, // this includes optional TTL and validity interval start
 }
+
+export type TrezorFailureResponse = {
+  success: false
+  payload: {
+    error: string
+  }
+}
+
+export type TrezorSignTxResponse =
+  | {
+      success: true
+      payload: {
+        hash: string
+        serializedTx: string
+      }
+    }
+  | TrezorFailureResponse
+
+export type TrezorGetAddressResponse =
+  | {
+      success: true
+      payload: any
+    }
+  | TrezorFailureResponse
+
+export type TrezorGetPublicKeyResponse =
+  | {
+      success: true
+      payload: [
+        {
+          path: Array<number>
+          serializedPath: string
+          publicKey: string
+          node: any
+          hdPassphrase: string
+        }, // account 1
+        {
+          path: Array<number>
+          serializedPath: string
+          publicKey: string
+          node: any
+          rootHDPassphrase: string
+        }, // account 2
+        {
+          path: Array<number>
+          serializedPath: string
+          publicKey: string
+          node: any
+          hdPassphrase: string
+        } // account 3
+      ]
+    }
+  | TrezorFailureResponse

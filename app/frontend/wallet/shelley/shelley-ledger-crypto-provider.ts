@@ -16,6 +16,8 @@ import {
   isShelleyPath,
   isShelleyFormat,
   base58AddressToHex,
+  xpub2pub,
+  xpub2ChainCode,
 } from './helpers/addresses'
 
 import derivationSchemes from '../helpers/derivation-schemes'
@@ -159,7 +161,7 @@ const ShelleyLedgerCryptoProvider = async ({
   ): Promise<void> {
     try {
       await ledger.showAddress(
-        AddressTypeNibbles.BASE,
+        AddressTypeNibbles.BASE, // TODO: retrieve from the address
         network.networkId,
         absDerivationPath,
         stakingPath
@@ -197,7 +199,7 @@ const ShelleyLedgerCryptoProvider = async ({
       : {
         amountStr: `${output.coins}`,
         tokenBundle: [],
-        addressTypeNibble: 0,
+        addressTypeNibble: AddressTypeNibbles.BASE,
         spendingPath: output.spendingPath,
         stakingPath: output.stakingPath,
       }
@@ -229,13 +231,12 @@ const ShelleyLedgerCryptoProvider = async ({
     }
   }
 
-  const xpub2pub = (xpub: Buffer) => xpub.slice(0, 32) // TODO: export from addresses
-
   const prepareByronWitness = async (witness: LedgerWitness): Promise<_ByronWitness> => {
     const xpub = await deriveXpub(witness.path)
     const publicKey = xpub2pub(xpub)
-    const chainCode = xpub.slice(32, 64) // TODO: xpub to chainCode helper
-    // TODO: unless we create pathToAddressMapper we cant get this from cardano-crypto
+    const chainCode = xpub2ChainCode(xpub)
+    // only v1 witnesses has address atributes
+    // since ledger is v2 they are always {}
     const addressAttributes = encode({})
     const signature = Buffer.from(witness.witnessSignatureHex, 'hex')
     return {

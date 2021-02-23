@@ -80,7 +80,8 @@ const translations = {
 
   TrezorRejected: () => 'TrezorRejected: Operation rejected by the Trezor hardware wallet.',
   TrezorSignTxError: ({message}) => `TrezorSignTxError: ${message}`,
-  TrezorError: ({message}) => `TrezorError: ${message}`,
+  TrezorError: ({message}) =>
+    `TrezorError: Trezor operation failed, please make sure ad blockers are switched off for this site and you are using the latest version of Trezor firmware. ${message}`,
   LedgerOperationError: ({message}) =>
     `LedgerOperationError: ${message}. Please make sure you are using the latest version of the Cardano application.`,
 
