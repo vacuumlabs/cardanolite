@@ -14,7 +14,18 @@ import {
   HexString,
   AddressToPathMapper,
 } from '../../types'
-import {Network, OutputType, _Certificate, _Input, _Output, _Withdrawal} from '../types'
+import {
+  Network,
+  OutputType,
+  _Certificate,
+  _DelegationCertificate,
+  _Input,
+  _Output,
+  _StakepoolRegistrationCertificate,
+  _StakingKeyDeregistrationCertificate,
+  _StakingKeyRegistrationCertificate,
+  _Withdrawal,
+} from '../types'
 import {
   TrezorAddressParameters,
   TrezorGetAddressResponse,
@@ -184,7 +195,7 @@ const ShelleyTrezorCryptoProvider = async ({
   }
 
   function prepareStakingKeyRegistrationCertificate(
-    certificate: _Certificate,
+    certificate: _StakingKeyRegistrationCertificate | _StakingKeyDeregistrationCertificate,
     path: BIP32Path
   ): TrezorTxCertificate {
     return {
@@ -194,7 +205,7 @@ const ShelleyTrezorCryptoProvider = async ({
   }
 
   function prepareDelegationCertificate(
-    certificate: _Certificate,
+    certificate: _DelegationCertificate,
     path: BIP32Path
   ): TrezorTxCertificate {
     return {
@@ -205,7 +216,7 @@ const ShelleyTrezorCryptoProvider = async ({
   }
 
   function preparePoolRegistrationCertificate(
-    certificate: _Certificate,
+    certificate: _StakepoolRegistrationCertificate,
     path: BIP32Path
   ): TrezorTxCertificate {
     return null // TODO:

@@ -29,15 +29,20 @@ import {
   HexString,
   DerivationScheme,
   AddressToPathMapper,
+  CertificateType,
 } from '../../types'
 import {
   Network,
   OutputType,
   _ByronWitness,
   _Certificate,
+  _DelegationCertificate,
   _Input,
   _Output,
   _ShelleyWitness,
+  _StakepoolRegistrationCertificate,
+  _StakingKeyDeregistrationCertificate,
+  _StakingKeyRegistrationCertificate,
   _Withdrawal,
 } from '../types'
 import {
@@ -205,19 +210,55 @@ const ShelleyLedgerCryptoProvider = async ({
       }
   }
 
+  function prepareStakingKeyRegistrationCertificate(
+    certificate: _StakingKeyRegistrationCertificate | _StakingKeyDeregistrationCertificate,
+    path: BIP32Path
+  ): LedgerCertificate {
+    return {
+      type: certificate.type,
+      path,
+    }
+  }
+
+  function prepareDelegationCertificate(
+    certificate: _DelegationCertificate,
+    path: BIP32Path
+  ): LedgerCertificate {
+    return {
+      type: certificate.type,
+      poolKeyHashHex: certificate.poolHash,
+      path,
+    }
+  }
+
+  function prepareStakepoolRegistrationCertificate(
+    certificate: _StakepoolRegistrationCertificate,
+    path: BIP32Path
+  ): LedgerCertificate {
+    return {
+      type: certificate.type,
+      // TODO: prepare pool registration params
+      poolRegistrationParams: certificate.poolRegistrationParams,
+      path,
+    }
+  }
+
   function prepareCertificate(
     certificate: _Certificate,
     addressToAbsPathMapper: AddressToPathMapper
   ): LedgerCertificate {
-    return {
-      type: certificate.type,
-      // path:
-      //   certificate.type !== CertificateType.STAKEPOOL_REGISTRATION
-      //     ? addressToAbsPathMapper(certificate.accountAddress)
-      //     : null,
-      path: addressToAbsPathMapper(certificate.stakingAddress),
-      poolKeyHashHex: certificate.poolHash,
-      poolRegistrationParams: certificate.poolRegistrationParams,
+    const path = addressToAbsPathMapper(certificate.stakingAddress)
+    switch (certificate.type) {
+      case CertificateType.STAKING_KEY_REGISTRATION:
+        return prepareStakingKeyRegistrationCertificate(certificate, path)
+      case CertificateType.STAKING_KEY_DEREGISTRATION:
+        return prepareStakingKeyRegistrationCertificate(certificate, path)
+      case CertificateType.DELEGATION:
+        return prepareDelegationCertificate(certificate, path)
+      case CertificateType.STAKEPOOL_REGISTRATION:
+        return prepareStakepoolRegistrationCertificate(certificate, path)
+      default:
+        throw NamedError('InvalidCertificateType')
     }
   }
 

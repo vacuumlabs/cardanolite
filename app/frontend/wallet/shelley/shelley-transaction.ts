@@ -88,7 +88,9 @@ function ShelleyTxCertificates(certificates: _Certificate[]): TxCertificate[] {
   const txCertificates: TxCertificate[] = certificates.map((certificate) => {
     // TODO: helper for getting stakingKeyHash from address
     const stakingKeyHash: Buffer = bech32.decode(certificate.stakingAddress).data.slice(1)
-    const poolHash = certificate.poolHash && Buffer.from(certificate.poolHash, 'hex')
+    // TODO: switch
+    const poolHash =
+      certificate.type === CertificateType.DELEGATION && Buffer.from(certificate.poolHash, 'hex')
     const stakeCredential: TxStakeCredential = [TxStakeCredentialType.ADDR_KEYHASH, stakingKeyHash]
 
     const encodedCertsTypes: {[key in CertificateType]: TxCertificate} = {

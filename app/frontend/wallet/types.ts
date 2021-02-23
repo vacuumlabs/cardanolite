@@ -55,11 +55,32 @@ export type _Output =
       stakingPath: BIP32Path
     }
 
-export type _Certificate = {
-  type: CertificateType
-  poolHash?: string
+export type _Certificate =
+  | _StakingKeyRegistrationCertificate
+  | _StakingKeyDeregistrationCertificate
+  | _DelegationCertificate
+  | _StakepoolRegistrationCertificate
+
+export type _StakingKeyRegistrationCertificate = {
+  type: CertificateType.STAKING_KEY_REGISTRATION
   stakingAddress: _Address
-  poolRegistrationParams?: any
+}
+
+export type _StakingKeyDeregistrationCertificate = {
+  type: CertificateType.STAKING_KEY_DEREGISTRATION
+  stakingAddress: _Address
+}
+
+export type _DelegationCertificate = {
+  type: CertificateType.DELEGATION
+  stakingAddress: _Address
+  poolHash: string
+}
+
+export type _StakepoolRegistrationCertificate = {
+  type: CertificateType.STAKEPOOL_REGISTRATION
+  stakingAddress: _Address
+  poolRegistrationParams: any
 }
 
 export type _Withdrawal = {

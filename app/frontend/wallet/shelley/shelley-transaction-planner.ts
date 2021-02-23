@@ -23,7 +23,16 @@ import getDonationAddress from '../../helpers/getDonationAddress'
 import {base58, bech32} from 'cardano-crypto.js'
 import {isShelleyFormat, isV1Address} from './helpers/addresses'
 import {transformPoolParamsTypes} from './helpers/poolCertificateUtils'
-import {OutputType, UTxO, _Certificate, _Input, _Output, _Withdrawal} from '../types'
+import {
+  OutputType,
+  UTxO,
+  _Certificate,
+  _DelegationCertificate,
+  _Input,
+  _Output,
+  _StakingKeyRegistrationCertificate,
+  _Withdrawal,
+} from '../types'
 
 type TxPlanDraft = {
   outputs: _Output[]
@@ -255,18 +264,19 @@ const prepareTxPlanDraft = (txPlanArgs: TxPlanArgs): TxPlanDraft => {
   const prepareDelegationTx = (txPlanArgs: DelegateAdaTxPlanArgs): TxPlanDraft => {
     const certificates: _Certificate[] = []
     if (!txPlanArgs.isStakingKeyRegistered) {
-      certificates.push({
+      const registrationCertificate: _StakingKeyRegistrationCertificate = {
         type: CertificateType.STAKING_KEY_REGISTRATION,
         stakingAddress: txPlanArgs.stakingAddress,
-        poolHash: null,
-      })
+      }
+      certificates.push(registrationCertificate)
     }
     if (txPlanArgs.poolHash) {
-      certificates.push({
+      const delegationCertificate: _DelegationCertificate = {
         type: CertificateType.DELEGATION,
         stakingAddress: txPlanArgs.stakingAddress,
         poolHash: txPlanArgs.poolHash,
-      })
+      }
+      certificates.push(delegationCertificate)
     }
     return {
       outputs: [],
