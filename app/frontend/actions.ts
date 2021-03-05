@@ -37,7 +37,15 @@ import {parseUnsignedTx} from './helpers/cliParser/parser'
 import {TxPlan, unsignedPoolTxToTxPlan} from './wallet/shelley/shelley-transaction-planner'
 import getDonationAddress from './helpers/getDonationAddress'
 import {localStorageVars} from './localStorage'
-import {AccountInfo, Ada, Lovelace, CryptoProviderFeature, _Address, TxType, AuthMethodType} from './types'
+import {
+  AccountInfo,
+  Ada,
+  Lovelace,
+  CryptoProviderFeature,
+  _Address,
+  TxType,
+  AuthMethodType,
+} from './types'
 import {MainTabs} from './constants'
 
 let wallet: ReturnType<typeof ShelleyWallet>
@@ -1377,12 +1385,12 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
 
   /* Pool Owner */
 
-  const deserializeTransactionFile = (file) => {
-    if (!file || !file.cborHex) {
+  const deserializeTransactionFile = (cborHex) => {
+    if (!cborHex) {
       throw NamedError('PoolRegInvalidFileFormat')
     }
 
-    const unsignedTxDecoded = decode(file.cborHex)
+    const unsignedTxDecoded = decode(cborHex)
     const parsedTx = parseUnsignedTx(unsignedTxDecoded)
     return parsedTx
   }
@@ -1395,8 +1403,8 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       loadingAction(state, 'Loading pool registration certificate...', {
         poolRegTxError: undefined,
       })
-      const fileJson = await JSON.parse(fileObj)
-      const deserializedTx = deserializeTransactionFile(fileJson)
+      const {cborHex, type: witnessType} = await JSON.parse(fileObj)
+      const deserializedTx = deserializeTransactionFile(cborHex)
       const deserializedTxValidationError = validatePoolRegUnsignedTx(deserializedTx)
       if (deserializedTxValidationError) {
         throw deserializedTxValidationError
@@ -1411,6 +1419,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
           ttl: deserializedTx.ttl,
           signature: null,
           plan: poolTxPlan,
+          witnessType,
         },
       })
     } catch (err) {
@@ -1450,6 +1459,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
         ttl: 0,
         signature: null,
         plan: null,
+        witnessType: null,
       },
       poolRegTxError: undefined,
     })
@@ -1492,12 +1502,17 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
   // TODO: move these below somewhere else since it has nothing to do with state
 
   // vacuumlabs/cardano-hw-cli
-  const transformSignatureToCliFormat = (signedTxCborHex) => {
+  const transformSignatureToCliFormat = (signedTxCborHex: string, witnessType: string) => {
     const [, witnesses] = decode(signedTxCborHex)
     // there can be only one witness since only one signing file was passed
     const [key, [data]]: any = Array.from(witnesses)[0]
     // enum TxWitnessKeys
-    const type = key === 0 ? 'TxWitness AllegraEra' : 'TxWitnessByron'
+    const witnessTypes = {
+      TxUnsignedShelley: 'TxWitnessShelley',
+      TxBodyAllegra: 'TxWitness AllegraEra',
+      TxBodyMary: 'TxWitness MaryEra',
+    }
+    const type = key === 0 ? witnessTypes[witnessType] : 'TxWitnessByron'
     return {
       type,
       description: '',
@@ -1505,8 +1520,11 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     }
   }
 
-  const downloadPoolSignature = (state) => {
-    const cliFormatWitness = transformSignatureToCliFormat(state.poolCertTxVars.signature.txBody)
+  const downloadPoolSignature = (state: State) => {
+    const cliFormatWitness = transformSignatureToCliFormat(
+      state.poolCertTxVars.signature.txBody,
+      state.poolCertTxVars.witnessType
+    )
     const signatureExport = JSON.stringify(cliFormatWitness)
     const blob = new Blob([signatureExport], {
       type: 'application/json;charset=utf-8',

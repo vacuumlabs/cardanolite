@@ -119,6 +119,7 @@ export interface State {
     ttl: any
     signature: any
     plan: any
+    witnessType: any
   }
   poolRegTxError?: any
 
@@ -246,6 +247,7 @@ const initialState: State = {
     ttl: 0,
     signature: null,
     plan: null,
+    witnessType: null,
   },
 
   // accounts info
