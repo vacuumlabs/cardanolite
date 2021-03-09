@@ -116,7 +116,6 @@ export interface State {
   // accounts info
   accountsInfo: Array<AccountInfo>
   maxAccountIndex: number
-  shouldNumberAccountsFromOne: boolean
   sourceAccountIndex: number
   activeAccountIndex: number
   targetAccountIndex: number
@@ -125,8 +124,6 @@ export interface State {
 
   shouldShowSendTransactionModal: boolean
   shouldShowDelegationModal: boolean
-  sendTransactionTitle: string
-  delegationTitle: string
 
   currentDelegation?: {
     // TODO: probably useless
@@ -274,7 +271,6 @@ const initialState: State = {
     },
   ],
   maxAccountIndex: 0,
-  shouldNumberAccountsFromOne: false,
   sourceAccountIndex: 0,
   activeAccountIndex: 0,
   targetAccountIndex: 0,
@@ -283,8 +279,6 @@ const initialState: State = {
 
   shouldShowSendTransactionModal: false,
   shouldShowDelegationModal: false,
-  sendTransactionTitle: '',
-  delegationTitle: '',
 }
 export type SetStateFn = (newState: Partial<State>) => void
 export type GetStateFn = () => State
