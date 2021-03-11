@@ -264,7 +264,9 @@ const initialState: State = {
       stakingHistory: [],
       visibleAddresses: [],
       poolRecommendation: {
-        isInRecommendedPoolSet: true,
+        isInRecommendedPoolSet: false,
+        isInPrivatePoolSet: false,
+        isRecommendationPrivate: false,
         recommendedPoolHash: '',
         status: '',
         shouldShowSaturatedBanner: false,
