@@ -33,7 +33,7 @@ import {
   TxStakingKeyRegistrationCert,
   TxWithdrawal,
 } from '../types'
-import {aggregateTokens, formatToken} from '../helpers/tokenFormater'
+import {aggregateTokens, formatToken, getTokenDifference} from '../helpers/tokenFormater'
 import distinct from '../../helpers/distinct'
 
 type TxPlanDraft = {
@@ -203,9 +203,7 @@ export function computeTxPlan(
   const totalInputTokens = aggregateTokens(inputs.map(({tokens}) => tokens))
   const deposit = computeRequiredDeposit(certificates)
   const totalOutput = outputs.reduce((acc, {coins}) => acc + coins, 0) + deposit + totalRewards
-  const totalOutputTokens = aggregateTokens(outputs.map(({tokens}) => tokens)).map((token) =>
-    formatToken({...token, quantity: `${token.quantity}`}, -1)
-  )
+  const totalOutputTokens = aggregateTokens(outputs.map(({tokens}) => tokens))
 
   // total amount of lovelace that had to be added to token-containing outputs
   const additionalLovelaceAmount = outputs.reduce(
@@ -213,12 +211,7 @@ export function computeTxPlan(
     0
   ) as Lovelace
 
-  // TODO: we should have a helper function that calculates difference
-  // and not abuse the formatToken function
-  const tokenDifference = aggregateTokens([totalInputTokens, totalOutputTokens]).filter(
-    (token) => token.quantity !== 0
-  )
-
+  const tokenDifference = getTokenDifference(totalInputTokens, totalOutputTokens)
   // Cannot construct transaction plan, not enought tokens
   if (tokenDifference.some(({quantity}) => quantity < 0)) {
     throw NamedError('CannotConstructTxPlan')
