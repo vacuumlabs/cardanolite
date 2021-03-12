@@ -48,6 +48,8 @@ CryptoProviderParams): Promise<CryptoProvider> => {
 
   const getDerivationScheme = () => derivationScheme
 
+  const getVersion = () => derivationScheme.type
+
   const deriveXpub = CachedDeriveXpubFactory(
     derivationScheme,
     config.shouldExportPubKeyBulk,
@@ -170,6 +172,7 @@ CryptoProviderParams): Promise<CryptoProvider> => {
     ensureFeatureIsSupported,
     isFeatureSupported,
     displayAddressForPath,
+    getVersion,
   }
 }
 

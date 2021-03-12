@@ -43,6 +43,7 @@ const getStats = async () => {
       'sentTotal:monthly': [],
       'sentTotal:daily': [],
     },
+    walletVersions: {},
   }
 
   const response = []
@@ -69,6 +70,10 @@ const getStats = async () => {
     let period = nameTokens[1]
     if (subject !== 'visits') {
       period = `${period}:${nameTokens[2]}`
+    }
+
+    if (stats[subject] && !stats[subject][period]) {
+      stats[subject][period] = []
     }
 
     if (stats[subject] && stats[subject][period]) {
