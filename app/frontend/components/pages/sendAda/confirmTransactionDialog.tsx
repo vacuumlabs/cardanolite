@@ -9,6 +9,7 @@ import AddressVerification from '../../common/addressVerification'
 import tooltip from '../../common/tooltip'
 import {
   DelegateTransactionSummary,
+  CancelDelegationTransactionSummary,
   Lovelace,
   SendTransactionSummary,
   TransactionSummary,
@@ -121,6 +122,47 @@ const DelegateReview = ({
   )
 }
 
+// TODO: decide what should be displayed (for now copy paste of `DelegateReview`)
+// (reuse `DelegateReview` if it should stay mostly the same)
+const CancelDelegationReview = ({
+  transactionSummary,
+}: {
+  transactionSummary: TransactionSummary & CancelDelegationTransactionSummary
+}) => {
+  const {stakePool, deposit, fee} = transactionSummary
+  const total = (fee + deposit) as Lovelace
+  return (
+    <Fragment>
+      <div className="review">
+        <div className="review-label">Pool ID</div>
+        <div className="review-amount">{stakePool.poolHash}</div>
+        <div className="review-label">Pool Name</div>
+        <div className="review-amount">{stakePool.name}</div>
+        <div className="review-label">Ticker</div>
+        <div className="review-amount">{stakePool.ticker}</div>
+        <div className="review-label">Tax</div>
+        <div className="review-amount">{stakePool.margin && stakePool.margin * 100}%</div>
+        <div className="review-label">Fixed cost</div>
+        <div className="review-amount">{stakePool.fixedCost && printAda(stakePool.fixedCost)}</div>
+        <div className="review-label">Homepage</div>
+        <div className="review-amount">{stakePool.homepage}</div>
+        <div className="ada-label">Deposit</div>
+        <div className="review-fee">
+          {printAda(deposit)}
+          <a {...tooltip('Returned deposit for address stake key registration.', true)}>
+            <span className="show-info">{''}</span>
+          </a>
+        </div>
+        <div className="ada-label">Fee</div>
+        <div className="review-fee">{printAda(transactionSummary.fee as Lovelace)}</div>
+        {/* TODO: Hide ADA symbol when handling tokens */}
+        <div className="ada-label">Total</div>
+        <div className="review-total">{printAda(total)}</div>
+      </div>
+    </Fragment>
+  )
+}
+
 const WithdrawReview = ({
   transactionSummary,
 }: {
@@ -200,6 +242,7 @@ const ConfirmTransactionDialog = ({
     [TxType.SEND_ADA]: 'Transaction review',
     [TxType.CONVERT_LEGACY]: 'Stakable balance conversion review',
     [TxType.WITHDRAW]: 'Rewards withdrawal review',
+    [TxType.CANCEL_DELEGATION]: 'Cancel delegation',
     // crossAccount: 'Transaction between accounts review',
   }
   // TODO: refactor, remove txConfirmType
@@ -222,6 +265,10 @@ const ConfirmTransactionDialog = ({
 
         {transactionSummary.type === TxType.DELEGATE && (
           <DelegateReview transactionSummary={transactionSummary} />
+        )}
+
+        {transactionSummary.type === TxType.CANCEL_DELEGATION && (
+          <CancelDelegationReview transactionSummary={transactionSummary} />
         )}
 
         {transactionSummary.type === TxType.SEND_ADA && (

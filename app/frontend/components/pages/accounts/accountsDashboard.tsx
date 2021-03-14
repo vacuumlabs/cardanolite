@@ -142,7 +142,10 @@ const AccountsDashboard = ({
                 <AccountTile
                   key={accountInfo.accountIndex}
                   accountIndex={accountInfo.accountIndex}
-                  ticker={accountInfo.shelleyAccountInfo.delegation.ticker}
+                  ticker={
+                    accountInfo.shelleyAccountInfo.hasStakingKey &&
+                    accountInfo.shelleyAccountInfo.delegation.ticker
+                  }
                   availableBalance={accountInfo.balance}
                   rewardsBalance={accountInfo.shelleyBalances.rewardsAccountBalance}
                   shouldShowSaturatedBanner={

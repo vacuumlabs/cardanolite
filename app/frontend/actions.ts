@@ -52,6 +52,7 @@ import {
   SendTransactionSummary,
   WithdrawTransactionSummary,
   DelegateTransactionSummary,
+  CancelDelegationTransactionSummary,
 } from './types'
 import {MainTabs} from './constants'
 
@@ -490,6 +491,7 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
       | SendTransactionSummary
       | WithdrawTransactionSummary
       | DelegateTransactionSummary
+      | CancelDelegationTransactionSummary
   ) => {
     setState({
       sendTransactionSummary: {
@@ -1395,6 +1397,33 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     resetPoolCertificateTxVars(state)
   }
 
+  const cancelDelegation = async (): Promise<void> => {
+    const state = getState()
+    const sourceAccount = getSourceAccountInfo(state)
+
+    loadingAction(state, 'Preparing transaction...')
+    const txPlanResult = await prepareTxPlan({
+      txType: TxType.CANCEL_DELEGATION,
+      stakingAddress: sourceAccount.stakingAddress,
+    })
+
+    if (txPlanResult.success === true) {
+      const summary = {
+        type: TxType.CANCEL_DELEGATION,
+        deposit: txPlanResult.txPlan.deposit,
+        stakePool: sourceAccount.shelleyAccountInfo.delegation,
+      } as CancelDelegationTransactionSummary
+
+      setTransactionSummary(txPlanResult.txPlan, summary)
+      await confirmTransaction(getState(), 'deregister')
+    } else {
+      setErrorState('cancelDelegationError', txPlanResult.error, {
+        shouldShowTransactionErrorModal: true,
+      })
+    }
+    stopLoadingAction(state, {})
+  }
+
   return {
     loadingAction,
     stopLoadingAction,
@@ -1455,5 +1484,6 @@ export default ({setState, getState}: {setState: SetStateFn; getState: GetStateF
     openPoolCertificateTxModal,
     closePoolCertificateTxModal,
     signPoolCertificateTx,
+    cancelDelegation,
   }
 }

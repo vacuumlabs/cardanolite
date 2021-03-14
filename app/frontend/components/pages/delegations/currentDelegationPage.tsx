@@ -28,11 +28,22 @@ const CurrentDelegationPage = ({
   calculatingDelegationFee,
   nearestReward,
   currentDelegationReward,
+  hasStakingKey,
+  cancelDelegation,
 }) => {
+  const hasDelegated = hasStakingKey && Object.keys(pool).length
   return (
     <div className="current-delegation card">
-      <h2 className="card-title small-margin">Current Delegation</h2>
-      {Object.keys(pool).length ? (
+      <div className="current-delegation-header">
+        <h2 className="card-title small-margin">Current Delegation</h2>
+        {hasDelegated && (
+          <button className="button secondary cancel-delegation" onClick={cancelDelegation}>
+            Cancel delegation
+          </button>
+        )}
+      </div>
+
+      {hasDelegated ? (
         <div>
           <div className="current-delegation-wrapper">
             <div className="current-delegation-name">
@@ -128,6 +139,7 @@ const CurrentDelegationPage = ({
 export default connect(
   (state: State) => ({
     pool: getActiveAccountInfo(state).shelleyAccountInfo.delegation,
+    hasStakingKey: getActiveAccountInfo(state).shelleyAccountInfo.hasStakingKey,
     delegationValidationError: state.delegationValidationError,
     calculatingDelegationFee: state.calculatingDelegationFee,
     nearestReward: getActiveAccountInfo(state).shelleyAccountInfo.rewardDetails.nearest,

@@ -3350,6 +3350,20 @@ input:checked + .slider:before {
   color: black;
 }
 
+.current-delegration-header {
+  display: flex;
+  margin-bottom: 8px;
+}
+
+.current-delegation-header .cancel-delegation {
+  padding: 0 10px;
+  margin-left: 16px;
+}
+
+.current-delegation-header h2 {
+  display: inline;
+}
+
 .current-delegation-wrapper {
   display: grid;
   grid-template-columns: 50% 50%;

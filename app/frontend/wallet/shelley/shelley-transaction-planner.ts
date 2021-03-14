@@ -18,6 +18,7 @@ import {
   DelegateAdaTxPlanArgs,
   WithdrawRewardsTxPlanArgs,
   ConvertLegacyAdaTxPlanArgs,
+  DeregisterStakingKeyTxPlanArgs,
   Token,
   AssetFamily,
 } from '../../types'
@@ -374,6 +375,22 @@ const prepareTxPlanDraft = (txPlanArgs: TxPlanArgs): TxPlanDraft => {
     }
   }
 
+  const prepareDeregisterStakingKeyTx = (
+    txPlanArgs: DeregisterStakingKeyTxPlanArgs
+  ): TxPlanDraft => {
+    const certificates: TxCertificate[] = [
+      {
+        type: CertificateType.STAKING_KEY_DEREGISTRATION,
+        stakingAddress: txPlanArgs.stakingAddress,
+      },
+    ]
+    return {
+      outputs: [],
+      certificates,
+      withdrawals: [],
+    }
+  }
+
   const prepareWithdrawalTx = (txPlanArgs: WithdrawRewardsTxPlanArgs): TxPlanDraft => {
     const withdrawals: TxWithdrawal[] = []
     withdrawals.push({stakingAddress: txPlanArgs.stakingAddress, rewards: txPlanArgs.rewards})
@@ -389,6 +406,8 @@ const prepareTxPlanDraft = (txPlanArgs: TxPlanArgs): TxPlanDraft => {
       return prepareSendAdaTx(txPlanArgs)
     case TxType.DELEGATE:
       return prepareDelegationTx(txPlanArgs)
+    case TxType.CANCEL_DELEGATION:
+      return prepareDeregisterStakingKeyTx(txPlanArgs)
     case TxType.WITHDRAW:
       return prepareWithdrawalTx(txPlanArgs)
     case TxType.CONVERT_LEGACY:

@@ -145,6 +145,7 @@ export const enum TxType {
   CONVERT_LEGACY,
   DELEGATE,
   WITHDRAW,
+  CANCEL_DELEGATION,
 }
 
 export enum StakingHistoryItemType {
@@ -152,6 +153,7 @@ export enum StakingHistoryItemType {
   STAKING_REWARD,
   REWARD_WITHDRAWAL,
   STAKING_KEY_REGISTRATION,
+  STAKING_KEY_DEREGISTRATION,
 }
 
 export interface StakingHistoryObject {
@@ -225,11 +227,17 @@ export type DelegateAdaTxPlanArgs = {
   stakingAddress: Address
 }
 
+export type DeregisterStakingKeyTxPlanArgs = {
+  txType: TxType.CANCEL_DELEGATION
+  stakingAddress: Address
+}
+
 export type TxPlanArgs =
   | SendAdaTxPlanArgs
   | ConvertLegacyAdaTxPlanArgs
   | WithdrawRewardsTxPlanArgs
   | DelegateAdaTxPlanArgs
+  | DeregisterStakingKeyTxPlanArgs
 
 export type HostedPoolMetadata = {
   name: string
@@ -280,7 +288,12 @@ export type TransactionSummary = {
   type: TxType
   fee: Lovelace
   plan: TxPlan
-} & (SendTransactionSummary | WithdrawTransactionSummary | DelegateTransactionSummary)
+} & (
+  | SendTransactionSummary
+  | WithdrawTransactionSummary
+  | DelegateTransactionSummary
+  | CancelDelegationTransactionSummary
+)
 
 export type SendTransactionSummary = {
   type: TxType.SEND_ADA | TxType.CONVERT_LEGACY
@@ -288,6 +301,12 @@ export type SendTransactionSummary = {
   token: Token | null
   address: Address
   minimalLovelaceAmount: Lovelace
+}
+
+export type CancelDelegationTransactionSummary = {
+  type: TxType.CANCEL_DELEGATION
+  deposit: Lovelace
+  stakePool: any // TODO:
 }
 
 export type WithdrawTransactionSummary = {

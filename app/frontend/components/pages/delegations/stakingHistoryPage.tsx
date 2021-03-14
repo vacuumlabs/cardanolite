@@ -174,6 +174,9 @@ const StakingHistoryObjectToItem = {
   //   <StakingKeyRegistrationItem stakingKeyRegistration={x as StakingKeyRegistration} />
   // ),
   [StakingHistoryItemType.STAKING_KEY_REGISTRATION]: (x: StakingHistoryObject) => '',
+  /*[StakingHistoryItemType.STAKING_KEY_REGISTRATION]: (x: StakingHistoryObject) => (
+    <StakingKeyRegistrationItem stakingKeyRegistration={x as StakingKeyRegistration} />
+  ),*/
 }
 
 class StakingHistoryPage extends Component<Props> {
