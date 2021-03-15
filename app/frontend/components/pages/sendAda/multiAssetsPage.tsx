@@ -4,6 +4,7 @@ import {getSourceAccountInfo, State} from '../../../state'
 import {AssetFamily, Token} from '../../../types'
 import {assetNameHex2Readable} from '../../../wallet/shelley/helpers/addresses'
 import {FormattedAssetItem} from './sendAdaPage'
+import CopyOnClick from '../../common/copyOnClick'
 
 const MultiAssetsPage = () => {
   const {tokenBalance} = useSelector((state: State) => getSourceAccountInfo(state))
@@ -45,7 +46,15 @@ const MultiAssetsPage = () => {
                     </div>
                     <div className="multi-asset-amount">{formattedAmount}</div>
                   </div>
-                  <div className="multi-asset-page-policy">{formattedPolicy}</div>
+                  <div className="multi-asset-page-policy">
+                    <CopyOnClick
+                      value={asset.policyId}
+                      elementClass="copy"
+                      tooltipMessage="Policy id copied to clipboard"
+                    >
+                      {formattedPolicy}
+                    </CopyOnClick>
+                  </div>
                 </div>
               )
             }}
