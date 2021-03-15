@@ -3,7 +3,7 @@ import {useSelector} from '../../../helpers/connect'
 import {getSourceAccountInfo, State} from '../../../state'
 import {AssetFamily, Token} from '../../../types'
 import {assetNameHex2Readable} from '../../../wallet/shelley/helpers/addresses'
-import {FormattedAssetItem} from './sendAdaPage'
+import {FormattedAssetItem} from '../../common/asset'
 import CopyOnClick from '../../common/copyOnClick'
 
 const MultiAssetsPage = () => {

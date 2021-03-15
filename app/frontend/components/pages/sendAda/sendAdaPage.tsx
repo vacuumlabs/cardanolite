@@ -20,11 +20,11 @@ import {
   Token,
   TransactionSummary,
 } from '../../../types'
-import {AdaIcon, StarIcon} from '../../common/svg'
+import {AdaIcon} from '../../common/svg'
 import {parseCoins} from '../../../../frontend/helpers/validators'
 import {assetNameHex2Readable} from '../../../../frontend/wallet/shelley/helpers/addresses'
 import tooltip from '../../common/tooltip'
-import {LinkToAsset} from '../delegations/common'
+import {FormattedAssetItem} from '../../common/asset'
 
 const CalculatingFee = () => <div className="validation-message send">Calculating fee...</div>
 
@@ -74,45 +74,6 @@ type DropdownAssetItem = Token & {
   assetNameHex: string
   type: AssetFamily
   star?: boolean
-}
-
-// Use to share common formatting, but allow for usage in different layouts
-export const FormattedAssetItem = ({
-  type,
-  star,
-  assetName,
-  assetNameHex,
-  policyId,
-  quantity,
-  children,
-}: DropdownAssetItem & {
-  children: (props: {
-    starIcon: h.JSX.Element
-    formattedAssetName: h.JSX.Element | string
-    formattedAssetLink: h.JSX.Element
-    formattedAmount: string
-    formattedPolicy: h.JSX.Element
-  }) => h.JSX.Element
-}) => {
-  return children({
-    starIcon: star && <StarIcon />,
-    formattedAssetName: assetName || (
-      <span className="empty">
-        {'<'}no-name{'>'}
-      </span>
-    ),
-    formattedAssetLink: type === AssetFamily.TOKEN && (
-      <LinkToAsset policyIdHex={policyId} assetNameHex={assetNameHex} />
-    ),
-    formattedAmount:
-      type === AssetFamily.TOKEN ? `${quantity}` : printAda(Math.abs(quantity) as Lovelace),
-    formattedPolicy: policyId && (
-      <div className="multi-asset-hash">
-        <span className="ellipsis">{policyId.slice(0, -6)}</span>
-        <span>{policyId.slice(-6)}</span>
-      </div>
-    ),
-  })
 }
 
 const displayDropdownAssetItem = (props: DropdownAssetItem) => (
